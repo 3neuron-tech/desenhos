@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src https://qvkobehszslmcwyzejrc.supabase.co; base-uri 'none'; form-action 'none'">
+<title>Desenho</title>
+<script>window.DESENHO_PUBLICADO = {"url":"https://qvkobehszslmcwyzejrc.supabase.co","chave":"sb_publishable_sfxSzpB8j7MsJLL27owKvA_LrxLcFCt"};</script>
+<style>
+:root {
+  --tinta: #151515; --papel: #ffffff; --fundo: #f3f3f0; --grade: #dcdcd6; --suave: #6b6b66;
+  --azul: #1f5fbf;     --azul-f: #eaf1fb;
+  --verde: #2e7d32;    --verde-f: #eaf5eb;
+  --amarelo: #b07a0c;  --amarelo-f: #fff6d8;
+  --vermelho: #c0392b; --vermelho-f: #fcecea;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--fundo); color: var(--tinta); font: 13px/1.45 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
+#topo { position: sticky; top: 0; z-index: 2; background: var(--papel); border-bottom: 2px solid var(--tinta); }
+.l1 { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding: 8px 16px 6px; }
+h1 { margin: 0; font-size: 15px; }
+#versao { font: inherit; font-size: 12px; color: var(--suave); background: var(--papel); border: 1px solid var(--grade); border-radius: 0; padding: 1px 4px; }
+.legenda { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--suave); }
+.legenda span { display: inline-flex; align-items: center; gap: 5px; }
+.legenda i { display: inline-block; width: 12px; height: 12px; border: 1.5px solid; }
+.l2 { display: flex; padding: 0 16px; }
+.aba { border: 1.5px solid var(--tinta); border-bottom: 0; margin-right: -1.5px; padding: 4px 16px; background: var(--fundo); cursor: pointer; user-select: none; }
+.aba.ativa { background: var(--tinta); color: var(--papel); font-weight: 600; }
+#nota { padding: 10px 16px 0; font-size: 13.5px; max-width: 1400px; }
+#quadro { padding: 10px 16px 24px; overflow-x: auto; }
+#quadro svg { display: block; width: 100%; min-width: 1400px; height: auto; background: var(--papel); border: 1.5px solid var(--tinta); }
+#dica { position: fixed; z-index: 5; display: none; max-width: 380px; padding: 8px 10px; background: var(--papel); border: 1.5px solid var(--tinta); box-shadow: 4px 4px 0 rgba(0, 0, 0, .12); font-size: 12.5px; white-space: pre-line; pointer-events: none; }
+#erro { padding: 24px 16px; color: var(--vermelho); }
+.item { cursor: pointer; }
+.item:hover > .base { stroke: var(--azul); stroke-width: 2; }
+.item.ativo > .base { stroke: var(--azul); stroke-width: 3; }
+.acao { font: inherit; font-size: 12px; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; padding: 2px 10px; cursor: pointer; }
+.acao:hover { background: var(--tinta); color: var(--papel); }
+.acao:disabled { opacity: .5; cursor: default; }
+#quem { font-size: 12px; color: var(--suave); }
+.com-lateral #quadro { margin-right: 400px; }
+.com-lateral #quadro svg { min-width: 1100px; }
+#lateral { position: fixed; inset: 0 0 0 auto; z-index: 4; display: none; flex-direction: column; width: 400px; max-width: 100%; background: var(--papel); border-left: 2px solid var(--tinta); }
+#lateral.aberto { display: flex; }
+.lcab { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-bottom: 2px solid var(--tinta); }
+.lcab h2 { flex: 1; margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+#lcorpo { flex: 1; overflow-y: auto; padding: 12px 14px; }
+#lcorpo h3 { margin: 14px 0 8px; font-size: 12px; }
+.ldet { white-space: pre-line; overflow-wrap: anywhere; font-size: 12.5px; }
+.coment { margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--grade); }
+.coment.nosso { background: var(--amarelo-f); border-color: var(--amarelo); }
+.cq { display: flex; justify-content: space-between; gap: 10px; font-size: 11.5px; color: var(--suave); }
+.cq b { color: var(--tinta); }
+.ct { margin-top: 3px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.vazio { color: var(--suave); }
+.conversa { display: block; width: 100%; margin-bottom: 6px; padding: 8px 10px; font: inherit; text-align: left; background: var(--papel); border: 1px solid var(--grade); border-radius: 0; cursor: pointer; }
+.conversa:hover { border-color: var(--azul); }
+.conversa small { display: block; color: var(--suave); }
+#lform { padding: 10px 14px 12px; border-top: 2px solid var(--tinta); }
+#lform[hidden] { display: none; }
+#ltexto { display: block; width: 100%; padding: 6px 8px; font: inherit; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; resize: vertical; }
+.lacoes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; font-size: 12px; color: var(--suave); }
+#laviso { color: var(--vermelho); }
+.s { color: var(--vermelho); text-decoration: line-through; }
+.e { color: var(--verde); font-weight: 600; }
+.d { color: var(--amarelo); font-weight: 600; }
+code { font: 12px Consolas, monospace; }
+</style>
+</head>
+<body>
+<div id="topo">
+  <div class="l1">
+    <h1 id="titulo">Desenho</h1>
+    <select id="versao" title="Versões deste desenho; a mais nova abre primeiro"></select>
+    <span id="quem" hidden></span>
+    <button id="conversas" class="acao" hidden>Conversas</button>
+    <div class="legenda" id="legenda"></div>
+  </div>
+  <div class="l2" id="abas"></div>
+</div>
+<div id="nota"></div>
+<div id="quadro"></div>
+<div id="dica"></div>
+<aside id="lateral" aria-label="Detalhes e comentários">
+  <div class="lcab"><h2 id="ltitulo"></h2><button id="lfechar" class="acao" title="Fechar">✕</button></div>
+  <div id="lcorpo"></div>
+  <form id="lform" hidden>
+    <textarea id="ltexto" rows="3" maxlength="4000" placeholder="Escreva um comentário ou responda à pergunta"></textarea>
+    <div class="lacoes"><span id="laviso"></span><button type="submit" class="acao">Comentar</button></div>
+  </form>
+</aside>
+
+<!-- Ícones: traço de 1,6 na cor de quem usa (currentColor), grade de 24 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bucket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5.2 6.2C6.5 1.4 17.5 1.4 18.8 6.2"/><ellipse cx="12" cy="7.5" rx="8" ry="2.6"/><path d="M4 7.5l2 12.3c.3 1.3 2.9 2.2 6 2.2s5.7-.9 6-2.2L20 7.5"/></g></symbol>
+    <symbol id="i-pessoa" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21.5c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5"/></g></symbol>
+    <symbol id="i-grupo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20.5c0-3.8 2.9-6.5 6.5-6.5s6.5 2.7 6.5 6.5"/><circle cx="17.2" cy="9" r="2.7"/><path d="M16.4 14.3c3.2-.3 5.6 1.9 5.6 5.2"/></g></symbol>
+    <symbol id="i-robo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="8" width="16" height="12.5"/><path d="M12 8V4.6M2 12.5v4M22 12.5v4M9 17h6"/><circle cx="12" cy="3.4" r="1.2"/></g><rect x="7.6" y="11.4" width="2.6" height="2.6" fill="currentColor"/><rect x="13.8" y="11.4" width="2.6" height="2.6" fill="currentColor"/></symbol>
+    <symbol id="i-chave" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="12" r="4"/><path d="M11.5 12H22M18.5 12v3.5M21.5 12v2.6"/></g></symbol>
+    <symbol id="i-projeto" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.5l8.5 4.7v9.6L12 21.5l-8.5-4.7V7.2z"/><path d="M3.5 7.2L12 12l8.5-4.8M12 12v9.5"/></g></symbol>
+    <symbol id="i-organizacao" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21.5V2.5h11v19M15 9h5v12.5M2 21.5h20M7.5 6.5h4M7.5 10.5h4M7.5 14.5h4"/></g></symbol>
+    <symbol id="i-bd" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="5.5" rx="8" ry="2.8"/><path d="M4 5.5v13c0 1.5 3.6 2.8 8 2.8s8-1.3 8-2.8v-13M4 12c0 1.5 3.6 2.8 8 2.8s8-1.3 8-2.8"/></g></symbol>
+    <symbol id="i-bigquery" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="7.2"/><path d="M15.8 15.8L21.5 21.5M7.8 13.2v-2.4M10.5 13.2V7.6M13.2 13.2v-3.6"/></g></symbol>
+    <symbol id="i-documento" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5.5 2.5h9L19 7v14.5H5.5z"/><path d="M14.5 2.5V7H19M8.5 11.5h7M8.5 15h7M8.5 18.5h4"/></g></symbol>
+    <symbol id="i-engrenagem" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.6"/><path d="M12 2v3.4M12 18.6V22M2 12h3.4M18.6 12H22M4.9 4.9l2.4 2.4M16.7 16.7l2.4 2.4M4.9 19.1l2.4-2.4M16.7 7.3l2.4-2.4"/></g></symbol>
+    <symbol id="i-escudo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.5l8 3v6c0 5.2-3.4 8.6-8 10-4.6-1.4-8-4.8-8-10v-6z"/><path d="M8.3 12h7.4"/></g></symbol>
+    <symbol id="i-cadeado" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4.5" y="10.5" width="15" height="11"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5M12 14.5v3"/></g></symbol>
+    <symbol id="i-cadeado-aberto" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4.5" y="10.5" width="15" height="11"/><path d="M8 10.5V7a4 4 0 0 1 7.8-1.3M12 14.5v3"/></g></symbol>
+    <symbol id="i-lixeira" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 6h17M9 6V3h6v3M5.5 6l1.2 15.5h10.6L18.5 6M10 10.5v7M14 10.5v7"/></g></symbol>
+    <symbol id="i-sino" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.8 2H4.2z"/><path d="M10 21.5h4"/></g></symbol>
+    <symbol id="i-sino-mudo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.8 2H4.2z"/><path d="M10 21.5h4M3 3l18 18"/></g></symbol>
+    <symbol id="i-etiqueta" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M2.5 12.2V2.5h9.7l9.3 9.3-9.7 9.7z"/><circle cx="7.5" cy="7.5" r="1.6"/></g></symbol>
+    <symbol id="i-globo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c3.2 3 3.2 16 0 19M12 2.5c-3.2 3-3.2 16 0 19"/></g></symbol>
+    <symbol id="i-cofre" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="16.5"/><circle cx="12" cy="11.2" r="4"/><path d="M12 8.6v2.6l1.8 1.2M6 19.5V22M18 19.5V22"/></g></symbol>
+    <symbol id="i-servico" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16"/><path d="M7 9.5l3 2.5-3 2.5M12 15h5"/></g></symbol>
+    <symbol id="i-caixa" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  </defs>
+</svg>
+
+<script>
+'use strict';
+// O desenho em si só se vê: quem o muda grava uma versão nova. No painel, a página mostra a versão mais nova do disco.
+// Publicada, ela não traz dado nenhum: recebe o desenho do banco depois de validar o link pessoal, e ganha comentários por item.
+const NOME = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || '');
+const NS = 'http://www.w3.org/2000/svg';
+const $ = (s) => document.querySelector(s);
+const COR = {
+  neutro: ['#151515', '#ffffff'], azul: ['#1f5fbf', '#eaf1fb'], verde: ['#2e7d32', '#eaf5eb'],
+  amarelo: ['#b07a0c', '#fff6d8'], vermelho: ['#c0392b', '#fcecea'],
+};
+const tinta = (c) => (COR[c] || COR.neutro)[0];
+const tinte = (c) => (COR[c] || COR.neutro)[1];
+const colorido = (c) => c && c !== 'neutro';
+const TEXTO = '#151515', SUAVE = '#5f5f5a';
+
+const PUB = window.DESENHO_PUBLICADO || null;
+
+let doc = null, pag = 0, caixas = {}, registro = {}, comentarios = [], token = null, aberto = null;
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// Marcação curta nos textos: **negrito**, ~~sai~~, ++entra++, ??decidir??, `código`
+const MARCA = /(\*\*.+?\*\*|~~.+?~~|\+\+.+?\+\+|\?\?.+?\?\?|`.+?`)/;
+const html = (s) => String(s ?? '').split(MARCA).map((p) => {
+  if (/^\*\*.+\*\*$/.test(p)) return `<b>${esc(p.slice(2, -2))}</b>`;
+  if (/^~~.+~~$/.test(p)) return `<span class="s">${esc(p.slice(2, -2))}</span>`;
+  if (/^\+\+.+\+\+$/.test(p)) return `<span class="e">${esc(p.slice(2, -2))}</span>`;
+  if (/^\?\?.+\?\?$/.test(p)) return `<span class="d">${esc(p.slice(2, -2))}</span>`;
+  if (/^`.+`$/.test(p)) return `<code>${esc(p.slice(1, -1))}</code>`;
+  return esc(p);
+}).join('');
+
+function el(tag, attrs, pai) {
+  const n = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) if (v !== undefined && v !== null && v !== false) n.setAttribute(k, v);
+  if (pai) pai.appendChild(n);
+  return n;
+}
+
+function texto(pai, x, y, s, o = {}) {
+  const t = el('text', { x, y, 'font-size': o.tam || 12, fill: o.cor || TEXTO, 'font-weight': o.peso, 'text-anchor': o.ancora }, pai);
+  for (const p of String(s ?? '').split(MARCA)) {
+    if (!p) continue;
+    const ts = el('tspan', {}, t);
+    if (/^\*\*.+\*\*$/.test(p)) { ts.textContent = p.slice(2, -2); ts.setAttribute('font-weight', 700); }
+    else if (/^~~.+~~$/.test(p)) { ts.textContent = p.slice(2, -2); ts.setAttribute('fill', tinta('vermelho')); ts.setAttribute('text-decoration', 'line-through'); }
+    else if (/^\+\+.+\+\+$/.test(p)) { ts.textContent = p.slice(2, -2); ts.setAttribute('fill', tinta('verde')); ts.setAttribute('font-weight', 600); }
+    else if (/^\?\?.+\?\?$/.test(p)) { ts.textContent = p.slice(2, -2); ts.setAttribute('fill', tinta('amarelo')); ts.setAttribute('font-weight', 600); }
+    else if (/^`.+`$/.test(p)) { ts.textContent = p.slice(1, -1); ts.setAttribute('font-family', 'Consolas, monospace'); }
+    else ts.textContent = p;
+  }
+  if (o.max) caber(t, o.max);
+  return t;
+}
+
+// Corta com reticências o que não cabe; o texto inteiro continua na dica.
+function caber(t, max) {
+  if (t.getComputedTextLength() <= max) return;
+  const spans = [...t.querySelectorAll('tspan')];
+  while (spans.length) {
+    const ult = spans[spans.length - 1];
+    let s = ult.textContent.replace(/…$/, '');
+    while (s.length && t.getComputedTextLength() > max) { s = s.slice(0, -1); ult.textContent = s.trimEnd() + '…'; }
+    if (t.getComputedTextLength() <= max) return;
+    ult.remove(); spans.pop();
+  }
+}
+
+const semMarca = (s) => String(s ?? '').replace(/\*\*|~~|\+\+|\?\?|`/g, '');
+
+// Item clicável: o id é estável, então a mesma conta em duas listas, ou nas duas abas, é uma conversa só.
+function marcar(g, id, rotulo, dica, detalhes, lado) {
+  if (!id) return;
+  g.setAttribute('data-item', id);
+  g.classList.add('item');
+  if (lado) g.dataset.lado = lado;
+  const r = (registro[id] ||= { rotulo: semMarca(rotulo), dica, detalhes: [] });
+  for (const d of detalhes || []) if (!r.detalhes.includes(d)) r.detalhes.push(d);
+}
+
+const icone = (pai, nome, x, y, tam, cor) => el('use', { href: `#i-${nome}`, x, y, width: tam, height: tam, style: `color:${cor}` }, pai);
+
+// Selos: etiquetas pequenas, em linha, que quebram quando não cabem. Devolve a base da última linha.
+function selos(g, lista, x0, y0, xmax) {
+  let x = x0, y = y0;
+  for (const s of lista) {
+    const sg = el('g', { 'data-dica': s.dica }, g);
+    const c = colorido(s.cor) ? tinta(s.cor) : TEXTO;
+    const t = texto(sg, 0, 0, s.t, { tam: 11.5, cor: c, peso: 600 });
+    const w = t.getComputedTextLength() + 14 + (s.icone ? 17 : 0);
+    if (x + w > xmax && x > x0) { x = x0; y += 25; }
+    t.setAttribute('x', x + 7 + (s.icone ? 17 : 0));
+    t.setAttribute('y', y + 14.5);
+    sg.insertBefore(el('rect', { x, y, width: w, height: 21, fill: tinte(s.cor), stroke: colorido(s.cor) ? c : '#8a8a84', 'stroke-width': 1 }), t);
+    if (s.icone) icone(sg, s.icone, x + 6, y + 3.5, 14, c);
+    x += w + 6;
+  }
+  return y + 21;
+}
+
+function posicao(it) {
+  // "abaixo" empilha um item sob outro já desenhado, com folga de 14
+  if (it.abaixo && caixas[it.abaixo]) { const c = caixas[it.abaixo]; return [it.x ?? c.x, c.y + c.h + (it.folga ?? 14)]; }
+  return [it.x, it.y];
+}
+
+// Caixa com ícone, título, linhas curtas e selos. "centro" põe tudo centralizado, com o ícone em cima.
+function no(g, it) {
+  const [x, y0] = posicao(it);
+  const c = tinta(it.cor), riscado = it.estado === 'removido';
+  const ng = el('g', { 'data-dica': it.dica }, g);
+  const ti = it.grande ? 40 : it.centro ? 30 : 26;
+  let y;
+  if (it.centro) {
+    const cx = x + it.w / 2;
+    icone(ng, it.icone || 'caixa', cx - ti / 2, y0 + 14, ti, colorido(it.cor) ? c : TEXTO);
+    y = y0 + 14 + ti + 18;
+    const tt = texto(ng, cx, y, it.titulo, { tam: 13, peso: 700, ancora: 'middle', cor: colorido(it.cor) ? c : TEXTO, max: it.w - 12 });
+    if (riscado) tt.setAttribute('text-decoration', 'line-through');
+    for (const l of it.linhas || []) { y += 16; texto(ng, cx, y, l, { tam: 12, cor: '#33332f', ancora: 'middle', max: it.w - 12 }); }
+    y += 10;
+    if (it.selos?.length) y = selos(ng, it.selos, x + 8, y, x + it.w - 8) + 8;
+  } else {
+    const xt = x + 12 + ti + 10, max = x + it.w - 10 - xt;
+    y = y0 + 22;
+    if (it.sobre) { texto(ng, xt, y - 2, it.sobre, { tam: 10.5, peso: 700, cor: colorido(it.cor) ? c : SUAVE, max }); y += 17; }
+    const tt = texto(ng, xt, y, it.titulo, { tam: it.grande ? 15 : 13, peso: 700, cor: riscado ? c : TEXTO, max });
+    if (riscado) tt.setAttribute('text-decoration', 'line-through');
+    for (const l of it.linhas || []) { y += 16; texto(ng, xt, y, l, { tam: 12, cor: '#33332f', max }); }
+    y = Math.max(y + 12, y0 + 12 + ti + 10);
+    if (it.selos?.length) y = selos(ng, it.selos, x + 12, y, x + it.w - 10) + 10;
+    icone(ng, it.icone || 'caixa', x + 12, y0 + 13, ti, colorido(it.cor) ? c : TEXTO);
+  }
+  const h = Math.max(it.h || 0, y - y0);
+  const fundo = it.vazado ? 'none' : tinte(it.cor);
+  const borda = riscado || it.tracejada ? c : TEXTO;
+  const r = el('rect', { class: 'base', x, y: y0, width: it.w, height: h, fill: fundo, stroke: borda, 'stroke-width': it.vazado ? 1.5 : 1.2, 'stroke-dasharray': riscado || it.tracejada ? '6 4' : null });
+  ng.insertBefore(r, ng.firstChild);
+  if (colorido(it.cor) && !it.vazado) ng.insertBefore(el('rect', { x, y: y0, width: it.w, height: 4, fill: c }), r.nextSibling);
+  caixas[it.id] = { x, y: y0, w: it.w, h };
+  marcar(ng, it.id, it.titulo, it.dica, [...(it.detalhes || []), ...(it.selos || []).filter((s) => s.dica).map((s) => `**${s.t}:** ${s.dica}`)]);
+}
+
+// Chave exportada: o número de chaves, em vermelho quando alguma está parada; "5→2" quando a correção apaga as paradas.
+function chave(g, m, xd, y) {
+  const depois = m.depois != null;
+  const cor = depois ? tinta('verde') : m.paradas > 0 ? tinta('vermelho') : SUAVE;
+  const t = texto(g, 0, y + 14, depois ? `${m.chaves}→${m.depois}` : String(m.chaves), { tam: 11, cor, peso: 700 });
+  const w = t.getComputedTextLength();
+  t.setAttribute('x', xd - w);
+  icone(g, 'chave', xd - w - 16, y + 3.5, 13, cor);
+  return xd - w - 22;
+}
+
+// Lista de contas sob um título: cada linha com ícone, nome, nota e chaves.
+function lista(g, it) {
+  const [x, y0] = posicao(it);
+  const c = tinta(it.cor);
+  const lg = el('g', {}, g);
+  const fundo = el('rect', { x, y: y0, width: it.w, height: 0, fill: '#fff' }, lg);
+  const hCab = it.sub ? 44 : 29;
+  const cab = el('g', { 'data-dica': it.dica }, lg);
+  el('rect', { class: 'base', x, y: y0, width: it.w, height: hCab, fill: tinte(it.cor) }, cab);
+  marcar(cab, it.id, it.titulo, it.dica, it.detalhes, 'esq');
+  if (colorido(it.cor)) el('rect', { x, y: y0, width: it.w, height: 4, fill: c }, cab);
+  let xt = x + 10;
+  if (it.icone) { icone(cab, it.icone, x + 9, y0 + 8, 16, colorido(it.cor) ? c : TEXTO); xt += 23; }
+  const conta = it.conta != null ? texto(cab, x + it.w - 10, y0 + 21, String(it.conta), { tam: 12.5, peso: 700, cor: colorido(it.cor) ? c : TEXTO, ancora: 'end' }) : null;
+  texto(cab, xt, y0 + 21, it.titulo, { tam: 12.5, peso: 700, max: x + it.w - 10 - xt - (conta ? conta.getComputedTextLength() + 8 : 0) });
+  if (it.sub) texto(cab, xt, y0 + 37, it.sub, { tam: 11.5, cor: SUAVE, max: x + it.w - 10 - xt });
+  let y = y0 + hCab + 4;
+  for (const m of it.membros || []) {
+    const mg = el('g', { 'data-dica': m.dica || m.t }, lg);
+    el('rect', { class: 'base', x: x + 1, y, width: it.w - 2, height: 20, fill: m.estado === 'novo' ? tinte('verde') : 'transparent' }, mg);
+    marcar(mg, m.id || m.t, m.t, m.dica, m.detalhes, 'esq');
+    const corM = m.estado === 'removido' ? tinta('vermelho') : m.estado === 'novo' ? tinta('verde') : TEXTO;
+    icone(mg, m.icone || 'pessoa', x + 9, y + 3, 14, corM);
+    let xd = x + it.w - 9;
+    if (m.chaves) xd = chave(mg, m, xd, y);
+    if (m.nota) {
+      const n = texto(mg, xd, y + 14, m.nota, { tam: 11, cor: colorido(m.notaCor) ? tinta(m.notaCor) : SUAVE, ancora: 'end' });
+      xd -= n.getComputedTextLength() + 10;
+    }
+    const nome = texto(mg, x + 30, y + 14, m.t, { tam: 12, cor: corM, max: xd - (x + 30) });
+    if (m.estado === 'removido') nome.setAttribute('text-decoration', 'line-through');
+    y += 20;
+  }
+  const h = y + 4 - y0;
+  fundo.setAttribute('height', h);
+  el('line', { x1: x, y1: y0 + hCab, x2: x + it.w, y2: y0 + hCab, stroke: TEXTO, 'stroke-width': 1 }, lg);
+  el('rect', { x, y: y0, width: it.w, height: h, fill: 'none', stroke: TEXTO, 'stroke-width': 1.2 }, lg);
+  caixas[it.id] = { x, y: y0, w: it.w, h };
+}
+
+// Grade de fichas pequenas (os buckets menores), com um título em cima.
+function grade(g, it) {
+  const [x, y0] = posicao(it);
+  const gg = el('g', {}, g);
+  let y = y0;
+  if (it.titulo) {
+    const tg = el('g', { 'data-dica': it.dica }, gg);
+    texto(tg, x, y + 12, it.titulo, { tam: 12, peso: 700, cor: colorido(it.cor) ? tinta(it.cor) : TEXTO });
+    y += 20;
+  }
+  const cols = it.colunas || 1, folga = 6, hf = 24;
+  const wf = (it.w - folga * (cols - 1)) / cols;
+  it.fichas.forEach((f, i) => {
+    const fx = x + (i % cols) * (wf + folga), fy = y + Math.floor(i / cols) * (hf + folga);
+    const cor = f.cor || it.corFichas || 'neutro';
+    const fg = el('g', { 'data-dica': f.dica || f.t }, gg);
+    marcar(fg, f.id || f.t, f.t, f.dica, f.detalhes);
+    el('rect', { class: 'base', x: fx, y: fy, width: wf, height: hf, fill: tinte(cor), stroke: colorido(cor) ? tinta(cor) : '#9a9a94', 'stroke-width': 1, 'stroke-dasharray': f.estado === 'removido' ? '4 3' : null }, fg);
+    icone(fg, f.icone || it.icone || 'bucket', fx + 6, fy + 5, 14, colorido(cor) ? tinta(cor) : TEXTO);
+    let xd = fx + wf - 7;
+    if (f.sub) { const s = texto(fg, xd, fy + 16, f.sub, { tam: 11, cor: SUAVE, ancora: 'end' }); xd -= s.getComputedTextLength() + 8; }
+    texto(fg, fx + 26, fy + 16, f.t, { tam: 11.5, max: xd - (fx + 26) });
+  });
+  const linhas = Math.ceil(it.fichas.length / cols);
+  caixas[it.id] = { x, y: y0, w: it.w, h: y - y0 + linhas * (hf + folga) - folga };
+}
+
+function rotuloLivre(g, it) {
+  const [x, y] = posicao(it);
+  const tg = el('g', { 'data-dica': it.dica }, g);
+  String(it.t).split('\n').forEach((l, i) => texto(tg, x, y + i * 17, l, { tam: it.tam || 12.5, peso: it.peso ?? 700, cor: colorido(it.cor) ? tinta(it.cor) : SUAVE }));
+}
+
+// Área (projeto, organização): moldura com aba preta; a altura pode seguir o que ela contém.
+function area(g, it) {
+  let { x, y, w, h } = it;
+  if (it.contem) {
+    const dentro = it.contem.map((id) => caixas[id]).filter(Boolean);
+    h = Math.max(h || 0, Math.max(...dentro.map((c) => c.y + c.h)) + (it.margem ?? 20) - y);
+  }
+  const c = tinta(it.cor);
+  el('rect', { x, y, width: w, height: h, fill: 'none', stroke: c, 'stroke-width': 1.5, 'stroke-dasharray': it.tracejada ? '7 5' : null }, g);
+  const tg = el('g', { 'data-dica': it.dica }, g);
+  const t = texto(tg, x + (it.icone ? 32 : 10), y + 18, it.titulo, { tam: 12.5, peso: 700, cor: '#fff' });
+  tg.insertBefore(el('rect', { x, y, width: t.getComputedTextLength() + (it.icone ? 44 : 22), height: 27, fill: c }), t);
+  if (it.icone) icone(tg, it.icone, x + 8, y + 4.5, 18, '#fff');
+  marcar(tg, it.id, it.titulo, it.dica, [...(it.detalhes || []), ...(it.selos || []).filter((s) => s.dica).map((s) => `**${s.t}:** ${s.dica}`)]);
+  if (it.selos?.length) {
+    // selos da área: em linha, encostados no canto de cima, à direita
+    const sg = el('g', {}, g);
+    selos(sg, it.selos, 0, 0, 1e6);
+    sg.setAttribute('transform', `translate(${x + w - 10 - sg.getBBox().width} ${y + 7})`);
+  }
+  caixas[it.id] = { x, y, w, h };
+}
+
+// ---------------------------------------------------------------- ligações
+
+const ponto = ([x, y]) => ({ x, y, w: 0, h: 0 });
+const ancora = (c, [fx, fy]) => [c.x + c.w * fx, c.y + c.h * fy];
+const limitar = (v, a, b) => Math.max(a, Math.min(b, v));
+
+// Sai pelo lado de A voltado para B; quando as faixas se cruzam, a linha fica reta.
+function porta(A, B) {
+  if (B.x >= A.x + A.w || B.x + B.w <= A.x) {
+    const x = B.x >= A.x + A.w ? A.x + A.w : A.x;
+    const lo = Math.max(A.y, B.y), hi = Math.min(A.y + A.h, B.y + B.h);
+    return [x, lo <= hi ? (lo + hi) / 2 : limitar(B.y + B.h / 2, A.y + 10, A.y + A.h - 10)];
+  }
+  const y = B.y >= A.y + A.h ? A.y + A.h : A.y;
+  const lo = Math.max(A.x, B.x), hi = Math.min(A.x + A.w, B.x + B.w);
+  return [lo <= hi ? (lo + hi) / 2 : limitar(B.x + B.w / 2, A.x + 10, A.x + A.w - 10), y];
+}
+
+function rota(A, B, l) {
+  let pA = l.da ? ancora(A, l.da) : null, pB = l.pa ? ancora(B, l.pa) : null;
+  const via = (l.via || []).map((p) => [...p]);
+  if (l.cotovelo != null) {
+    // Em L: anda na horizontal até x = cotovelo e entra em B na vertical
+    pA = pA || porta(A, ponto([l.cotovelo, A.y + A.h / 2]));
+    via.push([l.cotovelo, pA[1]]);
+  }
+  if (!pA) pA = porta(A, via[0] ? ponto(via[0]) : pB ? ponto(pB) : B);
+  if (!pB) pB = porta(B, ponto(via.length ? via[via.length - 1] : pA));
+  return [pA, ...via, pB];
+}
+
+function pontaSeta(g, p, q, cor) {
+  const a = Math.atan2(p[1] - q[1], p[0] - q[0]), L = 10, W = 4.8;
+  const b = [p[0] - L * Math.cos(a), p[1] - L * Math.sin(a)], n = [-Math.sin(a) * W, Math.cos(a) * W];
+  el('path', { d: `M${p[0]} ${p[1]}L${b[0] + n[0]} ${b[1] + n[1]}L${b[0] - n[0]} ${b[1] - n[1]}Z`, fill: cor }, g);
+}
+
+// Negado: um ✕ num quadrado, encostado onde a linha bate
+function pontaBloqueio(g, p, q, cor) {
+  const a = Math.atan2(p[1] - q[1], p[0] - q[0]);
+  const cx = p[0] - 10 * Math.cos(a), cy = p[1] - 10 * Math.sin(a);
+  el('rect', { x: cx - 9, y: cy - 9, width: 18, height: 18, fill: '#fff', stroke: cor, 'stroke-width': 1.6 }, g);
+  el('path', { d: `M${cx - 4.5} ${cy - 4.5}L${cx + 4.5} ${cy + 4.5}M${cx + 4.5} ${cy - 4.5}L${cx - 4.5} ${cy + 4.5}`, stroke: cor, 'stroke-width': 2.2 }, g);
+}
+
+function rotuloLigacao(g, pts, s, cor, frac) {
+  const segs = pts.slice(1).map((p, i) => Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]));
+  let resta = segs.reduce((a, b) => a + b, 0) * frac, i = 0;
+  while (i < segs.length - 1 && resta > segs[i]) { resta -= segs[i]; i++; }
+  const t0 = segs[i] ? resta / segs[i] : 0;
+  const x = pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t0, y = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t0;
+  const linhas = String(s).split('\n');
+  const tg = el('g', {}, g);
+  const ts = linhas.map((l, k) => texto(tg, x, y + 4 + (k - (linhas.length - 1) / 2) * 15, l, { tam: 11.5, cor, peso: 600, ancora: 'middle' }));
+  const w = Math.max(...ts.map((t) => t.getComputedTextLength())) + 12, h = linhas.length * 15 + 6;
+  tg.insertBefore(el('rect', { x: x - w / 2, y: y - h / 2, width: w, height: h, fill: '#fff', stroke: cor, 'stroke-width': 1 }), tg.firstChild);
+}
+
+function ligacao(fios, pontas, l) {
+  const A = caixas[l.de], B = caixas[l.para];
+  if (!A || !B) return;
+  const cor = tinta(l.cor || 'neutro');
+  const pts = rota(A, B, l);
+  el('path', { d: 'M' + pts.map((p) => p.join(' ')).join('L'), fill: 'none', stroke: cor, 'stroke-width': 1.7, 'stroke-dasharray': l.tracejada ? '7 5' : null, 'data-dica': l.dica }, fios);
+  // uma faixa larga e invisível por cima, para a dica pegar a linha com facilidade
+  if (l.dica) el('path', { d: 'M' + pts.map((p) => p.join(' ')).join('L'), fill: 'none', stroke: 'transparent', 'stroke-width': 12, 'data-dica': l.dica }, pontas);
+  const g = el('g', { 'data-dica': l.dica }, pontas);
+  const fim = pts[pts.length - 1], antes = pts[pts.length - 2];
+  if (l.fim === 'bloqueio') pontaBloqueio(g, fim, antes, cor);
+  else if (l.fim !== 'nenhum') pontaSeta(g, fim, antes, cor);
+  if (l.rotulo) rotuloLigacao(g, pts, l.rotulo, cor, l.rt ?? 0.5);
+}
+
+// ---------------------------------------------------------------- página
+
+// Quantos comentários cada item tem: um quadrado azul no canto da caixa, ou à esquerda da linha.
+function contadores(pontas) {
+  const n = {};
+  for (const c of comentarios) n[c.item] = (n[c.item] || 0) + 1;
+  for (const g of document.querySelectorAll('#quadro [data-item]')) {
+    const qtd = n[g.dataset.item];
+    if (!qtd) continue;
+    const b = g.getBBox();
+    const x = g.dataset.lado === 'esq' ? b.x - 19 : b.x + b.width - 10, y = g.dataset.lado === 'esq' ? b.y + 2 : b.y - 8;
+    const m = el('g', { style: 'pointer-events:none' }, pontas);
+    el('rect', { x, y, width: 17, height: 16, fill: tinta('azul') }, m);
+    texto(m, x + 8.5, y + 12, qtd, { tam: 11, peso: 700, cor: '#fff', ancora: 'middle' });
+  }
+}
+
+function desenhar() {
+  const p = doc.paginas[pag];
+  caixas = {};
+  registro = {};
+  $('#nota').innerHTML = p.nota ? html(p.nota) : '';
+  const quadro = $('#quadro');
+  quadro.innerHTML = '';
+  const svg = el('svg', { 'font-family': '"Segoe UI", system-ui, sans-serif' }, quadro);
+  const fundo = el('g', {}, svg), fios = el('g', {}, svg), itens = el('g', {}, svg), pontas = el('g', {}, svg);
+  const areas = [];
+  for (const it of p.itens) {
+    if (it.tipo === 'area') { areas.push(it); continue; }
+    ({ no, lista, grade, rotulo: rotuloLivre }[it.tipo] || no)(itens, it);
+  }
+  for (const a of areas) area(fundo, a);
+  for (const l of p.ligacoes || []) ligacao(fios, pontas, l);
+  contadores(pontas);
+  const bb = svg.getBBox();
+  const W = Math.max(p.largura || 0, bb.x + bb.width + 20), H = bb.y + bb.height + 20;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.aspectRatio = `${W} / ${H}`;
+  document.querySelectorAll('.aba').forEach((a, i) => a.classList.toggle('ativa', i === pag));
+  if (aberto) abrirItem(aberto);
+}
+
+// ---------------------------------------------------------------- painel lateral
+
+const dataHora = (iso) => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const cartao = (c) => `<div class="coment${c.autor === '3Neuron' ? ' nosso' : ''}"><div class="cq"><b>${esc(c.autor)}</b><span>${esc(dataHora(c.criado_em))}</span></div><div class="ct">${esc(c.texto)}</div></div>`;
+
+function mostrarLateral() {
+  $('#lateral').classList.add('aberto');
+  document.body.classList.add('com-lateral');
+}
+
+function realcar() {
+  document.querySelectorAll('#quadro .item').forEach((g) => g.classList.toggle('ativo', g.dataset.item === aberto));
+}
+
+function abrirItem(id) {
+  aberto = id;
+  const r = registro[id];
+  const conversa = comentarios.filter((c) => c.item === id);
+  $('#ltitulo').textContent = r?.rotulo || conversa[0]?.rotulo || id;
+  const detalhes = r?.detalhes.length ? r.detalhes : r?.dica ? [r.dica] : [];
+  $('#lcorpo').innerHTML = detalhes.map((d) => `<div class="ldet">${html(d)}</div>`).join('<br>')
+    + (PUB ? `<h3>Comentários</h3>${conversa.map(cartao).join('') || '<p class="vazio">Nenhum comentário ainda.</p>'}` : '');
+  $('#lform').hidden = !PUB;
+  $('#laviso').textContent = '';
+  realcar();
+  mostrarLateral();
+}
+
+function abrirConversas() {
+  aberto = null;
+  realcar();
+  const grupos = new Map();
+  for (const c of [...comentarios].reverse()) (grupos.get(c.item) || grupos.set(c.item, []).get(c.item)).push(c);
+  $('#ltitulo').textContent = 'Conversas';
+  $('#lcorpo').innerHTML = [...grupos.entries()].map(([item, lista]) => `<button class="conversa" data-abre="${esc(item)}"><b>${esc(lista[0].rotulo || item)}</b> (${lista.length})<small>${esc(lista[0].autor)}: ${esc(lista[0].texto.slice(0, 90))}</small></button>`).join('')
+    || '<p class="vazio">Nenhum comentário ainda.</p>';
+  $('#lform').hidden = true;
+  mostrarLateral();
+}
+
+function fecharLateral() {
+  aberto = null;
+  realcar();
+  $('#lateral').classList.remove('aberto');
+  document.body.classList.remove('com-lateral');
+}
+
+async function rpc(funcao, corpo) {
+  const r = await fetch(`${PUB.url}/rest/v1/rpc/${funcao}`, {
+    method: 'POST',
+    headers: { apikey: PUB.chave, 'Content-Type': 'application/json' },
+    body: JSON.stringify(corpo),
+  });
+  if (!r.ok) throw new Error(`${funcao}: ${r.status}`);
+  return r.json();
+}
+
+async function comentar() {
+  const texto = $('#ltexto').value.trim();
+  if (!texto || !aberto) return;
+  const botao = $('#lform button');
+  botao.disabled = true;
+  try {
+    comentarios = await rpc('desenho_comentar', { p_token: token, p_item: aberto, p_rotulo: registro[aberto]?.rotulo ?? null, p_texto: texto });
+    $('#ltexto').value = '';
+    atualizarConversas();
+    desenhar();
+  } catch {
+    $('#laviso').textContent = 'Não foi salvo. O texto continua aqui; tente de novo.';
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+const atualizarConversas = () => { $('#conversas').textContent = `Conversas (${comentarios.length})`; };
+
+function montar() {
+  $('#titulo').textContent = doc.meta?.titulo || NOME;
+  document.title = doc.meta?.titulo || 'Desenho';
+  const cores = [['vermelho', 'risco hoje, ou sai'], ['verde', 'proteção que entra'], ['azul', 'dado'], ['amarelo', 'decidir ou conferir']];
+  $('#legenda').innerHTML = cores.map(([c, t]) => `<span><i style="border-color:var(--${c});background:var(--${c}-f)"></i>${t}</span>`).join('')
+    + (doc.meta?.legenda || []).map((t) => `<span>${html(t)}</span>`).join('')
+    + `<span>clique numa caixa para ver os detalhes${PUB ? ' e comentar' : ''}</span>`;
+  $('#abas').innerHTML = doc.paginas.map((p, i) => `<div class="aba" data-aba="${i}">${esc(p.nome)}</div>`).join('');
+  pag = Math.min(pag, doc.paginas.length - 1);
+  desenhar();
+}
+
+async function pedir(url) {
+  const r = await fetch(url, { cache: 'no-store' });
+  if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+async function abrir(arquivo) {
+  doc = await pedir(`/api/desenho/${encodeURIComponent(NOME)}/${encodeURIComponent(arquivo)}`);
+  if (doc.formato !== 2) throw new Error('Esta versão é de um formato antigo, que a página não mostra mais.');
+  montar();
+}
+
+$('#abas').addEventListener('click', (e) => {
+  const a = e.target.closest('.aba');
+  if (!a) return;
+  pag = Number(a.dataset.aba);
+  history.replaceState(null, '', `#aba=${pag + 1}`);
+  desenhar();
+});
+
+$('#versao').addEventListener('change', (e) => abrir(e.target.value).catch(falhar));
+
+$('#quadro').addEventListener('click', (e) => {
+  const g = e.target.closest?.('[data-item]');
+  if (g) abrirItem(g.dataset.item);
+});
+$('#lfechar').addEventListener('click', fecharLateral);
+$('#conversas').addEventListener('click', abrirConversas);
+$('#lcorpo').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-abre]');
+  if (b) abrirItem(b.dataset.abre);
+});
+$('#lform').addEventListener('submit', (e) => { e.preventDefault(); comentar(); });
+// Um link novo aberto na mesma aba só muda o fim do endereço: sem recarregar, a página ficaria com o acesso anterior
+window.addEventListener('hashchange', () => { if (PUB && location.hash.includes('acesso=')) location.reload(); });
+$('#ltexto').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); comentar(); }
+});
+
+document.addEventListener('mousemove', (e) => {
+  const d = $('#dica');
+  const alvo = e.target.closest?.('[data-dica]');
+  if (!alvo) { d.style.display = 'none'; return; }
+  d.innerHTML = html(alvo.getAttribute('data-dica'));
+  d.style.display = 'block';
+  const x = Math.min(e.clientX + 16, innerWidth - d.offsetWidth - 8);
+  const y = e.clientY + 18 + d.offsetHeight > innerHeight ? e.clientY - d.offsetHeight - 12 : e.clientY + 18;
+  d.style.left = `${Math.max(8, x)}px`;
+  d.style.top = `${Math.max(8, y)}px`;
+});
+
+function falhar(erro) {
+  $('#quadro').innerHTML = `<div id="erro">${esc(erro.message || erro)}</div>`;
+}
+
+// Publicada: o link pessoal vem no endereço, fica só nesta aba do navegador e sai da barra de endereço.
+async function iniciarPublicado(hash) {
+  const doLink = hash.get('acesso');
+  try {
+    if (doLink) sessionStorage.setItem('desenho-acesso', doLink);
+    token = doLink || sessionStorage.getItem('desenho-acesso');
+  } catch { token = doLink; }
+  history.replaceState(null, '', location.pathname + (hash.get('aba') ? `#aba=${hash.get('aba')}` : ''));
+  const r = token ? await rpc('desenho_abrir', { p_token: token }) : null;
+  if (!r) {
+    $('#versao').hidden = true;
+    falhar('Este endereço precisa do seu link pessoal. Se ele venceu ou não abre, peça um novo à 3Neuron.');
+    return;
+  }
+  doc = r.conteudo;
+  comentarios = r.comentarios;
+  $('#versao').hidden = true;
+  $('#quem').hidden = false;
+  $('#quem').textContent = `Você entrou como ${r.pessoa}`;
+  $('#conversas').hidden = false;
+  atualizarConversas();
+  montar();
+}
+
+(async function iniciar() {
+  try {
+    const hash = new URLSearchParams(location.hash.slice(1));
+    pag = Math.max(0, (Number(hash.get('aba')) || 1) - 1);
+    if (PUB) { await iniciarPublicado(hash); return; }
+    const { versoes } = await pedir(`/api/desenho/${encodeURIComponent(NOME)}`);
+    if (!versoes.length) throw new Error('Este desenho ainda não tem versão.');
+    $('#versao').innerHTML = versoes.map((v) => `<option value="${esc(v.arquivo)}">${esc(v.rotulo || v.arquivo)}</option>`).join('');
+    await abrir(versoes[0].arquivo);
+  } catch (erro) { falhar(erro); }
+})();
+</script>
+</body>
+</html>
