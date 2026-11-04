@@ -623,8 +623,8 @@ $('#ltexto').addEventListener('keydown', (e) => {
 
 // ---------------------------------------------------------------- dica
 // Passar o mouse mostra a explicação. Publicada, a dica de um item traz também os comentários e o botão de responder:
-// ela para ao lado do item, espera um instante antes de trocar ou sumir para dar tempo de chegar nela, e fica presa enquanto alguém escreve.
-const dica = { item: null, texto: '', fixa: false, timer: 0, rascunhos: {} };
+// ela para ao lado do item e troca ou some na hora, menos quando o mouse vai na direção dela; enquanto alguém escreve, fica presa.
+const dica = { item: null, texto: '', fixa: false, timer: 0, rascunhos: {}, ancora: null };
 
 function esconderDica() {
   clearTimeout(dica.timer);
@@ -681,7 +681,20 @@ function cartaoItem(g, texto, e) {
   d.style.top = `${Math.max(8, Math.min(e.clientY - 20, innerHeight - d.offsetHeight - 8))}px`;
 }
 
-const adiar = (fn) => { clearTimeout(dica.timer); dica.timer = setTimeout(fn, 260); };
+// O mouse vai na direção do cartão? Vale o triângulo entre o último ponto sobre o item e a borda do cartão que fica de frente para ele.
+const lado = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+function rumoAoCartao(x, y) {
+  const a = dica.ancora;
+  if (!a) return false;
+  if (Math.hypot(x - a[0], y - a[1]) < 3) return true;
+  const b = $('#dica').getBoundingClientRect(), f = 12;
+  const borda = a[0] <= b.left ? [[b.left, b.top - f], [b.left, b.bottom + f]]
+    : a[0] >= b.right ? [[b.right, b.top - f], [b.right, b.bottom + f]]
+    : a[1] <= b.top ? [[b.left - f, b.top], [b.right + f, b.top]]
+    : [[b.left - f, b.bottom], [b.right + f, b.bottom]];
+  const p = [x, y], d1 = lado(p, a, borda[0]), d2 = lado(p, borda[0], borda[1]), d3 = lado(p, borda[1], a);
+  return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+}
 
 document.addEventListener('mousemove', (e) => {
   if (e.target.closest?.('#dica')) { clearTimeout(dica.timer); return; }
@@ -694,13 +707,15 @@ document.addEventListener('mousemove', (e) => {
   const ev = { clientX: e.clientX, clientY: e.clientY };
   if (g && viva && g.dataset.item === dica.item) {
     clearTimeout(dica.timer);
+    dica.ancora = [e.clientX, e.clientY];
     if (texto !== dica.texto) { dica.texto = texto; $('#dica .dtexto').innerHTML = html(texto); }
-  } else if (g) {
-    if (viva) adiar(() => cartaoItem(g, texto, ev)); else cartaoItem(g, texto, ev);
-  } else if (alvo && texto) {
-    if (viva) adiar(() => dicaSimples(texto, ev)); else dicaSimples(texto, ev);
-  } else if (viva) adiar(esconderDica);
-  else esconderDica();
+    return;
+  }
+  const seguir = g ? () => { cartaoItem(g, texto, ev); dica.ancora = [ev.clientX, ev.clientY]; } : alvo && texto ? () => dicaSimples(texto, ev) : esconderDica;
+  clearTimeout(dica.timer);
+  // A caminho do cartão, ele espera; se o mouse parar antes de chegar, segue para onde o mouse está
+  if (viva && rumoAoCartao(e.clientX, e.clientY)) dica.timer = setTimeout(seguir, 300);
+  else seguir();
 });
 
 async function responder() {
