@@ -32,6 +32,13 @@ h1 { margin: 0; font-size: 15px; }
 #quadro { padding: 10px 16px 24px; overflow-x: auto; }
 #quadro svg { display: block; width: 100%; min-width: 1400px; height: auto; background: var(--papel); border: 1.5px solid var(--tinta); }
 #dica { position: fixed; z-index: 5; display: none; max-width: 380px; padding: 8px 10px; background: var(--papel); border: 1.5px solid var(--tinta); box-shadow: 4px 4px 0 rgba(0, 0, 0, .12); font-size: 12.5px; white-space: pre-line; pointer-events: none; }
+#dica.viva { pointer-events: auto; width: 380px; max-width: calc(100vw - 16px); max-height: 70vh; overflow-y: auto; white-space: normal; }
+.dtexto { white-space: pre-line; overflow-wrap: anywhere; }
+.dconversa { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--grade); }
+.dconversa .coment { margin-bottom: 6px; padding: 6px 8px; }
+.dacoes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: 12px; color: var(--suave); }
+#dform { margin-top: 8px; }
+.dbotoes { display: flex; gap: 6px; }
 #erro { padding: 24px 16px; color: var(--vermelho); }
 .item { cursor: pointer; }
 .item:hover > .base { stroke: var(--azul); stroke-width: 2; }
@@ -60,9 +67,9 @@ h1 { margin: 0; font-size: 15px; }
 .conversa small { display: block; color: var(--suave); }
 #lform { padding: 10px 14px 12px; border-top: 2px solid var(--tinta); }
 #lform[hidden] { display: none; }
-#ltexto { display: block; width: 100%; padding: 6px 8px; font: inherit; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; resize: vertical; }
+#ltexto, #dcampo { display: block; width: 100%; padding: 6px 8px; font: inherit; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; resize: vertical; }
 .lacoes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; font-size: 12px; color: var(--suave); }
-#laviso { color: var(--vermelho); }
+#laviso, #daviso { color: var(--vermelho); }
 .s { color: var(--vermelho); text-decoration: line-through; }
 .e { color: var(--verde); font-weight: 600; }
 .d { color: var(--amarelo); font-weight: 600; }
@@ -137,6 +144,8 @@ const colorido = (c) => c && c !== 'neutro';
 const TEXTO = '#151515', SUAVE = '#5f5f5a';
 
 const PUB = window.DESENHO_PUBLICADO || null;
+// Os comentários ficam na dica de cada item. A lista de conversas e os comentários no painel lateral estão ocultos por ora (04/11).
+const CONVERSAS = false;
 
 let doc = null, pag = 0, caixas = {}, registro = {}, comentarios = [], token = null, aberto = null;
 
@@ -506,8 +515,8 @@ function abrirItem(id) {
   $('#ltitulo').textContent = r?.rotulo || conversa[0]?.rotulo || id;
   const detalhes = r?.detalhes.length ? r.detalhes : r?.dica ? [r.dica] : [];
   $('#lcorpo').innerHTML = detalhes.map((d) => `<div class="ldet">${html(d)}</div>`).join('<br>')
-    + (PUB ? `<h3>Comentários</h3>${conversa.map(cartao).join('') || '<p class="vazio">Nenhum comentário ainda.</p>'}` : '');
-  $('#lform').hidden = !PUB;
+    + (PUB && CONVERSAS ? `<h3>Comentários</h3>${conversa.map(cartao).join('') || '<p class="vazio">Nenhum comentário ainda.</p>'}` : '');
+  $('#lform').hidden = !(PUB && CONVERSAS);
   $('#laviso').textContent = '';
   realcar();
   mostrarLateral();
@@ -567,7 +576,7 @@ function montar() {
   const cores = [['vermelho', 'risco hoje, ou sai'], ['verde', 'proteção que entra'], ['azul', 'dado'], ['amarelo', 'decidir ou conferir']];
   $('#legenda').innerHTML = cores.map(([c, t]) => `<span><i style="border-color:var(--${c});background:var(--${c}-f)"></i>${t}</span>`).join('')
     + (doc.meta?.legenda || []).map((t) => `<span>${html(t)}</span>`).join('')
-    + `<span>clique numa caixa para ver os detalhes${PUB ? ' e comentar' : ''}</span>`;
+    + `<span>${PUB ? 'passe o mouse para ler e comentar; clique para os detalhes' : 'clique numa caixa para ver os detalhes'}</span>`;
   $('#abas').innerHTML = doc.paginas.map((p, i) => `<div class="aba" data-aba="${i}">${esc(p.nome)}</div>`).join('');
   pag = Math.min(pag, doc.paginas.length - 1);
   desenhar();
@@ -612,17 +621,127 @@ $('#ltexto').addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); comentar(); }
 });
 
-document.addEventListener('mousemove', (e) => {
+// ---------------------------------------------------------------- dica
+// Passar o mouse mostra a explicação. Publicada, a dica de um item traz também os comentários e o botão de responder:
+// ela para ao lado do item, espera um instante antes de trocar ou sumir para dar tempo de chegar nela, e fica presa enquanto alguém escreve.
+const dica = { item: null, texto: '', fixa: false, timer: 0, rascunhos: {} };
+
+function esconderDica() {
+  clearTimeout(dica.timer);
+  dica.item = null;
+  dica.fixa = false;
+  $('#dica').style.display = 'none';
+  $('#dica').classList.remove('viva');
+}
+
+function dicaSimples(texto, e) {
+  esconderDica();
   const d = $('#dica');
-  const alvo = e.target.closest?.('[data-dica]');
-  if (!alvo) { d.style.display = 'none'; return; }
-  d.innerHTML = html(alvo.getAttribute('data-dica'));
+  d.innerHTML = html(texto);
   d.style.display = 'block';
   const x = Math.min(e.clientX + 16, innerWidth - d.offsetWidth - 8);
   const y = e.clientY + 18 + d.offsetHeight > innerHeight ? e.clientY - d.offsetHeight - 12 : e.clientY + 18;
   d.style.left = `${Math.max(8, x)}px`;
   d.style.top = `${Math.max(8, y)}px`;
+}
+
+function conteudoCartao() {
+  const conversa = comentarios.filter((c) => c.item === dica.item);
+  return `<div class="dtexto">${html(dica.texto)}</div>`
+    + (conversa.length ? `<div class="dconversa">${conversa.map(cartao).join('')}</div>` : '')
+    + (dica.fixa
+      ? `<form id="dform"><textarea id="dcampo" rows="3" maxlength="4000" placeholder="Escreva sua resposta ou comentário"></textarea>`
+        + `<div class="lacoes"><span id="daviso"></span><span class="dbotoes"><button type="button" id="dcancelar" class="acao">Cancelar</button><button type="submit" class="acao">Enviar</button></span></div></form>`
+      : `<div class="dacoes"><span>${conversa.length ? `${conversa.length} comentário${conversa.length > 1 ? 's' : ''}` : ''}</span><button type="button" id="dresponder" class="acao">${conversa.length ? 'Responder' : 'Comentar'}</button></div>`);
+}
+
+// Redesenha o cartão no lugar e o mantém dentro da tela quando ele cresce.
+function renderCartao() {
+  const d = $('#dica');
+  d.innerHTML = conteudoCartao();
+  const topo = parseFloat(d.style.top) || 8;
+  if (topo + d.offsetHeight > innerHeight - 8) d.style.top = `${Math.max(8, innerHeight - d.offsetHeight - 8)}px`;
+}
+
+function cartaoItem(g, texto, e) {
+  esconderDica();
+  const d = $('#dica');
+  dica.item = g.dataset.item;
+  dica.texto = texto;
+  d.classList.add('viva');
+  d.innerHTML = conteudoCartao();
+  d.style.display = 'block';
+  // Ao lado direito do item, para chegar nele sem passar por outro; perto do mouse quando o item é largo
+  const r = g.getBoundingClientRect();
+  let x = r.right + 8;
+  if (x - e.clientX > 260) x = e.clientX + 24;
+  if (x + d.offsetWidth > innerWidth - 8) x = Math.min(r.left, e.clientX) - d.offsetWidth - 8;
+  if (x < 8) x = Math.min(e.clientX + 24, innerWidth - d.offsetWidth - 8);
+  d.style.left = `${Math.max(8, x)}px`;
+  d.style.top = `${Math.max(8, Math.min(e.clientY - 20, innerHeight - d.offsetHeight - 8))}px`;
+}
+
+const adiar = (fn) => { clearTimeout(dica.timer); dica.timer = setTimeout(fn, 260); };
+
+document.addEventListener('mousemove', (e) => {
+  if (e.target.closest?.('#dica')) { clearTimeout(dica.timer); return; }
+  if (dica.fixa) return;
+  const alvo = e.target.closest?.('[data-dica], #quadro [data-item]');
+  const g = PUB ? alvo?.closest('#quadro [data-item]') : null;
+  const r = g && registro[g.dataset.item];
+  const texto = alvo?.getAttribute('data-dica') || r?.dica || r?.rotulo || '';
+  const viva = $('#dica').classList.contains('viva');
+  const ev = { clientX: e.clientX, clientY: e.clientY };
+  if (g && viva && g.dataset.item === dica.item) {
+    clearTimeout(dica.timer);
+    if (texto !== dica.texto) { dica.texto = texto; $('#dica .dtexto').innerHTML = html(texto); }
+  } else if (g) {
+    if (viva) adiar(() => cartaoItem(g, texto, ev)); else cartaoItem(g, texto, ev);
+  } else if (alvo && texto) {
+    if (viva) adiar(() => dicaSimples(texto, ev)); else dicaSimples(texto, ev);
+  } else if (viva) adiar(esconderDica);
+  else esconderDica();
 });
+
+async function responder() {
+  const id = dica.item, t = $('#dcampo')?.value.trim();
+  if (!t || !id) return;
+  const botao = $('#dform [type="submit"]');
+  botao.disabled = true;
+  try {
+    comentarios = await rpc('desenho_comentar', { p_token: token, p_item: id, p_rotulo: registro[id]?.rotulo ?? null, p_texto: t });
+    delete dica.rascunhos[id];
+    dica.fixa = false;
+    atualizarConversas();
+    desenhar();
+    renderCartao();
+  } catch {
+    $('#daviso').textContent = 'Não foi salvo. O texto continua aqui; tente de novo.';
+    botao.disabled = false;
+  }
+}
+
+$('#dica').addEventListener('click', (e) => {
+  if (e.target.closest('#dresponder')) {
+    dica.fixa = true;
+    renderCartao();
+    $('#dcampo').value = dica.rascunhos[dica.item] || '';
+    $('#dcampo').focus();
+  } else if (e.target.closest('#dcancelar')) {
+    delete dica.rascunhos[dica.item];
+    dica.fixa = false;
+    renderCartao();
+  }
+});
+$('#dica').addEventListener('submit', (e) => { e.preventDefault(); responder(); });
+$('#dica').addEventListener('input', (e) => { if (e.target.id === 'dcampo') dica.rascunhos[dica.item] = e.target.value; });
+$('#dica').addEventListener('keydown', (e) => {
+  if (e.target.id === 'dcampo' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); responder(); }
+});
+// Esc ou um clique fora fecham; o que estava escrito fica guardado para quando a pessoa voltar ao item
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') esconderDica(); });
+document.addEventListener('mousedown', (e) => { if (dica.fixa && !e.target.closest('#dica')) esconderDica(); });
+addEventListener('scroll', (e) => { if (!dica.fixa && !(e.target instanceof Element && e.target.closest('#dica'))) esconderDica(); }, true);
 
 function falhar(erro) {
   $('#quadro').innerHTML = `<div id="erro">${esc(erro.message || erro)}</div>`;
@@ -647,7 +766,7 @@ async function iniciarPublicado(hash) {
   $('#versao').hidden = true;
   $('#quem').hidden = false;
   $('#quem').textContent = `Você entrou como ${r.pessoa}`;
-  $('#conversas').hidden = false;
+  $('#conversas').hidden = !CONVERSAS;
   atualizarConversas();
   montar();
 }
