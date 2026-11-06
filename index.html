@@ -26,18 +26,19 @@ h1 { margin: 0; font-size: 15px; }
 .aba { border: 1.5px solid var(--tinta); border-bottom: 0; margin-right: -1.5px; padding: 4px 16px; background: var(--fundo); cursor: pointer; user-select: none; }
 .aba.ativa { background: var(--tinta); color: var(--papel); font-weight: 600; }
 #acoes { margin: 12px 16px 0; max-width: 1100px; background: var(--papel); border: 1.5px solid var(--tinta); }
-.acab { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px; border-bottom: 1.5px solid var(--tinta); }
+.acab { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px; }
 .acab h2 { margin: 0; font-size: 13.5px; }
 #amais { min-width: 28px; font-size: 15px; font-weight: 700; line-height: 1.1; padding: 1px 8px; }
-#acoes table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+#acoes table { width: 100%; border-collapse: collapse; font-size: 12.5px; border-top: 1.5px solid var(--tinta); }
 #acoes th { padding: 4px 10px; text-align: left; font-weight: 600; font-size: 11.5px; color: var(--suave); border-bottom: 1px solid var(--grade); }
 #acoes td { padding: 5px 10px; vertical-align: top; border-bottom: 1px solid var(--grade); overflow-wrap: anywhere; }
 #acoes tr:last-child td { border-bottom: 0; }
-#acoes .an { width: 34px; color: var(--suave); font-variant-numeric: tabular-nums; }
+#acoes .an { width: 40px; }
+#acoes .num { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 4px; border: 1.5px solid var(--tinta); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#acoes tbody td { vertical-align: middle; }
 #acoes .ar { width: 200px; }
 #acoes .ap { width: 96px; font-variant-numeric: tabular-nums; }
 #acoes .vencido { color: var(--vermelho); font-weight: 600; }
-#acoes .vazio { padding: 6px 10px; font-size: 12.5px; }
 #aform { display: grid; grid-template-columns: 1fr 200px 140px auto auto; gap: 6px; padding: 8px 10px; border-top: 1.5px solid var(--tinta); }
 #aform[hidden] { display: none; }
 #aform input { min-width: 0; padding: 3px 6px; font: inherit; font-size: 12.5px; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; }
@@ -634,11 +635,12 @@ const dataBr = (iso) => String(iso).slice(0, 10).split('-').reverse().join('/');
 const hoje = () => new Date().toLocaleDateString('sv-SE');
 
 function mostrarAcionaveis() {
-  $('#acoes').hidden = false;
+  // No painel local não há banco nem (+): a seção só aparece na página publicada
+  $('#acoes').hidden = !PUB && !acionaveis.length;
   $('#amais').hidden = !PUB || !$('#aform').hidden;
   $('#alista').innerHTML = acionaveis.length
-    ? `<table><thead><tr><th class="an">#</th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th></tr></thead><tbody>${acionaveis.map((a, i) => `<tr title="${esc(`incluído por ${a.autor} em ${dataHora(a.criado_em)}`)}"><td class="an">${i + 1}.</td><td>${esc(a.texto)}</td><td class="ar">${esc(a.responsavel)}</td><td class="ap${String(a.prazo) < hoje() ? ' vencido' : ''}">${esc(dataBr(a.prazo))}</td></tr>`).join('')}</tbody></table>`
-    : `<p class="vazio">${PUB ? 'Nenhum acionável ainda. Use o + para incluir.' : 'Os acionáveis ficam na página publicada.'}</p>`;
+    ? `<table><thead><tr><th class="an"></th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th></tr></thead><tbody>${acionaveis.map((a, i) => `<tr title="${esc(`incluído por ${a.autor} em ${dataHora(a.criado_em)}`)}"><td class="an"><span class="num">${i + 1}</span></td><td>${esc(a.texto)}</td><td class="ar">${esc(a.responsavel)}</td><td class="ap${String(a.prazo) < hoje() ? ' vencido' : ''}">${esc(dataBr(a.prazo))}</td></tr>`).join('')}</tbody></table>`
+    : '';
 }
 
 function abrirFormAcionavel(abrir) {
