@@ -22,12 +22,28 @@ html, body { margin: 0; background: var(--fundo); color: var(--tinta); font: 13p
 .l1 { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding: 8px 16px 6px; }
 h1 { margin: 0; font-size: 15px; }
 #versao { font: inherit; font-size: 12px; color: var(--suave); background: var(--papel); border: 1px solid var(--grade); border-radius: 0; padding: 1px 4px; }
-.legenda { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--suave); }
-.legenda span { display: inline-flex; align-items: center; gap: 5px; }
-.legenda i { display: inline-block; width: 12px; height: 12px; border: 1.5px solid; }
 .l2 { display: flex; padding: 0 16px; }
 .aba { border: 1.5px solid var(--tinta); border-bottom: 0; margin-right: -1.5px; padding: 4px 16px; background: var(--fundo); cursor: pointer; user-select: none; }
 .aba.ativa { background: var(--tinta); color: var(--papel); font-weight: 600; }
+#acoes { margin: 12px 16px 0; max-width: 1100px; background: var(--papel); border: 1.5px solid var(--tinta); }
+.acab { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px; border-bottom: 1.5px solid var(--tinta); }
+.acab h2 { margin: 0; font-size: 13.5px; }
+#amais { min-width: 28px; font-size: 15px; font-weight: 700; line-height: 1.1; padding: 1px 8px; }
+#acoes table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+#acoes th { padding: 4px 10px; text-align: left; font-weight: 600; font-size: 11.5px; color: var(--suave); border-bottom: 1px solid var(--grade); }
+#acoes td { padding: 5px 10px; vertical-align: top; border-bottom: 1px solid var(--grade); overflow-wrap: anywhere; }
+#acoes tr:last-child td { border-bottom: 0; }
+#acoes .an { width: 34px; color: var(--suave); font-variant-numeric: tabular-nums; }
+#acoes .ar { width: 200px; }
+#acoes .ap { width: 96px; font-variant-numeric: tabular-nums; }
+#acoes .vencido { color: var(--vermelho); font-weight: 600; }
+#acoes .vazio { padding: 6px 10px; font-size: 12.5px; }
+#aform { display: grid; grid-template-columns: 1fr 200px 140px auto auto; gap: 6px; padding: 8px 10px; border-top: 1.5px solid var(--tinta); }
+#aform[hidden] { display: none; }
+#aform input { min-width: 0; padding: 3px 6px; font: inherit; font-size: 12.5px; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; }
+#aaviso { grid-column: 1 / -1; color: var(--vermelho); font-size: 12px; }
+#aaviso:empty { display: none; }
+.com-lateral #acoes { margin-right: 416px; }
 #nota { padding: 10px 16px 0; font-size: 13.5px; max-width: 1400px; }
 #quadro { padding: 10px 16px 24px; overflow-x: auto; }
 #quadro svg { display: block; width: 100%; min-width: 1400px; height: auto; background: var(--papel); border: 1.5px solid var(--tinta); }
@@ -89,10 +105,21 @@ code { font: 12px Consolas, monospace; }
     <select id="versao" title="Versões deste desenho; a mais nova abre primeiro"></select>
     <span id="quem" hidden></span>
     <button id="conversas" class="acao" hidden>Conversas</button>
-    <div class="legenda" id="legenda"></div>
   </div>
   <div class="l2" id="abas"></div>
 </div>
+<section id="acoes" aria-label="Acionáveis" hidden>
+  <div class="acab"><h2>Acionáveis</h2><button id="amais" class="acao" title="Incluir um acionável" hidden>+</button></div>
+  <div id="alista"></div>
+  <form id="aform" novalidate hidden>
+    <input id="atexto" maxlength="300" placeholder="O que fazer, em uma linha" required>
+    <input id="aresp" maxlength="120" placeholder="Responsável" required>
+    <input id="aprazo" type="date" title="Prazo" required>
+    <button type="submit" class="acao">Incluir</button>
+    <button type="button" id="acancelar" class="acao">Cancelar</button>
+    <span id="aaviso"></span>
+  </form>
+</section>
 <div id="nota"></div>
 <div id="quadro"></div>
 <div id="dica"></div>
@@ -155,7 +182,7 @@ const CONVERSAS = false;
 // Nos detalhes, o trecho que começa assim vai para o fim, sob o título "De onde vem": a consulta, o campo e o valor de cada constatação.
 const FONTE = '**De onde vem**';
 
-let doc = null, pag = 0, caixas = {}, registro = {}, comentarios = [], token = null, aberto = null;
+let doc = null, pag = 0, caixas = {}, registro = {}, comentarios = [], acionaveis = [], token = null, aberto = null;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // Marcação curta nos textos: **negrito**, ~~sai~~, ++entra++, ??decidir??, `código`
@@ -600,13 +627,51 @@ async function comentar() {
 
 const atualizarConversas = () => { $('#conversas').textContent = `Conversas (${comentarios.length})`; };
 
+// ---------------------------------------------------------------- acionáveis
+// No topo, valem para o desenho todo: uma linha, um responsável e um prazo. Na página publicada, quem tem link inclui pelo (+);
+// ficam no banco, na ordem em que entraram. No painel local não há banco: a seção só avisa onde eles ficam.
+const dataBr = (iso) => String(iso).slice(0, 10).split('-').reverse().join('/');
+const hoje = () => new Date().toLocaleDateString('sv-SE');
+
+function mostrarAcionaveis() {
+  $('#acoes').hidden = false;
+  $('#amais').hidden = !PUB || !$('#aform').hidden;
+  $('#alista').innerHTML = acionaveis.length
+    ? `<table><thead><tr><th class="an">#</th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th></tr></thead><tbody>${acionaveis.map((a, i) => `<tr title="${esc(`incluído por ${a.autor} em ${dataHora(a.criado_em)}`)}"><td class="an">${i + 1}.</td><td>${esc(a.texto)}</td><td class="ar">${esc(a.responsavel)}</td><td class="ap${String(a.prazo) < hoje() ? ' vencido' : ''}">${esc(dataBr(a.prazo))}</td></tr>`).join('')}</tbody></table>`
+    : `<p class="vazio">${PUB ? 'Nenhum acionável ainda. Use o + para incluir.' : 'Os acionáveis ficam na página publicada.'}</p>`;
+}
+
+function abrirFormAcionavel(abrir) {
+  $('#aform').hidden = !abrir;
+  $('#aaviso').textContent = '';
+  mostrarAcionaveis();
+  if (abrir) $('#atexto').focus();
+}
+
+async function incluirAcionavel() {
+  const texto = $('#atexto').value.trim(), responsavel = $('#aresp').value.trim(), prazo = $('#aprazo').value;
+  if (!texto || !responsavel || !prazo) { $('#aaviso').textContent = 'Preencha o que fazer, o responsável e o prazo.'; return; }
+  const botao = $('#aform [type="submit"]');
+  botao.disabled = true;
+  try {
+    acionaveis = await rpc('desenho_acionar', { p_token: token, p_texto: texto, p_responsavel: responsavel, p_prazo: prazo });
+    $('#aform').reset();
+    abrirFormAcionavel(false);
+  } catch {
+    $('#aaviso').textContent = 'Não foi salvo. O texto continua aqui; tente de novo.';
+  } finally {
+    botao.disabled = false;
+  }
+}
+
+$('#amais').addEventListener('click', () => abrirFormAcionavel(true));
+$('#acancelar').addEventListener('click', () => { $('#aform').reset(); abrirFormAcionavel(false); });
+$('#aform').addEventListener('submit', (e) => { e.preventDefault(); incluirAcionavel(); });
+
 function montar() {
   $('#titulo').textContent = doc.meta?.titulo || NOME;
   document.title = doc.meta?.titulo || 'Desenho';
-  const cores = [['vermelho', 'risco hoje, ou sai'], ['verde', 'proteção que entra'], ['azul', 'dado'], ['amarelo', 'decidir ou conferir']];
-  $('#legenda').innerHTML = cores.map(([c, t]) => `<span><i style="border-color:var(--${c});background:var(--${c}-f)"></i>${t}</span>`).join('')
-    + (doc.meta?.legenda || []).map((t) => `<span>${html(t)}</span>`).join('')
-    + `<span>${PUB ? 'passe o mouse para ler e comentar; "Ver detalhes" abre o resto' : 'passe o mouse numa caixa; "Ver detalhes" abre o resto'}</span>`;
+  mostrarAcionaveis();
   $('#abas').innerHTML = doc.paginas.map((p, i) => `<div class="aba" data-aba="${i}">${esc(p.nome)}</div>`).join('');
   pag = Math.min(pag, doc.paginas.length - 1);
   desenhar();
@@ -812,6 +877,7 @@ async function iniciarPublicado(hash) {
   }
   doc = r.conteudo;
   comentarios = r.comentarios;
+  acionaveis = r.acionaveis ?? [];
   $('#versao').hidden = true;
   $('#quem').hidden = false;
   $('#quem').textContent = `Você entrou como ${r.pessoa}`;
