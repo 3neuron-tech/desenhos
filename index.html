@@ -40,7 +40,7 @@ h1 { margin: 0; font-size: 15px; }
 #dform { margin-top: 8px; }
 .dbotoes { display: flex; gap: 6px; }
 #erro { padding: 24px 16px; color: var(--vermelho); }
-.item { cursor: pointer; }
+.item { cursor: default; }
 .item:hover > .base { stroke: var(--azul); stroke-width: 2; }
 .item.ativo > .base { stroke: var(--azul); stroke-width: 3; }
 .acao { font: inherit; font-size: 12px; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; padding: 2px 10px; cursor: pointer; }
@@ -56,6 +56,12 @@ h1 { margin: 0; font-size: 15px; }
 #lcorpo { flex: 1; overflow-y: auto; padding: 12px 14px; }
 #lcorpo h3 { margin: 14px 0 8px; font-size: 12px; }
 .ldet { white-space: pre-line; overflow-wrap: anywhere; font-size: 12.5px; }
+.links { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+.links a { color: var(--azul); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+.links a:hover { text-decoration: underline; }
+#lcorpo .links { margin: 0 0 12px; }
+.ldet.fonte { font-size: 12px; color: var(--suave); margin-bottom: 6px; }
+.ldet.fonte code { color: var(--tinta); }
 .coment { margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--grade); }
 .coment.nosso { background: var(--amarelo-f); border-color: var(--amarelo); }
 .cq { display: flex; justify-content: space-between; gap: 10px; font-size: 11.5px; color: var(--suave); }
@@ -146,6 +152,8 @@ const TEXTO = '#151515', SUAVE = '#5f5f5a';
 const PUB = window.DESENHO_PUBLICADO || null;
 // Os comentários ficam na dica de cada item. A lista de conversas e os comentários no painel lateral estão ocultos por ora (04/11).
 const CONVERSAS = false;
+// Nos detalhes, o trecho que começa assim vai para o fim, sob o título "De onde vem": a consulta, o campo e o valor de cada constatação.
+const FONTE = '**De onde vem**';
 
 let doc = null, pag = 0, caixas = {}, registro = {}, comentarios = [], token = null, aberto = null;
 
@@ -199,14 +207,26 @@ function caber(t, max) {
 
 const semMarca = (s) => String(s ?? '').replace(/\*\*|~~|\+\+|\?\?|`/g, '');
 
+// Links de um item para o console onde ele está configurado: { t, url }. Só https e só os endereços da lista;
+// o resto é ignorado. Abrem em outra aba, sem levar o endereço desta página.
+const HOSTS = ['console.cloud.google.com', 'dev.azure.com', 'hpanel.hostinger.com'];
+const linkSeguro = (l) => { try { const u = new URL(l?.url); return u.protocol === 'https:' && HOSTS.includes(u.hostname) ? u.href : null; } catch { return null; } };
+const linksDe = (lista) => (Array.isArray(lista) ? lista : []).filter((l) => linkSeguro(l));
+const linksHtml = (lista) => {
+  const ok = linksDe(lista);
+  return ok.length ? `<div class="links">${ok.map((l) => `<a href="${esc(linkSeguro(l))}" target="_blank" rel="noopener noreferrer">${esc(l.t || new URL(l.url).hostname)} ↗</a>`).join('')}</div>` : '';
+};
+const SETA = (pai, x, y) => texto(pai, x, y, '↗', { tam: 13, peso: 700, cor: tinta('azul'), ancora: 'end' });
+
 // Item clicável: o id é estável, então a mesma conta em duas listas, ou nas duas abas, é uma conversa só.
-function marcar(g, id, rotulo, dica, detalhes, lado) {
+function marcar(g, id, rotulo, dica, detalhes, lado, links) {
   if (!id) return;
   g.setAttribute('data-item', id);
   g.classList.add('item');
   if (lado) g.dataset.lado = lado;
-  const r = (registro[id] ||= { rotulo: semMarca(rotulo), dica, detalhes: [] });
+  const r = (registro[id] ||= { rotulo: semMarca(rotulo), dica, detalhes: [], links: [] });
   for (const d of detalhes || []) if (!r.detalhes.includes(d)) r.detalhes.push(d);
+  for (const l of linksDe(links)) if (!r.links.some((x) => x.url === l.url)) r.links.push(l);
 }
 
 const icone = (pai, nome, x, y, tam, cor) => el('use', { href: `#i-${nome}`, x, y, width: tam, height: tam, style: `color:${cor}` }, pai);
@@ -253,9 +273,11 @@ function no(g, it) {
     if (it.selos?.length) y = selos(ng, it.selos, x + 8, y, x + it.w - 8) + 8;
   } else {
     const xt = x + 12 + ti + 10, max = x + it.w - 10 - xt;
+    // a primeira linha de texto deixa lugar para a seta do link, no canto de cima
+    const maxTopo = max - (it.id && linksDe(it.links).length ? 16 : 0);
     y = y0 + 22;
-    if (it.sobre) { texto(ng, xt, y - 2, it.sobre, { tam: 10.5, peso: 700, cor: colorido(it.cor) ? c : SUAVE, max }); y += 17; }
-    const tt = texto(ng, xt, y, it.titulo, { tam: it.grande ? 15 : 13, peso: 700, cor: riscado ? c : TEXTO, max });
+    if (it.sobre) { texto(ng, xt, y - 2, it.sobre, { tam: 10.5, peso: 700, cor: colorido(it.cor) ? c : SUAVE, max: maxTopo }); y += 17; }
+    const tt = texto(ng, xt, y, it.titulo, { tam: it.grande ? 15 : 13, peso: 700, cor: riscado ? c : TEXTO, max: it.sobre ? max : maxTopo });
     if (riscado) tt.setAttribute('text-decoration', 'line-through');
     for (const l of it.linhas || []) { y += 16; texto(ng, xt, y, l, { tam: 12, cor: '#33332f', max }); }
     y = Math.max(y + 12, y0 + 12 + ti + 10);
@@ -269,7 +291,8 @@ function no(g, it) {
   ng.insertBefore(r, ng.firstChild);
   if (colorido(it.cor) && !it.vazado) ng.insertBefore(el('rect', { x, y: y0, width: it.w, height: 4, fill: c }), r.nextSibling);
   caixas[it.id] = { x, y: y0, w: it.w, h };
-  marcar(ng, it.id, it.titulo, it.dica, [...(it.detalhes || []), ...(it.selos || []).filter((s) => s.dica).map((s) => `**${s.t}:** ${s.dica}`)]);
+  if (it.id && linksDe(it.links).length) SETA(ng, x + it.w - 7, y0 + 19);
+  marcar(ng, it.id, it.titulo, it.dica, [...(it.detalhes || []), ...(it.selos || []).filter((s) => s.dica).map((s) => `**${s.t}:** ${s.dica}`)], undefined, it.links);
 }
 
 // Chave exportada: o número de chaves, em vermelho quando alguma está parada; "5→2" quando a correção apaga as paradas.
@@ -292,21 +315,23 @@ function lista(g, it) {
   const hCab = it.sub ? 44 : 29;
   const cab = el('g', { 'data-dica': it.dica }, lg);
   el('rect', { class: 'base', x, y: y0, width: it.w, height: hCab, fill: tinte(it.cor) }, cab);
-  marcar(cab, it.id, it.titulo, it.dica, it.detalhes, 'esq');
+  marcar(cab, it.id, it.titulo, it.dica, it.detalhes, 'esq', it.links);
   if (colorido(it.cor)) el('rect', { x, y: y0, width: it.w, height: 4, fill: c }, cab);
-  let xt = x + 10;
+  let xt = x + 10, xr = x + it.w - 10;
   if (it.icone) { icone(cab, it.icone, x + 9, y0 + 8, 16, colorido(it.cor) ? c : TEXTO); xt += 23; }
-  const conta = it.conta != null ? texto(cab, x + it.w - 10, y0 + 21, String(it.conta), { tam: 12.5, peso: 700, cor: colorido(it.cor) ? c : TEXTO, ancora: 'end' }) : null;
-  texto(cab, xt, y0 + 21, it.titulo, { tam: 12.5, peso: 700, max: x + it.w - 10 - xt - (conta ? conta.getComputedTextLength() + 8 : 0) });
+  if (it.id && linksDe(it.links).length) { SETA(cab, xr, y0 + 20); xr -= 17; }
+  const conta = it.conta != null ? texto(cab, xr, y0 + 21, String(it.conta), { tam: 12.5, peso: 700, cor: colorido(it.cor) ? c : TEXTO, ancora: 'end' }) : null;
+  texto(cab, xt, y0 + 21, it.titulo, { tam: 12.5, peso: 700, max: xr - xt - (conta ? conta.getComputedTextLength() + 8 : 0) });
   if (it.sub) texto(cab, xt, y0 + 37, it.sub, { tam: 11.5, cor: SUAVE, max: x + it.w - 10 - xt });
   let y = y0 + hCab + 4;
   for (const m of it.membros || []) {
     const mg = el('g', { 'data-dica': m.dica || m.t }, lg);
     el('rect', { class: 'base', x: x + 1, y, width: it.w - 2, height: 20, fill: m.estado === 'novo' ? tinte('verde') : 'transparent' }, mg);
-    marcar(mg, m.id || m.t, m.t, m.dica, m.detalhes, 'esq');
+    marcar(mg, m.id || m.t, m.t, m.dica, m.detalhes, 'esq', m.links);
     const corM = m.estado === 'removido' ? tinta('vermelho') : m.estado === 'novo' ? tinta('verde') : TEXTO;
     icone(mg, m.icone || 'pessoa', x + 9, y + 3, 14, corM);
     let xd = x + it.w - 9;
+    if (linksDe(m.links).length) { SETA(mg, xd, y + 15); xd -= 17; }
     if (m.chaves) xd = chave(mg, m, xd, y);
     if (m.nota) {
       const n = texto(mg, xd, y + 14, m.nota, { tam: 11, cor: colorido(m.notaCor) ? tinta(m.notaCor) : SUAVE, ancora: 'end' });
@@ -339,7 +364,7 @@ function grade(g, it) {
     const fx = x + (i % cols) * (wf + folga), fy = y + Math.floor(i / cols) * (hf + folga);
     const cor = f.cor || it.corFichas || 'neutro';
     const fg = el('g', { 'data-dica': f.dica || f.t }, gg);
-    marcar(fg, f.id || f.t, f.t, f.dica, f.detalhes);
+    marcar(fg, f.id || f.t, f.t, f.dica, f.detalhes, undefined, f.links);
     el('rect', { class: 'base', x: fx, y: fy, width: wf, height: hf, fill: tinte(cor), stroke: colorido(cor) ? tinta(cor) : '#9a9a94', 'stroke-width': 1, 'stroke-dasharray': f.estado === 'removido' ? '4 3' : null }, fg);
     icone(fg, f.icone || it.icone || 'bucket', fx + 6, fy + 5, 14, colorido(cor) ? tinta(cor) : TEXTO);
     let xd = fx + wf - 7;
@@ -366,10 +391,10 @@ function area(g, it) {
   const c = tinta(it.cor);
   el('rect', { x, y, width: w, height: h, fill: 'none', stroke: c, 'stroke-width': 1.5, 'stroke-dasharray': it.tracejada ? '7 5' : null }, g);
   const tg = el('g', { 'data-dica': it.dica }, g);
-  const t = texto(tg, x + (it.icone ? 32 : 10), y + 18, it.titulo, { tam: 12.5, peso: 700, cor: '#fff' });
+  const t = texto(tg, x + (it.icone ? 32 : 10), y + 18, it.titulo + (it.id && linksDe(it.links).length ? '  ↗' : ''), { tam: 12.5, peso: 700, cor: '#fff' });
   tg.insertBefore(el('rect', { x, y, width: t.getComputedTextLength() + (it.icone ? 44 : 22), height: 27, fill: c }), t);
   if (it.icone) icone(tg, it.icone, x + 8, y + 4.5, 18, '#fff');
-  marcar(tg, it.id, it.titulo, it.dica, [...(it.detalhes || []), ...(it.selos || []).filter((s) => s.dica).map((s) => `**${s.t}:** ${s.dica}`)]);
+  marcar(tg, it.id, it.titulo, it.dica, [...(it.detalhes || []), ...(it.selos || []).filter((s) => s.dica).map((s) => `**${s.t}:** ${s.dica}`)], undefined, it.links);
   if (it.selos?.length) {
     // selos da área: em linha, encostados no canto de cima, à direita
     const sg = el('g', {}, g);
@@ -513,9 +538,14 @@ function abrirItem(id) {
   const r = registro[id];
   const conversa = comentarios.filter((c) => c.item === id);
   $('#ltitulo').textContent = r?.rotulo || conversa[0]?.rotulo || id;
-  const detalhes = r?.detalhes.length ? r.detalhes : r?.dica ? [r.dica] : [];
-  $('#lcorpo').innerHTML = detalhes.map((d) => `<div class="ldet">${html(d)}</div>`).join('<br>')
-    + (PUB && CONVERSAS ? `<h3>Comentários</h3>${conversa.map(cartao).join('') || '<p class="vazio">Nenhum comentário ainda.</p>'}` : '');
+  const todos = r?.detalhes.length ? r.detalhes : r?.dica ? [r.dica] : [];
+  const detalhes = todos.filter((d) => !d.startsWith(FONTE));
+  const fontes = todos.filter((d) => d.startsWith(FONTE)).map((d) => d.slice(FONTE.length).replace(/^\n/, ''));
+  // Detalhes, depois de onde vem cada constatação e, no fim, os comentários do item, quando houver
+  $('#lcorpo').innerHTML = linksHtml(r?.links) + detalhes.map((d) => `<div class="ldet">${html(d)}</div>`).join('<br>')
+    + (fontes.length ? `<h3>De onde vem</h3>${fontes.map((d) => `<div class="ldet fonte">${html(d)}</div>`).join('')}` : '')
+    + (conversa.length ? `<h3>Comentários (${conversa.length})</h3>${conversa.map(cartao).join('')}`
+      : PUB && CONVERSAS ? '<h3>Comentários</h3><p class="vazio">Nenhum comentário ainda.</p>' : '');
   $('#lform').hidden = !(PUB && CONVERSAS);
   $('#laviso').textContent = '';
   realcar();
@@ -576,7 +606,7 @@ function montar() {
   const cores = [['vermelho', 'risco hoje, ou sai'], ['verde', 'proteção que entra'], ['azul', 'dado'], ['amarelo', 'decidir ou conferir']];
   $('#legenda').innerHTML = cores.map(([c, t]) => `<span><i style="border-color:var(--${c});background:var(--${c}-f)"></i>${t}</span>`).join('')
     + (doc.meta?.legenda || []).map((t) => `<span>${html(t)}</span>`).join('')
-    + `<span>${PUB ? 'passe o mouse para ler e comentar; clique para os detalhes' : 'clique numa caixa para ver os detalhes'}</span>`;
+    + `<span>${PUB ? 'passe o mouse para ler e comentar; "Ver detalhes" abre o resto' : 'passe o mouse numa caixa; "Ver detalhes" abre o resto'}</span>`;
   $('#abas').innerHTML = doc.paginas.map((p, i) => `<div class="aba" data-aba="${i}">${esc(p.nome)}</div>`).join('');
   pag = Math.min(pag, doc.paginas.length - 1);
   desenhar();
@@ -604,10 +634,8 @@ $('#abas').addEventListener('click', (e) => {
 
 $('#versao').addEventListener('change', (e) => abrir(e.target.value).catch(falhar));
 
-$('#quadro').addEventListener('click', (e) => {
-  const g = e.target.closest?.('[data-item]');
-  if (g) abrirItem(g.dataset.item);
-});
+// Os detalhes abrem pelo botão "Ver detalhes" do cartão de cada item, não pelo clique na caixa (Eduardo, 06/11)
+
 $('#lfechar').addEventListener('click', fecharLateral);
 $('#conversas').addEventListener('click', abrirConversas);
 $('#lcorpo').addEventListener('click', (e) => {
@@ -648,11 +676,13 @@ function dicaSimples(texto, e) {
 function conteudoCartao() {
   const conversa = comentarios.filter((c) => c.item === dica.item);
   return `<div class="dtexto">${html(dica.texto)}</div>`
+    + linksHtml(registro[dica.item]?.links)
     + (conversa.length ? `<div class="dconversa">${conversa.map(cartao).join('')}</div>` : '')
     + (dica.fixa
       ? `<form id="dform"><textarea id="dcampo" rows="3" maxlength="4000" placeholder="Escreva sua resposta ou comentário"></textarea>`
         + `<div class="lacoes"><span id="daviso"></span><span class="dbotoes"><button type="button" id="dcancelar" class="acao">Cancelar</button><button type="submit" class="acao">Enviar</button></span></div></form>`
-      : `<div class="dacoes"><span>${conversa.length ? `${conversa.length} comentário${conversa.length > 1 ? 's' : ''}` : ''}</span><button type="button" id="dresponder" class="acao">${conversa.length ? 'Responder' : 'Comentar'}</button></div>`);
+      : `<div class="dacoes"><span>${conversa.length ? `${conversa.length} comentário${conversa.length > 1 ? 's' : ''}` : ''}</span><span class="dbotoes"><button type="button" id="ddetalhes" class="acao">Ver detalhes</button>`
+        + `${PUB ? `<button type="button" id="dresponder" class="acao">${conversa.length ? 'Responder' : 'Comentar'}</button>` : ''}</span></div>`);
 }
 
 // Redesenha o cartão no lugar e o mantém dentro da tela quando ele cresce.
@@ -700,7 +730,7 @@ document.addEventListener('mousemove', (e) => {
   if (e.target.closest?.('#dica')) { clearTimeout(dica.timer); return; }
   if (dica.fixa) return;
   const alvo = e.target.closest?.('[data-dica], #quadro [data-item]');
-  const g = PUB ? alvo?.closest('#quadro [data-item]') : null;
+  const g = alvo?.closest('#quadro [data-item]');
   const r = g && registro[g.dataset.item];
   const texto = alvo?.getAttribute('data-dica') || r?.dica || r?.rotulo || '';
   const viva = $('#dica').classList.contains('viva');
@@ -737,7 +767,11 @@ async function responder() {
 }
 
 $('#dica').addEventListener('click', (e) => {
-  if (e.target.closest('#dresponder')) {
+  if (e.target.closest('#ddetalhes')) {
+    const id = dica.item;
+    esconderDica();
+    abrirItem(id);
+  } else if (e.target.closest('#dresponder')) {
     dica.fixa = true;
     renderCartao();
     $('#dcampo').value = dica.rascunhos[dica.item] || '';
