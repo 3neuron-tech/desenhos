@@ -39,6 +39,10 @@ h1 { margin: 0; font-size: 15px; }
 #acoes .ar { width: 200px; }
 #acoes .ap { width: 96px; font-variant-numeric: tabular-nums; }
 #acoes .vencido { color: var(--vermelho); font-weight: 600; }
+#acoes .as { width: 130px; }
+#acoes .as.feito, .ast.feito { color: var(--verde); font-weight: 600; }
+.ast { font: inherit; font-size: 12px; color: var(--tinta); background: var(--papel); border: 1px solid var(--grade); border-radius: 0; padding: 1px 2px; cursor: pointer; }
+.ast:hover { border-color: var(--tinta); }
 #acoes .ax { width: 1%; padding-left: 4px; text-align: right; white-space: nowrap; }
 .ax-b { font: inherit; font-size: 13px; line-height: 1; color: var(--suave); background: none; border: 1px solid transparent; border-radius: 0; padding: 2px 6px; cursor: pointer; }
 .ax-b:hover { color: var(--vermelho); border-color: var(--vermelho); }
@@ -650,14 +654,36 @@ function acaoLinha(a) {
     : `<td class="ax"><button type="button" class="ax-b" data-apagar="${a.id}" title="Excluir este acionável" aria-label="Excluir">✕</button></td>`;
 }
 
+// Status: em andamento ou concluído. Na página publicada muda na própria linha; concluído fica verde e o prazo deixa de contar
+const STATUS = ['em andamento', 'concluído'];
+const feito = (a) => a.status === 'concluído';
+function celulaStatus(a) {
+  const quem = a.status_por ? ` title="${esc(`${a.status} por ${a.status_por} em ${dataHora(a.status_em)}`)}"` : '';
+  return PUB
+    ? `<td class="as"${quem}><select class="ast${feito(a) ? ' feito' : ''}" data-status="${a.id}" aria-label="Status">${STATUS.map((s) => `<option${s === a.status ? ' selected' : ''}>${s}</option>`).join('')}</select></td>`
+    : `<td class="as${feito(a) ? ' feito' : ''}"${quem}>${esc(a.status)}</td>`;
+}
+
 function mostrarAcionaveis() {
   // No painel local não há banco nem (+): a seção só aparece na página publicada
   $('#acoes').hidden = !PUB && !acionaveis.length;
   $('#amais').hidden = !PUB || !$('#aform').hidden;
   $('#alista').innerHTML = acionaveis.length
-    ? `<table><thead><tr><th class="an"></th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th>${PUB ? '<th class="ax"></th>' : ''}</tr></thead><tbody>${acionaveis.map((a, i) => `<tr title="${esc(`incluído por ${a.autor} em ${dataHora(a.criado_em)}`)}"><td class="an"><span class="num">${i + 1}</span></td><td>${esc(a.texto)}</td><td class="ar">${esc(a.responsavel)}</td><td class="ap${String(a.prazo) < hoje() ? ' vencido' : ''}">${esc(dataBr(a.prazo))}</td>${acaoLinha(a)}</tr>`).join('')}</tbody></table>`
+    ? `<table><thead><tr><th class="an"></th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th><th class="as">Status</th>${PUB ? '<th class="ax"></th>' : ''}</tr></thead><tbody>${acionaveis.map((a, i) => `<tr title="${esc(`incluído por ${a.autor} em ${dataHora(a.criado_em)}`)}"><td class="an"><span class="num">${i + 1}</span></td><td>${esc(a.texto)}</td><td class="ar">${esc(a.responsavel)}</td><td class="ap${!feito(a) && String(a.prazo) < hoje() ? ' vencido' : ''}">${esc(dataBr(a.prazo))}</td>${celulaStatus(a)}${acaoLinha(a)}</tr>`).join('')}</tbody></table>`
     : '';
 }
+
+async function mudarStatus(sel) {
+  $('#aerro').textContent = '';
+  sel.disabled = true;
+  try {
+    acionaveis = await rpc('desenho_acionavel_status', { p_token: token, p_id: Number(sel.dataset.status), p_status: sel.value });
+  } catch {
+    $('#aerro').textContent = 'O status não foi salvo. Tente de novo.';
+  }
+  mostrarAcionaveis();
+}
+$('#alista').addEventListener('change', (e) => { if (e.target.matches('select[data-status]')) mudarStatus(e.target); });
 
 async function excluirAcionavel(id) {
   $('#aerro').textContent = '';
