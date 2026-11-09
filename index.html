@@ -47,7 +47,8 @@ h1 { margin: 0; font-size: 15px; }
 .ax-b { font: inherit; font-size: 13px; line-height: 1; color: var(--suave); background: none; border: 1px solid transparent; border-radius: 0; padding: 2px 6px; cursor: pointer; }
 .ax-b:hover { color: var(--vermelho); border-color: var(--vermelho); }
 .ax-b.lapis:hover { color: var(--tinta); border-color: var(--tinta); }
-.adesc { display: block; margin-top: 4px; padding: 4px 8px; border: 1px solid var(--grade); background: var(--fundo); color: var(--suave); font-size: 12px; white-space: pre-wrap; }
+#acoes td[data-dica] { cursor: help; }
+.com-desc { text-decoration: underline dotted var(--suave); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 #acoes .vazio { color: var(--suave); }
 #acoes tr.editando td { background: var(--amarelo-f); }
 .aconf { display: inline-flex; gap: 6px; }
@@ -64,7 +65,7 @@ h1 { margin: 0; font-size: 15px; }
 #nota { padding: 10px 16px 0; font-size: 13.5px; max-width: 1400px; }
 #quadro { padding: 10px 16px 24px; overflow-x: auto; }
 #quadro svg { display: block; width: 100%; min-width: 1400px; height: auto; background: var(--papel); border: 1.5px solid var(--tinta); }
-#dica { position: fixed; z-index: 5; display: none; max-width: 380px; padding: 8px 10px; background: var(--papel); border: 1.5px solid var(--tinta); box-shadow: 4px 4px 0 rgba(0, 0, 0, .12); font-size: 12.5px; white-space: pre-line; pointer-events: none; }
+#dica { position: fixed; z-index: 5; display: none; max-width: 380px; padding: 8px 10px; background: var(--papel); border: 1.5px solid var(--tinta); box-shadow: 4px 4px 0 rgba(0, 0, 0, .12); font-size: 12.5px; white-space: pre-line; overflow-wrap: anywhere; pointer-events: none; }
 #dica.viva { pointer-events: auto; width: 380px; max-width: calc(100vw - 16px); max-height: 70vh; overflow-y: auto; white-space: normal; }
 .dtexto { white-space: pre-line; overflow-wrap: anywhere; }
 .dconversa { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--grade); }
@@ -705,10 +706,14 @@ function acaoLinha(a) {
 }
 const semValor = '<span class="vazio">—</span>';
 const quemFez = (a) => `incluído por ${a.autor} em ${dataHora(a.criado_em)}` + (a.editado_por ? ` · editado por ${a.editado_por} em ${dataHora(a.editado_em)}` : '');
+// A descrição não ocupa a linha: o texto ganha um sublinhado pontilhado e ela aparece na dica ao passar o mouse,
+// como texto puro (é escrita por quem tem link). O title vazio evita a dica do navegador por cima ("incluído por…" fica no resto da linha).
 function linhaAcionavel(a, i) {
   const vencido = a.prazo && !feito(a) && String(a.prazo) < hoje();
   return `<tr${aEditar === a.id ? ' class="editando"' : ''} title="${esc(quemFez(a))}"><td class="an"><span class="num">${i + 1}</span></td>`
-    + `<td>${esc(a.texto)}${a.descricao ? `<span class="adesc">${esc(a.descricao)}</span>` : ''}</td>`
+    + (a.descricao
+      ? `<td data-dica="${esc(a.descricao)}" data-plano title=""><span class="com-desc">${esc(a.texto)}</span></td>`
+      : `<td>${esc(a.texto)}</td>`)
     + `<td class="ar">${a.responsavel ? esc(a.responsavel) : semValor}</td>`
     + `<td class="ap${vencido ? ' vencido' : ''}">${a.prazo ? esc(dataBr(a.prazo)) : semValor}</td>`
     + `${celulaStatus(a)}${acaoLinha(a)}</tr>`;
@@ -862,10 +867,10 @@ function esconderDica() {
   $('#dica').classList.remove('viva');
 }
 
-function dicaSimples(texto, e) {
+function dicaSimples(texto, e, plano = false) {
   esconderDica();
   const d = $('#dica');
-  d.innerHTML = html(texto);
+  d.innerHTML = plano ? esc(texto) : html(texto);
   d.style.display = 'block';
   const x = Math.min(e.clientX + 16, innerWidth - d.offsetWidth - 8);
   const y = e.clientY + 18 + d.offsetHeight > innerHeight ? e.clientY - d.offsetHeight - 12 : e.clientY + 18;
@@ -941,7 +946,7 @@ document.addEventListener('mousemove', (e) => {
     if (texto !== dica.texto) { dica.texto = texto; $('#dica .dtexto').innerHTML = html(texto); }
     return;
   }
-  const seguir = g ? () => { cartaoItem(g, texto, ev); dica.ancora = [ev.clientX, ev.clientY]; } : alvo && texto ? () => dicaSimples(texto, ev) : esconderDica;
+  const seguir = g ? () => { cartaoItem(g, texto, ev); dica.ancora = [ev.clientX, ev.clientY]; } : alvo && texto ? () => dicaSimples(texto, ev, alvo.hasAttribute('data-plano')) : esconderDica;
   clearTimeout(dica.timer);
   // A caminho do cartão, ele espera; se o mouse parar antes de chegar, segue para onde o mouse está
   if (viva && rumoAoCartao(e.clientX, e.clientY)) dica.timer = setTimeout(seguir, 300);
