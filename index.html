@@ -46,13 +46,18 @@ h1 { margin: 0; font-size: 15px; }
 #acoes .ax { width: 1%; padding-left: 4px; text-align: right; white-space: nowrap; }
 .ax-b { font: inherit; font-size: 13px; line-height: 1; color: var(--suave); background: none; border: 1px solid transparent; border-radius: 0; padding: 2px 6px; cursor: pointer; }
 .ax-b:hover { color: var(--vermelho); border-color: var(--vermelho); }
+.ax-b.lapis:hover { color: var(--tinta); border-color: var(--tinta); }
+.adesc { display: block; margin-top: 4px; padding: 4px 8px; border: 1px solid var(--grade); background: var(--fundo); color: var(--suave); font-size: 12px; white-space: pre-wrap; }
+#acoes .vazio { color: var(--suave); }
+#acoes tr.editando td { background: var(--amarelo-f); }
 .aconf { display: inline-flex; gap: 6px; }
 .acao.perigo { color: var(--vermelho); border-color: var(--vermelho); }
 .acao.perigo:hover { background: var(--vermelho); color: var(--papel); }
 #aerro { margin-left: auto; color: var(--vermelho); font-size: 12px; }
 #aform { display: grid; grid-template-columns: 1fr 200px 140px auto auto; gap: 6px; padding: 8px 10px; border-top: 1.5px solid var(--tinta); }
 #aform[hidden] { display: none; }
-#aform input { min-width: 0; padding: 3px 6px; font: inherit; font-size: 12.5px; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; }
+#aform input, #aform textarea { min-width: 0; padding: 3px 6px; font: inherit; font-size: 12.5px; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; }
+#aform textarea { grid-column: 1 / 4; min-height: 44px; resize: vertical; color: var(--suave); background: var(--fundo); border-color: var(--grade); }
 #aaviso { grid-column: 1 / -1; color: var(--vermelho); font-size: 12px; }
 #aaviso:empty { display: none; }
 .com-lateral #acoes { margin-right: 416px; }
@@ -104,6 +109,13 @@ h1 { margin: 0; font-size: 15px; }
 #ltexto, #dcampo { display: block; width: 100%; padding: 6px 8px; font: inherit; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; resize: vertical; }
 .lacoes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; font-size: 12px; color: var(--suave); }
 #laviso, #daviso { color: var(--vermelho); }
+.tacessos { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tacessos th { padding: 4px 6px; text-align: left; font-weight: 600; font-size: 11.5px; color: var(--suave); border-bottom: 1.5px solid var(--tinta); }
+.tacessos td { padding: 6px; vertical-align: top; border-bottom: 1px solid var(--grade); overflow-wrap: anywhere; }
+.tacessos small { display: block; color: var(--suave); font-size: 11px; }
+.tacessos .alerta { color: var(--amarelo); font-weight: 600; }
+.tacessos .fim { color: var(--vermelho); font-weight: 600; }
+.tacessos tr.fora b { color: var(--suave); font-weight: 600; }
 .s { color: var(--vermelho); text-decoration: line-through; }
 .e { color: var(--verde); font-weight: 600; }
 .d { color: var(--amarelo); font-weight: 600; }
@@ -116,6 +128,7 @@ code { font: 12px Consolas, monospace; }
     <h1 id="titulo">Desenho</h1>
     <select id="versao" title="Versões deste desenho; a mais nova abre primeiro"></select>
     <span id="quem" hidden></span>
+    <button id="acessos" class="acao" title="Quem tem link para este desenho e até quando vale" hidden>Acessos</button>
     <button id="conversas" class="acao" hidden>Conversas</button>
   </div>
   <div class="l2" id="abas"></div>
@@ -125,10 +138,11 @@ code { font: 12px Consolas, monospace; }
   <div id="alista"></div>
   <form id="aform" novalidate hidden>
     <input id="atexto" maxlength="300" placeholder="O que fazer, em uma linha" required>
-    <input id="aresp" maxlength="120" placeholder="Responsável" required>
-    <input id="aprazo" type="date" title="Prazo" required>
+    <input id="aresp" maxlength="120" placeholder="Responsável (opcional)">
+    <input id="aprazo" type="date" title="Prazo (opcional)" aria-label="Prazo (opcional)">
     <button type="submit" class="acao">Incluir</button>
     <button type="button" id="acancelar" class="acao">Cancelar</button>
+    <textarea id="adesc" maxlength="2000" rows="2" placeholder="Descrição (opcional): o que ajuda a entender este acionável"></textarea>
     <span id="aaviso"></span>
   </form>
 </section>
@@ -194,7 +208,7 @@ const CONVERSAS = false;
 // Nos detalhes, o trecho que começa assim vai para o fim, sob o título "De onde vem": a consulta, o campo e o valor de cada constatação.
 const FONTE = '**De onde vem**';
 
-let doc = null, pag = 0, caixas = {}, registro = {}, comentarios = [], acionaveis = [], token = null, aberto = null;
+let doc = null, pag = 0, caixas = {}, registro = {}, comentarios = [], acionaveis = [], token = null, aberto = null, eu = null, organizador = false;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // Marcação curta nos textos: **negrito**, ~~sai~~, ++entra++, ??decidir??, `código`
@@ -639,19 +653,65 @@ async function comentar() {
 
 const atualizarConversas = () => { $('#conversas').textContent = `Conversas (${comentarios.length})`; };
 
+// ---------------------------------------------------------------- acessos
+// Só para quem organiza o desenho: quem tem link, quantos dias faltam e quando entrou. Abre no painel lateral, lido na hora.
+const diaBr = (iso) => new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+const diasAte = (iso) => {
+  const d = new Date(iso), h = new Date();
+  return Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(h.getFullYear(), h.getMonth(), h.getDate())) / 864e5);
+};
+function situacao(a) {
+  if (a.revogado_em) return ['fim', `revogado em ${diaBr(a.revogado_em)}`];
+  if (new Date(a.expira_em) <= new Date()) return ['fim', `venceu em ${diaBr(a.expira_em)}`];
+  const n = diasAte(a.expira_em);
+  return [n <= 3 ? 'alerta' : '', n <= 0 ? 'vence hoje' : n === 1 ? 'falta 1 dia' : `faltam ${n} dias`];
+}
+
+async function abrirAcessos() {
+  aberto = null;
+  realcar();
+  esconderDica();
+  $('#ltitulo').textContent = 'Acessos';
+  $('#lform').hidden = true;
+  $('#lcorpo').innerHTML = '<p class="vazio">Lendo os acessos…</p>';
+  mostrarLateral();
+  let lista;
+  try { lista = await rpc('desenho_acessos', { p_token: token }); } catch { lista = null; }
+  // se, enquanto lia, a pessoa abriu os detalhes de um item, o painel é dele
+  if (aberto || $('#ltitulo').textContent !== 'Acessos') return;
+  $('#lcorpo').innerHTML = !lista ? '<p class="vazio">Não foi possível ler os acessos. Tente de novo.</p>'
+    : `<table class="tacessos"><thead><tr><th>Pessoa</th><th>Link</th><th title="Vezes que a pessoa abriu a página, e a última atividade">Entradas</th></tr></thead><tbody>${lista.map((a) => {
+      const [cls, txt] = situacao(a);
+      return `<tr${cls === 'fim' ? ' class="fora"' : ''}><td><b>${esc(a.pessoa)}</b>${a.pessoa === eu ? ' (você)' : ''}<small>${esc(a.email || '')}</small></td>`
+        + `<td><span class="${cls}">${esc(txt)}</span><small>até ${esc(diaBr(a.expira_em))}</small></td>`
+        + `<td>${Number(a.usos) || 0}<small>${a.ultimo_uso ? `última ${esc(dataHora(a.ultimo_uso))}` : 'nunca entrou'}</small></td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+
 // ---------------------------------------------------------------- acionáveis
 // No topo, valem para o desenho todo: uma linha, um responsável e um prazo. Na página publicada, quem tem link inclui pelo (+);
 // ficam no banco, na ordem em que entraram. No painel local não há banco: a seção só avisa onde eles ficam.
 const dataBr = (iso) => String(iso).slice(0, 10).split('-').reverse().join('/');
 const hoje = () => new Date().toLocaleDateString('sv-SE');
 
-// O ✕ de uma linha pede confirmação ali mesmo (sem janela do navegador); excluído, o item fica no banco com quem excluiu
-let aExcluir = null;
+// O ✕ de uma linha pede confirmação ali mesmo (sem janela do navegador); excluído, o item fica no banco com quem excluiu.
+// O ✎ só aparece para link de organizador (o banco também só aceita a edição dele) e abre a linha no formulário de baixo.
+let aExcluir = null, aEditar = null;
 function acaoLinha(a) {
   if (!PUB) return '';
   return aExcluir === a.id
     ? `<td class="ax"><span class="aconf"><button type="button" class="acao perigo" data-confirmar="${a.id}">Excluir</button><button type="button" class="acao" data-cancelar>Cancelar</button></span></td>`
-    : `<td class="ax"><button type="button" class="ax-b" data-apagar="${a.id}" title="Excluir este acionável" aria-label="Excluir">✕</button></td>`;
+    : `<td class="ax">${organizador ? `<button type="button" class="ax-b lapis" data-editar="${a.id}" title="Editar este acionável" aria-label="Editar">✎</button>` : ''}<button type="button" class="ax-b" data-apagar="${a.id}" title="Excluir este acionável" aria-label="Excluir">✕</button></td>`;
+}
+const semValor = '<span class="vazio">—</span>';
+const quemFez = (a) => `incluído por ${a.autor} em ${dataHora(a.criado_em)}` + (a.editado_por ? ` · editado por ${a.editado_por} em ${dataHora(a.editado_em)}` : '');
+function linhaAcionavel(a, i) {
+  const vencido = a.prazo && !feito(a) && String(a.prazo) < hoje();
+  return `<tr${aEditar === a.id ? ' class="editando"' : ''} title="${esc(quemFez(a))}"><td class="an"><span class="num">${i + 1}</span></td>`
+    + `<td>${esc(a.texto)}${a.descricao ? `<span class="adesc">${esc(a.descricao)}</span>` : ''}</td>`
+    + `<td class="ar">${a.responsavel ? esc(a.responsavel) : semValor}</td>`
+    + `<td class="ap${vencido ? ' vencido' : ''}">${a.prazo ? esc(dataBr(a.prazo)) : semValor}</td>`
+    + `${celulaStatus(a)}${acaoLinha(a)}</tr>`;
 }
 
 // Status: em andamento ou concluído. Na página publicada muda na própria linha; concluído fica verde e o prazo deixa de contar
@@ -669,7 +729,7 @@ function mostrarAcionaveis() {
   $('#acoes').hidden = !PUB && !acionaveis.length;
   $('#amais').hidden = !PUB || !$('#aform').hidden;
   $('#alista').innerHTML = acionaveis.length
-    ? `<table><thead><tr><th class="an"></th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th><th class="as">Status</th>${PUB ? '<th class="ax"></th>' : ''}</tr></thead><tbody>${acionaveis.map((a, i) => `<tr title="${esc(`incluído por ${a.autor} em ${dataHora(a.criado_em)}`)}"><td class="an"><span class="num">${i + 1}</span></td><td>${esc(a.texto)}</td><td class="ar">${esc(a.responsavel)}</td><td class="ap${!feito(a) && String(a.prazo) < hoje() ? ' vencido' : ''}">${esc(dataBr(a.prazo))}</td>${celulaStatus(a)}${acaoLinha(a)}</tr>`).join('')}</tbody></table>`
+    ? `<table><thead><tr><th class="an"></th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th><th class="as">Status</th>${PUB ? '<th class="ax"></th>' : ''}</tr></thead><tbody>${acionaveis.map(linhaAcionavel).join('')}</tbody></table>`
     : '';
 }
 
@@ -699,26 +759,37 @@ async function excluirAcionavel(id) {
 $('#alista').addEventListener('click', (e) => {
   const b = e.target.closest('button');
   if (!b) return;
-  if (b.dataset.apagar) { aExcluir = Number(b.dataset.apagar); mostrarAcionaveis(); }
+  if (b.dataset.editar) abrirFormAcionavel(true, acionaveis.find((a) => a.id === Number(b.dataset.editar)));
+  else if (b.dataset.apagar) { aExcluir = Number(b.dataset.apagar); mostrarAcionaveis(); }
   else if (b.dataset.confirmar) { b.disabled = true; excluirAcionavel(Number(b.dataset.confirmar)); }
   else if ('cancelar' in b.dataset) { aExcluir = null; mostrarAcionaveis(); }
 });
 
-function abrirFormAcionavel(abrir) {
+// O mesmo formulário inclui (pelo +) e edita (pelo ✎, preenchido com a linha). Só "o que fazer" é obrigatório.
+function abrirFormAcionavel(abrir, a = null) {
+  aEditar = abrir && a ? a.id : null;
+  $('#aform').reset();
+  if (a) {
+    $('#atexto').value = a.texto;
+    $('#aresp').value = a.responsavel ?? '';
+    $('#aprazo').value = a.prazo ? String(a.prazo).slice(0, 10) : '';
+    $('#adesc').value = a.descricao ?? '';
+  }
+  $('#aform [type="submit"]').textContent = aEditar ? 'Salvar' : 'Incluir';
   $('#aform').hidden = !abrir;
   $('#aaviso').textContent = '';
   mostrarAcionaveis();
   if (abrir) $('#atexto').focus();
 }
 
-async function incluirAcionavel() {
-  const texto = $('#atexto').value.trim(), responsavel = $('#aresp').value.trim(), prazo = $('#aprazo').value;
-  if (!texto || !responsavel || !prazo) { $('#aaviso').textContent = 'Preencha o que fazer, o responsável e o prazo.'; return; }
+async function salvarAcionavel() {
+  const texto = $('#atexto').value.trim();
+  if (!texto) { $('#aaviso').textContent = 'Preencha o que fazer.'; return; }
+  const campos = { p_token: token, p_texto: texto, p_responsavel: $('#aresp').value.trim() || null, p_prazo: $('#aprazo').value || null, p_descricao: $('#adesc').value.trim() || null };
   const botao = $('#aform [type="submit"]');
   botao.disabled = true;
   try {
-    acionaveis = await rpc('desenho_acionar', { p_token: token, p_texto: texto, p_responsavel: responsavel, p_prazo: prazo });
-    $('#aform').reset();
+    acionaveis = aEditar ? await rpc('desenho_acionavel_editar', { ...campos, p_id: aEditar }) : await rpc('desenho_acionar', campos);
     abrirFormAcionavel(false);
   } catch {
     $('#aaviso').textContent = 'Não foi salvo. O texto continua aqui; tente de novo.';
@@ -728,8 +799,8 @@ async function incluirAcionavel() {
 }
 
 $('#amais').addEventListener('click', () => abrirFormAcionavel(true));
-$('#acancelar').addEventListener('click', () => { $('#aform').reset(); abrirFormAcionavel(false); });
-$('#aform').addEventListener('submit', (e) => { e.preventDefault(); incluirAcionavel(); });
+$('#acancelar').addEventListener('click', () => abrirFormAcionavel(false));
+$('#aform').addEventListener('submit', (e) => { e.preventDefault(); salvarAcionavel(); });
 
 function montar() {
   $('#titulo').textContent = doc.meta?.titulo || NOME;
@@ -766,6 +837,7 @@ $('#versao').addEventListener('change', (e) => abrir(e.target.value).catch(falha
 
 $('#lfechar').addEventListener('click', fecharLateral);
 $('#conversas').addEventListener('click', abrirConversas);
+$('#acessos').addEventListener('click', abrirAcessos);
 $('#lcorpo').addEventListener('click', (e) => {
   const b = e.target.closest('[data-abre]');
   if (b) abrirItem(b.dataset.abre);
@@ -924,26 +996,34 @@ function falhar(erro) {
   $('#quadro').innerHTML = `<div id="erro">${esc(erro.message || erro)}</div>`;
 }
 
-// Publicada: o link pessoal vem no endereço, fica só nesta aba do navegador e sai da barra de endereço.
+// Publicada: o link pessoal vem no endereço e sai da barra. O navegador o guarda (localStorage) até ele vencer ou ser revogado,
+// então fechar a aba não pede o link de novo. O que ficou guardado da versão anterior, só na aba (sessionStorage), passa para cá.
+const GUARDA = 'desenho-acesso';
+const lerAcesso = () => { try { return localStorage.getItem(GUARDA) || sessionStorage.getItem(GUARDA); } catch { return null; } };
+const gravarAcesso = (t) => { try { localStorage.setItem(GUARDA, t); sessionStorage.removeItem(GUARDA); } catch { } };
+const esquecerAcesso = () => { try { localStorage.removeItem(GUARDA); sessionStorage.removeItem(GUARDA); } catch { } };
+
 async function iniciarPublicado(hash) {
   const doLink = hash.get('acesso');
-  try {
-    if (doLink) sessionStorage.setItem('desenho-acesso', doLink);
-    token = doLink || sessionStorage.getItem('desenho-acesso');
-  } catch { token = doLink; }
+  token = doLink || lerAcesso();
   history.replaceState(null, '', location.pathname + (hash.get('aba') ? `#aba=${hash.get('aba')}` : ''));
   const r = token ? await rpc('desenho_abrir', { p_token: token }) : null;
+  $('#versao').hidden = true;
   if (!r) {
-    $('#versao').hidden = true;
-    falhar('Este endereço precisa do seu link pessoal. Se ele venceu ou não abre, peça um novo à 3Neuron.');
+    // um link guardado que não abre mais é esquecido; um link novo que não abre não apaga o que estava guardado
+    if (token && !doLink) esquecerAcesso();
+    falhar(token ? 'Este link venceu ou foi revogado. Peça um novo à 3Neuron.' : 'Esta página abre pelo seu link pessoal. Abra o link que a 3Neuron mandou para você.');
     return;
   }
+  gravarAcesso(token);
   doc = r.conteudo;
   comentarios = r.comentarios;
   acionaveis = r.acionaveis ?? [];
-  $('#versao').hidden = true;
+  eu = r.pessoa;
   $('#quem').hidden = false;
-  $('#quem').textContent = `Você entrou como ${r.pessoa}`;
+  $('#quem').textContent = `Você entrou como ${r.pessoa}` + (r.expira_em ? ` · seu link vale até ${diaBr(r.expira_em)}` : '');
+  organizador = !!r.organizador;
+  $('#acessos').hidden = !organizador;
   $('#conversas').hidden = !CONVERSAS;
   atualizarConversas();
   montar();
