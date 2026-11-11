@@ -79,13 +79,12 @@ h1 { margin: 0; font-size: 15px; }
 .ax-b.lapis:hover { color: var(--tinta); border-color: var(--tinta); }
 .ax-b.some, #acoes tr.confirmando .as > * { visibility: hidden; }
 #acoes .an[data-dica], #acoes .ap[data-dica] { cursor: help; }
-#acoes td[data-desc] { cursor: pointer; }
+#acoes td[data-abrir] { cursor: pointer; }
 .com-desc { text-decoration: underline dotted var(--suave); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
-.com-desc[aria-expanded="true"] { font-weight: 600; text-decoration: none; }
-.adesc-t { margin: 5px 0 3px; padding: 1px 0 1px 10px; max-width: 760px; border-left: 2px solid var(--grade); color: #33332f; white-space: pre-line; overflow-wrap: anywhere; cursor: text; }
+#acoes td[data-abrir]:hover .alink { text-decoration: underline solid var(--tinta); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+.acont { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 16px; margin-left: 8px; padding: 0 4px; background: var(--azul); color: #fff; font-size: 11px; font-weight: 700; vertical-align: 1px; }
 #acoes .vazio { color: var(--suave); }
 #acoes tbody tr:not(.editando):not(.aedicao):not(.adiv):hover td { background: #f8f8f5; }
-#acoes tbody tr.aberta td { vertical-align: top; }
 #acoes tr.feito td { color: var(--suave); }
 #acoes tr.feito .num { color: var(--verde); border-color: var(--verde); background: var(--verde-f); }
 #acoes tr.adiv td { padding: 0; background: var(--fundo); }
@@ -113,6 +112,7 @@ h1 { margin: 0; font-size: 15px; }
 .acao.cheia:hover { background: #3a3a36; }
 .aedicao #aform { border-top: 0; background: var(--amarelo-f); }
 .com-lateral #acoes { margin-right: 416px; }
+.com-lateral #apagina { margin-left: 0; margin-right: 400px; }
 @media (max-width: 720px) {
   #aform { grid-template-columns: 1fr 1fr; }
   #aform .c-texto { grid-column: 1 / -1; }
@@ -120,6 +120,47 @@ h1 { margin: 0; font-size: 15px; }
   #acoes .as { width: 112px; }
 }
 @media (prefers-reduced-motion: reduce) { .seta { transition: none; } #acoes tr.nova td { animation: none; } }
+/* Página do acionável: tela cheia no lugar do desenho. A volta fica no topo, que acompanha a rolagem */
+.l3 { display: flex; align-items: center; gap: 8px; padding: 2px 16px 8px; }
+.l3[hidden], #apagina[hidden], #adet-cx[hidden] { display: none; }
+#ponde { flex: 1; min-width: 0; font-size: 12px; color: var(--suave); }
+.na-pagina .l2, .na-pagina #acoes, .na-pagina #nota, .na-pagina #quadro { display: none; }
+#apagina { max-width: 900px; margin: 16px auto 48px; padding: 0 16px; }
+.pg { background: var(--papel); border: 1.5px solid var(--tinta); }
+.pg-cab { display: flex; align-items: flex-start; gap: 12px; padding: 18px 22px 16px; }
+.pg-cab .num { flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; padding: 0 5px; border: 1.5px solid var(--tinta); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pg.feito .pg-cab .num { color: var(--verde); border-color: var(--verde); background: var(--verde-f); }
+.pg-cab h2 { flex: 1; min-width: 0; margin: 2px 0 0; font-size: 19px; line-height: 1.3; overflow-wrap: anywhere; }
+.pg-meta { display: flex; flex-wrap: wrap; margin: 0; border-top: 1.5px solid var(--tinta); border-bottom: 1.5px solid var(--tinta); }
+.pg-meta > div { flex: 1 1 170px; padding: 9px 22px 10px; border-right: 1px solid var(--grade); }
+.pg-meta > div:last-child { border-right: 0; }
+.pg-meta dt { font-size: 11.5px; font-weight: 600; color: var(--suave); }
+.pg-meta dd { margin: 2px 0 0; font-size: 13.5px; overflow-wrap: anywhere; }
+.pg-meta small { display: block; margin-top: 1px; color: var(--suave); font-size: 11.5px; }
+.pg-meta .vencido { color: var(--vermelho); font-weight: 600; }
+.pg-texto { padding: 18px 22px 8px; font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+.pg-resumo { margin: 0 0 14px; font-size: 14.5px; white-space: pre-line; }
+.pg-corpo h3 { margin: 20px 0 6px; padding-top: 12px; border-top: 1px solid var(--grade); font-size: 13px; }
+.pg-corpo > h3:first-child { margin-top: 4px; }
+.pg-corpo p { margin: 0 0 10px; }
+.pg-corpo ul { margin: 0 0 10px; padding-left: 20px; }
+.pg-corpo li { margin-bottom: 4px; }
+.pg-aba { font: inherit; font-weight: 600; color: var(--azul); background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; }
+.pg-aba:hover { text-decoration: underline; }
+.pg-conversa { padding: 14px 22px 18px; border-top: 1.5px solid var(--tinta); }
+.pg-conversa h3 { margin: 0 0 10px; font-size: 13px; }
+#pcampo { display: block; width: 100%; padding: 6px 8px; font: inherit; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; resize: vertical; }
+#paviso { color: var(--vermelho); }
+.pg-rodape { padding: 8px 22px 9px; border-top: 1px solid var(--grade); font-size: 11.5px; color: var(--suave); }
+#pedicao #aform { border-top: 1.5px solid var(--tinta); background: var(--amarelo-f); }
+#aform #adet { min-height: 220px; color: var(--tinta); background: var(--papel); border-color: var(--tinta); font-family: Consolas, monospace; font-size: 12px; }
+/* Seção do desenho que recolhe: o botão fica no canto de cima da caixa que a resume */
+.dobra { cursor: pointer; }
+.dobra:hover rect { fill: var(--tinta); }
+.dobra:hover text { fill: #fff; }
+.dobra:hover path { stroke: #fff; }
+.dobra:focus-visible rect { stroke: var(--azul); stroke-width: 2.4; }
+.dobra:focus-visible { outline: none; }
 #nota { padding: 10px 16px 0; font-size: 13.5px; max-width: 1400px; }
 #quadro { padding: 10px 16px 24px; overflow-x: auto; }
 #quadro svg { display: block; width: 100%; min-width: 1400px; height: auto; background: var(--papel); border: 1.5px solid var(--tinta); }
@@ -197,7 +238,14 @@ code { font: 12px Consolas, monospace; }
     </span>
   </div>
   <div class="l2" id="abas" role="tablist"></div>
+  <div class="l3" id="pnav" hidden>
+    <button type="button" id="pvoltar" class="acao" title="Voltar para onde você estava (Esc)">← Voltar</button>
+    <span id="ponde"></span>
+    <button type="button" id="pant" class="acao" title="Acionável anterior" aria-label="Acionável anterior">‹</button>
+    <button type="button" id="pprox" class="acao" title="Próximo acionável" aria-label="Próximo acionável">›</button>
+  </div>
 </div>
+<main id="apagina" aria-label="Acionável" hidden></main>
 <section id="acoes" aria-label="Acionáveis" hidden>
   <div class="acab">
     <h2><button type="button" id="adobra" aria-expanded="true" aria-controls="acorpo"><svg class="seta" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3l3.5 4 3.5-4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Acionáveis</button></h2>
@@ -210,6 +258,7 @@ code { font: 12px Consolas, monospace; }
       <label><span>Responsável <i>(opcional)</i></span><input id="aresp" maxlength="120" list="aquem" autocomplete="off"></label>
       <label><span>Prazo <i>(opcional)</i></span><input id="aprazo" type="date"></label>
       <label class="c-desc"><span>Descrição <i>(opcional)</i></span><textarea id="adesc" maxlength="2000" rows="2" placeholder="O que ajuda a entender este acionável"></textarea></label>
+      <label class="c-desc" id="adet-cx" hidden><span>Detalhes <i>(só na página do acionável; "## " abre uma seção, "- " faz um item de lista)</i></span><textarea id="adet" maxlength="12000" rows="12"></textarea></label>
       <div class="afim"><span id="aaviso"></span><button type="button" id="acancelar" class="acao">Cancelar</button><button type="submit" class="acao cheia">Incluir</button></div>
       <datalist id="aquem"></datalist>
     </form>
@@ -282,6 +331,10 @@ const CONVERSAS = false;
 const FONTE = '**De onde vem**';
 
 let doc = null, pag = 0, abaPedida = false, caixas = {}, registro = {}, comentarios = [], acionaveis = [], token = null, aberto = null, eu = null, organizador = false;
+// Seções que recolhem: uma caixa com "recolhe": [ids] resume um trecho do desenho e ganha um botão que mostra ou esconde esses itens.
+// "recolhido": true faz a seção abrir fechada. O que a pessoa abriu vale até recarregar a página.
+const dobras = {};
+const dobraAberta = (it) => dobras[`${pag}:${it.id}`] ?? !it.recolhido;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // Marcação curta nos textos: **negrito**, ~~sai~~, ++entra++, ??decidir??, `código`
@@ -399,11 +452,23 @@ function no(g, it) {
     if (it.selos?.length) y = selos(ng, it.selos, x + 8, y, x + it.w - 8) + 8;
   } else {
     const xt = x + 12 + ti + 10, max = x + it.w - 10 - xt;
+    // Seção que recolhe: o botão fica no canto de cima, à direita, e as duas primeiras linhas de texto deixam lugar para ele
+    let reserva = 0;
+    if (it.id && it.recolhe?.length) {
+      const aberta = dobraAberta(it);
+      const dg = el('g', { class: 'dobra', 'data-dobra': it.id, role: 'button', tabindex: 0, 'aria-expanded': String(aberta), 'aria-label': aberta ? 'Recolher esta seção' : 'Abrir o detalhe desta seção' }, ng);
+      const rot = texto(dg, 0, y0 + 24.5, aberta ? 'Recolher' : `Abrir o detalhe (${it.recolhe.length})`, { tam: 11.5, peso: 600 });
+      const wd = rot.getComputedTextLength() + 31, xd = x + it.w - 10 - wd;
+      rot.setAttribute('x', xd + 23);
+      dg.insertBefore(el('rect', { x: xd, y: y0 + 10, width: wd, height: 21, fill: '#fff', stroke: TEXTO, 'stroke-width': 1.2 }), rot);
+      el('path', { d: aberta ? `M${xd + 7} ${y0 + 18}l4.5 5 4.5-5` : `M${xd + 9} ${y0 + 16}l5 4.5-5 4.5`, fill: 'none', stroke: TEXTO, 'stroke-width': 1.8 }, dg);
+      reserva = wd + 10;
+    }
     // a primeira linha de texto deixa lugar para a seta do link, no canto de cima
-    const maxTopo = max - (it.id && linksDe(it.links).length ? 16 : 0);
+    const maxTopo = max - (it.id && linksDe(it.links).length ? 16 : 0) - reserva;
     y = y0 + 22;
     if (it.sobre) { texto(ng, xt, y - 2, it.sobre, { tam: 10.5, peso: 700, cor: colorido(it.cor) ? c : SUAVE, max: maxTopo }); y += 17; }
-    const tt = texto(ng, xt, y, it.titulo, { tam: it.grande ? 15 : 13, peso: 700, cor: riscado ? c : TEXTO, max: it.sobre ? max : maxTopo });
+    const tt = texto(ng, xt, y, it.titulo, { tam: it.grande ? 15 : 13, peso: 700, cor: riscado ? c : TEXTO, max: it.sobre ? max - reserva : maxTopo });
     if (riscado) tt.setAttribute('text-decoration', 'line-through');
     for (const l of it.linhas || []) { y += 16; texto(ng, xt, y, l, { tam: 12, cor: '#33332f', max }); }
     y = Math.max(y + 12, y0 + 12 + ti + 10);
@@ -630,7 +695,11 @@ function desenhar() {
   const svg = el('svg', { 'font-family': '"Segoe UI", system-ui, sans-serif' }, quadro);
   const fundo = el('g', {}, svg), fios = el('g', {}, svg), itens = el('g', {}, svg), pontas = el('g', {}, svg);
   const areas = [];
+  // os itens de uma seção recolhida não são desenhados; as ligações deles somem junto (sem caixa, não há ligação)
+  const recolhidos = new Set(p.itens.filter((it) => it.id && it.recolhe?.length && !dobraAberta(it)).flatMap((it) => it.recolhe));
+  if (aberto && recolhidos.has(aberto)) fecharLateral();
   for (const it of p.itens) {
+    if (recolhidos.has(it.id)) continue;
     if (it.tipo === 'area') { areas.push(it); continue; }
     ({ no, lista, grade, rotulo: rotuloLivre }[it.tipo] || no)(itens, it);
   }
@@ -648,6 +717,21 @@ function desenhar() {
   document.querySelectorAll('#ocultas-menu button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.aba) === pag)));
   if (aberto) abrirItem(aberto);
 }
+
+// O botão de uma seção que recolhe: um clique (ou Enter) mostra ou esconde os itens dela e redesenha a aba
+function alternarDobra(id) {
+  const it = doc.paginas[pag].itens.find((i) => i.id === id);
+  if (!it) return;
+  dobras[`${pag}:${id}`] = !dobraAberta(it);
+  esconderDica();
+  desenhar();
+  if (porTeclado) document.querySelector(`#quadro [data-dobra="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
+}
+$('#quadro').addEventListener('click', (e) => { const d = e.target.closest?.('[data-dobra]'); if (d) alternarDobra(d.dataset.dobra); });
+$('#quadro').addEventListener('keydown', (e) => {
+  const d = (e.key === 'Enter' || e.key === ' ') && e.target.closest?.('[data-dobra]');
+  if (d) { e.preventDefault(); alternarDobra(d.dataset.dobra); }
+});
 
 // ---------------------------------------------------------------- painel lateral
 
@@ -777,7 +861,6 @@ const DOBRA = '<svg class="seta" viewBox="0 0 10 10" aria-hidden="true"><path d=
 const DOBRADO = 'desenho-acionaveis-fechados';
 let aFechado = (() => { try { return localStorage.getItem(DOBRADO) === '1'; } catch { return false; } })();
 let aQuem = null, verFeitos = false, aNova = null, ordemA = new Map();
-const aAbertas = new Set();
 
 // Refazer a lista tira o foco de quem navega pelo teclado: ele volta para o mesmo controle. Com o mouse, não há o que devolver.
 let porTeclado = false;
@@ -819,8 +902,9 @@ function acaoLinha(a) {
 }
 const semValor = '<span class="vazio">—</span>';
 const quemFez = (a) => `incluído por ${a.autor} em ${dataHora(a.criado_em)}` + (a.editado_por ? ` · editado por ${a.editado_por} em ${dataHora(a.editado_em)}` : '');
-// A descrição não ocupa a linha: o texto ganha um sublinhado pontilhado e ela aparece na dica ao passar o mouse,
-// como texto puro (é escrita por quem tem link). Um clique na célula a deixa aberta sob o texto, e outro a recolhe.
+// A linha traz só o que fazer: um clique nela abre a página do acionável, com a descrição, os detalhes e as respostas.
+// Quando há descrição, o texto ganha um sublinhado pontilhado e ela aparece na dica ao passar o mouse, como texto puro
+// (é escrita por quem tem link). O quadrado azul ao lado conta as respostas.
 // O número é o da ordem de entrada e não muda com o filtro; quem incluiu e quem editou ficam na dica do número.
 const colunas = () => (PUB ? 6 : 5);
 function celulaPrazo(a) {
@@ -830,11 +914,11 @@ function celulaPrazo(a) {
   return `<td class="ap${vencido(a) ? ' vencido' : ''}"${falta ? ` data-dica="${falta}" data-plano` : ''}>${esc(dataBr(a.prazo))}</td>`;
 }
 function linhaAcionavel(a) {
-  const aberta = !!a.descricao && aAbertas.has(a.id);
-  const classes = [aEditar === a.id && 'editando', feito(a) && 'feito', aberta && 'aberta', aNova === a.id && 'nova', aExcluir === a.id && 'confirmando'].filter(Boolean).join(' ');
-  const oQue = !a.descricao ? `<td class="at">${esc(a.texto)}</td>`
-    : `<td class="at" data-desc="${a.id}"${aberta ? '' : ` data-dica="${esc(a.descricao)}" data-plano data-rodape="Clique para manter aberta"`}>`
-      + `<span class="com-desc" role="button" tabindex="0" aria-expanded="${aberta}">${esc(a.texto)}</span>${aberta ? `<div class="adesc-t">${esc(a.descricao)}</div>` : ''}</td>`;
+  const classes = [aEditar === a.id && 'editando', feito(a) && 'feito', aNova === a.id && 'nova', aExcluir === a.id && 'confirmando'].filter(Boolean).join(' ');
+  const n = respostasDe(a.id).length;
+  const oQue = `<td class="at" data-abrir="${a.id}"${a.descricao ? ` data-dica="${esc(a.descricao)}" data-plano data-rodape="Clique para abrir a página deste acionável"` : ''}>`
+    + `<span class="alink${a.descricao ? ' com-desc' : ''}" role="link" tabindex="0">${esc(a.texto)}</span>`
+    + `${n ? `<span class="acont" data-dica="${plural(n, 'resposta ou comentário', 'respostas e comentários')}" data-plano>${n}</span>` : ''}</td>`;
   return `<tr${classes ? ` class="${classes}"` : ''}><td class="an" data-dica="${esc(quemFez(a))}" data-plano><span class="num">${ordemA.get(a.id)}</span></td>`
     + oQue
     + `<td class="ar">${a.responsavel ? esc(a.responsavel) : semValor}</td>`
@@ -906,7 +990,10 @@ function mostrarAcionaveis() {
   $('#aquem').innerHTML = [...new Set(acionaveis.map((a) => a.responsavel).filter(Boolean))].map((r) => `<option value="${esc(r)}">`).join('');
   $('#alista').innerHTML = tabelaAcionaveis();
   aNova = null;
-  if (aEditar != null && !form.hidden) $('#alista .aedicao td')?.appendChild(form);
+  // a página do acionável é refeita aqui, com o formulário ainda fora dela; na edição, ele entra na página ou desce para baixo da linha
+  mostrarPaginaAcionavel();
+  $('#adet-cx').hidden = !(aEditar != null && aPagina === aEditar);
+  if (aEditar != null && !form.hidden) (aPagina === aEditar ? $('#pedicao') : $('#alista .aedicao td'))?.appendChild(form);
   // sem acionável não há o que dobrar; com o formulário aberto a seção fica aberta
   $('.acab').classList.toggle('dobra', acionaveis.length > 0);
   $('#adobra').disabled = !acionaveis.length;
@@ -926,13 +1013,6 @@ $('#afiltro').addEventListener('click', (e) => {
   mostrarAcionaveis();
   refocar('#afiltro .chip[aria-pressed="true"]');
 });
-
-function alternarDescricao(id) {
-  if (aAbertas.has(id)) aAbertas.delete(id); else aAbertas.add(id);
-  esconderDica();
-  mostrarAcionaveis();
-  refocar(`#alista td[data-desc="${id}"] .com-desc`);
-}
 
 async function mudarStatus(sel) {
   $('#aerro').textContent = '';
@@ -968,24 +1048,25 @@ $('#alista').addEventListener('click', (e) => {
     else if (b.id === 'afeitos') { verFeitos = !verFeitos; mostrarAcionaveis(); refocar('#afeitos'); }
     return;
   }
-  // a célula inteira abre e recolhe a descrição; selecionar texto para copiar não conta como clique
-  const td = e.target.closest('td[data-desc]');
-  if (td && !e.target.closest('.adesc-t') && !String(getSelection()).trim()) alternarDescricao(Number(td.dataset.desc));
+  // a célula inteira abre a página do acionável; selecionar texto para copiar não conta como clique
+  const td = e.target.closest('td[data-abrir]');
+  if (td && !String(getSelection()).trim()) abrirAcionavel(Number(td.dataset.abrir));
 });
 $('#alista').addEventListener('keydown', (e) => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.com-desc')) { e.preventDefault(); alternarDescricao(Number(e.target.closest('td').dataset.desc)); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.alink')) { e.preventDefault(); abrirAcionavel(Number(e.target.closest('td').dataset.abrir)); }
 });
 
 // O mesmo formulário inclui (pelo +, no alto da seção) e edita (pelo ✎, sob a linha, preenchido com ela). Só "o que fazer" é obrigatório.
 function abrirFormAcionavel(abrir, a = null) {
   aEditar = abrir && a ? a.id : null;
-  if (abrir) dobrarAcionaveis(false);
+  if (abrir && aPagina == null) dobrarAcionaveis(false);
   $('#aform').reset();
   if (a) {
     $('#atexto').value = a.texto;
     $('#aresp').value = a.responsavel ?? '';
     $('#aprazo').value = a.prazo ? String(a.prazo).slice(0, 10) : '';
     $('#adesc').value = a.descricao ?? '';
+    $('#adet').value = a.detalhes ?? '';
   }
   $('#aform [type="submit"]').textContent = aEditar ? 'Salvar' : 'Incluir';
   $('#aform').hidden = !abrir;
@@ -1002,7 +1083,11 @@ async function salvarAcionavel() {
   botao.disabled = true;
   try {
     const antes = new Set(acionaveis.map((a) => a.id));
+    // os detalhes só se editam na página do acionável, por quem organiza, e vão por uma chamada própria
+    const detalhes = aEditar != null && aPagina === aEditar ? $('#adet').value.trim() || null : undefined;
+    const eraDet = acionaveis.find((a) => a.id === aEditar)?.detalhes ?? null;
     acionaveis = aEditar ? await rpc('desenho_acionavel_editar', { ...campos, p_id: aEditar }) : await rpc('desenho_acionar', campos);
+    if (detalhes !== undefined && detalhes !== eraDet) acionaveis = await rpc('desenho_acionavel_detalhar', { p_token: token, p_id: aEditar, p_detalhes: detalhes });
     // o que acabou de entrar aparece: sai do filtro se não couber nele, pisca e rola até ficar à vista
     const nova = acionaveis.find((a) => !antes.has(a.id));
     if (nova) { aNova = nova.id; if (!passaFiltro(nova)) aQuem = null; }
@@ -1020,6 +1105,174 @@ $('#acancelar').addEventListener('click', () => abrirFormAcionavel(false));
 $('#aform').addEventListener('submit', (e) => { e.preventDefault(); salvarAcionavel(); });
 $('#adesc').addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); salvarAcionavel(); }
+});
+
+// ---------------------------------------------------------------- página do acionável
+// Cada acionável abre numa página própria, em tela cheia, no lugar do desenho: o que fazer, o responsável, o prazo e o status
+// no alto; a descrição e os detalhes por inteiro; as respostas embaixo. O endereço ganha #acionavel=N, que serve de link.
+// "Voltar", Esc ou o voltar do navegador devolvem a pessoa ao ponto de onde ela veio.
+let aPagina = null, aVolta = 0;
+const aRascunhos = {};
+const itemAcionavel = (id) => `acionavel:${id}`;
+function respostasDe(id) { const item = itemAcionavel(id); return comentarios.filter((c) => c.item === item); }
+// a página anda pela mesma lista que a pessoa via: a filtrada, quando o acionável aberto está nela
+const vizinhosA = () => { const l = acionaveis.filter(passaFiltro); return l.some((a) => a.id === aPagina) ? l : acionaveis; };
+
+// Detalhes: texto de quem organiza, mostrado com estrutura leve. "## " abre uma seção, "- " faz um item de lista (uma linha
+// recuada continua o item), linha em branco separa parágrafos; dentro da linha vale a marcação curta (**negrito**, `código`).
+// "[[aba:Nome]]" vira um atalho para a aba do desenho com esse nome. Tudo passa pelo esc() antes de virar HTML.
+function corpoHtml(s) {
+  const out = [];
+  let par = [], lista = [];
+  const linhas = (t) => t.split('\n').map(html).join('<br>');
+  const fechar = () => {
+    if (par.length) out.push(`<p>${par.map(html).join('<br>')}</p>`);
+    if (lista.length) out.push(`<ul>${lista.map((l) => `<li>${linhas(l)}</li>`).join('')}</ul>`);
+    par = []; lista = [];
+  };
+  for (const bruta of String(s ?? '').split('\n')) {
+    const l = bruta.trimEnd();
+    if (!l.trim()) fechar();
+    else if (l.startsWith('## ')) { fechar(); out.push(`<h3>${html(l.slice(3))}</h3>`); }
+    else if (l.startsWith('- ')) { if (par.length) fechar(); lista.push(l.slice(2)); }
+    else if (lista.length && /^\s{2,}\S/.test(l)) lista[lista.length - 1] += `\n${l.trim()}`;
+    else { if (lista.length) fechar(); par.push(l.trim()); }
+  }
+  fechar();
+  return out.join('').replace(/\[\[aba:([^\]]+)\]\]/g, (m, nome) => {
+    const i = doc.paginas.findIndex((p) => esc(p.nome) === nome);
+    return i < 0 ? `aba ${nome}` : `<button type="button" class="pg-aba" data-ir-aba="${i}">aba ${nome}</button>`;
+  });
+}
+
+function paginaAcionavelHtml(a) {
+  const conversa = respostasDe(a.id);
+  const n = a.prazo ? diasDoPrazo(a.prazo) : 0;
+  const falta = !a.prazo || feito(a) ? '' : n < 0 ? `venceu há ${plural(-n, 'dia', 'dias')}` : n === 0 ? 'vence hoje' : n === 1 ? 'vence amanhã' : `vence em ${n} dias`;
+  const prazo = a.prazo ? `<span${vencido(a) ? ' class="vencido"' : ''}>${esc(dataBr(a.prazo))}</span>${falta ? `<small>${falta}</small>` : ''}` : semValor;
+  const status = (PUB
+    ? `<select class="ast${feito(a) ? ' feito' : ''}" data-status="${a.id}" aria-label="Status">${STATUS.map((s) => `<option${s === a.status ? ' selected' : ''}>${s}</option>`).join('')}</select>`
+    : esc(a.status)) + (a.status_por ? `<small>${esc(`por ${a.status_por} em ${dataHora(a.status_em)}`)}</small>` : '');
+  const texto = a.descricao || a.detalhes
+    ? `${a.descricao ? `<p class="pg-resumo">${esc(a.descricao)}</p>` : ''}${a.detalhes ? `<div class="pg-corpo">${corpoHtml(a.detalhes)}</div>` : ''}`
+    : '<p class="vazio">Este acionável não tem descrição.</p>';
+  return `<article class="pg${feito(a) ? ' feito' : ''}">`
+    + `<header class="pg-cab"><span class="num">${ordemA.get(a.id)}</span><h2>${esc(a.texto)}</h2>`
+    + `${organizador && aEditar !== a.id ? '<button type="button" id="peditar" class="acao">Editar</button>' : ''}</header>`
+    + '<div id="pedicao"></div>'
+    + `<dl class="pg-meta"><div><dt>Responsável</dt><dd>${a.responsavel ? esc(a.responsavel) : semValor}</dd></div>`
+    + `<div><dt>Prazo</dt><dd>${prazo}</dd></div><div><dt>Status</dt><dd>${status}</dd></div></dl>`
+    + `<div class="pg-texto">${texto}</div>`
+    + `<section class="pg-conversa"><h3>Respostas e comentários${conversa.length ? ` (${conversa.length})` : ''}</h3>${conversa.map(cartao).join('')}`
+    + (PUB ? '<form id="pform"><textarea id="pcampo" rows="3" maxlength="4000" placeholder="Escreva a resposta ou um comentário"></textarea>'
+      + '<div class="lacoes"><span id="paviso"></span><button type="submit" class="acao">Enviar</button></div></form>' : '')
+    + `</section><footer class="pg-rodape">${esc(quemFez(a))}</footer></article>`;
+}
+
+// Chamada só por mostrarAcionaveis(), com o formulário fora da página: refaz a página aberta, ou a fecha se o acionável saiu
+function mostrarPaginaAcionavel() {
+  const a = aPagina == null ? null : acionaveis.find((x) => x.id === aPagina);
+  const pg = $('#apagina');
+  if (!a) {
+    if (aPagina != null) { aPagina = null; history.replaceState(null, '', `#aba=${pag + 1}`); }
+    pg.hidden = true;
+    pg.innerHTML = '';
+    $('#pnav').hidden = true;
+    document.body.classList.remove('na-pagina');
+    return;
+  }
+  const foco = document.activeElement?.id === 'pcampo';
+  pg.innerHTML = paginaAcionavelHtml(a);
+  pg.hidden = false;
+  document.body.classList.add('na-pagina');
+  const lista = vizinhosA(), i = lista.findIndex((x) => x.id === a.id);
+  $('#pnav').hidden = false;
+  $('#ponde').textContent = `Acionável ${i + 1} de ${lista.length}` + (lista.length < acionaveis.length ? ' no filtro' : '');
+  $('#pant').disabled = i <= 0;
+  $('#pprox').disabled = i >= lista.length - 1;
+  const campo = $('#pcampo');
+  if (campo && aRascunhos[a.id]) campo.value = aRascunhos[a.id];
+  if (campo && foco) campo.focus({ preventScroll: true });
+}
+
+function abrirAcionavel(id, { empilhar = true } = {}) {
+  if (!acionaveis.some((a) => a.id === id)) return;
+  if (aPagina == null) aVolta = scrollY;
+  esconderDica();
+  if ($('#lateral').classList.contains('aberto')) fecharLateral();
+  aPagina = id;
+  // vindo da lista, a página entra no histórico do navegador: o voltar dele devolve a lista
+  if (empilhar) history.pushState({ acionavel: id, daLista: true }, '', `#acionavel=${id}`);
+  else history.replaceState({ ...history.state, acionavel: id }, '', `#acionavel=${id}`);
+  if (aEditar != null || !$('#aform').hidden) abrirFormAcionavel(false); else mostrarAcionaveis();
+  scrollTo(0, 0);
+}
+
+function sairDoAcionavel() {
+  aPagina = null;
+  if (aEditar != null) abrirFormAcionavel(false); else mostrarAcionaveis();
+  scrollTo(0, aVolta);
+}
+
+// "Voltar": quem veio da lista volta pelo histórico do navegador; quem abriu direto pelo link vai para o desenho
+function fecharAcionavel() {
+  if (history.state?.daLista) { history.back(); return; }
+  history.replaceState(null, '', `#aba=${pag + 1}`);
+  sairDoAcionavel();
+}
+
+addEventListener('popstate', () => {
+  if (!doc) return;
+  const id = Number(new URLSearchParams(location.hash.slice(1)).get('acionavel')) || null;
+  if (id && acionaveis.some((a) => a.id === id)) {
+    if (aPagina == null) aVolta = scrollY;
+    aPagina = id;
+    if (aEditar != null) abrirFormAcionavel(false); else mostrarAcionaveis();
+    scrollTo(0, 0);
+  } else if (aPagina != null) sairDoAcionavel();
+});
+
+function vizinhoAcionavel(passo) {
+  const lista = vizinhosA(), a = lista[lista.findIndex((x) => x.id === aPagina) + passo];
+  if (a) abrirAcionavel(a.id, { empilhar: false });
+}
+$('#pvoltar').addEventListener('click', fecharAcionavel);
+$('#pant').addEventListener('click', () => vizinhoAcionavel(-1));
+$('#pprox').addEventListener('click', () => vizinhoAcionavel(1));
+
+async function comentarAcionavel() {
+  const a = acionaveis.find((x) => x.id === aPagina), t = $('#pcampo')?.value.trim();
+  if (!a || !t) return;
+  const botao = $('#pform [type="submit"]');
+  botao.disabled = true;
+  try {
+    comentarios = await rpc('desenho_comentar', { p_token: token, p_item: itemAcionavel(a.id), p_rotulo: `Acionável: ${a.texto}`.slice(0, 300), p_texto: t });
+    delete aRascunhos[a.id];
+    atualizarConversas();
+    mostrarAcionaveis();
+  } catch {
+    $('#paviso').textContent = 'Não foi salvo. O texto continua aqui; tente de novo.';
+    botao.disabled = false;
+  }
+}
+
+$('#apagina').addEventListener('click', (e) => {
+  if (e.target.closest('#aform')) return;
+  if (e.target.closest('#peditar')) { abrirFormAcionavel(true, acionaveis.find((a) => a.id === aPagina)); return; }
+  const aba = e.target.closest('[data-ir-aba]');
+  if (!aba) return;
+  // o atalho para uma aba do desenho entra no histórico: o voltar do navegador devolve a página do acionável
+  sairDoAcionavel();
+  pag = Number(aba.dataset.irAba);
+  history.pushState(null, '', `#aba=${pag + 1}`);
+  desenhar();
+  scrollTo(0, 0);
+});
+$('#apagina').addEventListener('change', (e) => { if (e.target.matches('select[data-status]')) mudarStatus(e.target); });
+$('#apagina').addEventListener('submit', (e) => { if (e.target.id === 'pform') { e.preventDefault(); comentarAcionavel(); } });
+$('#apagina').addEventListener('input', (e) => { if (e.target.id === 'pcampo' && aPagina != null) aRascunhos[aPagina] = e.target.value; });
+$('#apagina').addEventListener('keydown', (e) => {
+  if (e.target.id === 'pcampo' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); comentarAcionavel(); }
 });
 
 function montar() {
@@ -1054,6 +1307,8 @@ $('#ocultas').addEventListener('click', () => {
 $('#ocultas-menu').addEventListener('click', (e) => {
   const b = e.target.closest('button[data-aba]');
   if (!b) return;
+  // da página de um acionável, escolher uma aba oculta volta ao desenho antes de trocar de aba
+  if (aPagina != null) { aPagina = null; if (aEditar != null) abrirFormAcionavel(false); else mostrarAcionaveis(); }
   pag = Number(b.dataset.aba);
   history.replaceState(null, '', `#aba=${pag + 1}`);
   fecharOcultas();
@@ -1186,6 +1441,8 @@ function rumoAoCartao(x, y) {
 document.addEventListener('mousemove', (e) => {
   if (e.target.closest?.('#dica')) { clearTimeout(dica.timer); return; }
   if (dica.fixa) return;
+  // sobre o botão de uma seção que recolhe não há cartão: em tela estreita ele cobriria o botão
+  if (e.target.closest?.('[data-dobra]')) { esconderDica(); return; }
   const alvo = e.target.closest?.('[data-dica], #quadro [data-item]');
   const g = alvo?.closest('#quadro [data-item]');
   const r = g && registro[g.dataset.item];
@@ -1250,7 +1507,10 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   const cartao = $('#dica').classList.contains('viva');
   esconderDica();
-  if (!cartao && $('#lateral').classList.contains('aberto')) fecharLateral();
+  if (cartao) return;
+  if ($('#lateral').classList.contains('aberto')) { fecharLateral(); return; }
+  // na página de um acionável, Esc volta; com o formulário de edição aberto ou um campo em uso, não
+  if (aPagina != null && $('#aform').hidden && !/^(TEXTAREA|INPUT|SELECT)$/.test(document.activeElement?.tagName || '')) fecharAcionavel();
 });
 document.addEventListener('mousedown', (e) => { if (dica.fixa && !e.target.closest('#dica')) esconderDica(); });
 addEventListener('scroll', (e) => { if (!dica.fixa && !(e.target instanceof Element && e.target.closest('#dica'))) esconderDica(); }, true);
@@ -1269,12 +1529,14 @@ const esquecerAcesso = () => { try { localStorage.removeItem(GUARDA); sessionSto
 async function iniciarPublicado(hash) {
   const doLink = hash.get('acesso');
   token = doLink || lerAcesso();
-  history.replaceState(null, '', location.pathname + (hash.get('aba') ? `#aba=${hash.get('aba')}` : ''));
+  // o link pessoal sai da barra; o que fica é a aba ou o acionável pedido, que servem de endereço para mandar a alguém
+  const pedido = Number(hash.get('acionavel')) || null;
+  history.replaceState(null, '', location.pathname + (pedido ? `#acionavel=${pedido}` : hash.get('aba') ? `#aba=${hash.get('aba')}` : ''));
   $('#versao').hidden = true;
   let r = null;
   // sem resposta do banco, nada é esquecido: o link guardado continua valendo e um link novo volta para o endereço, para o recarregar funcionar
   try { if (token) r = await rpc('desenho_abrir', { p_token: token }); } catch {
-    if (doLink) history.replaceState(null, '', `${location.pathname}#acesso=${doLink}`);
+    if (doLink) history.replaceState(null, '', `${location.pathname}#acesso=${doLink}${pedido ? `&acionavel=${pedido}` : ''}`);
     falhar('Não foi possível abrir o desenho agora. Recarregue a página em alguns instantes.');
     return;
   }
@@ -1296,6 +1558,9 @@ async function iniciarPublicado(hash) {
   $('#conversas').hidden = !CONVERSAS;
   atualizarConversas();
   montar();
+  // endereço com #acionavel=N: abre direto na página dele; se ele não existe mais, fica o desenho
+  if (pedido && acionaveis.some((a) => a.id === pedido)) abrirAcionavel(pedido, { empilhar: false });
+  else if (pedido) history.replaceState(null, '', location.pathname);
 }
 
 (async function iniciar() {
