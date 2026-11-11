@@ -82,7 +82,6 @@ h1 { margin: 0; font-size: 15px; }
 #acoes td[data-abrir] { cursor: pointer; }
 .com-desc { text-decoration: underline dotted var(--suave); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 #acoes td[data-abrir]:hover .alink { text-decoration: underline solid var(--tinta); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
-.acont { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 16px; margin-left: 8px; padding: 0 4px; background: var(--azul); color: #fff; font-size: 11px; font-weight: 700; vertical-align: 1px; }
 #acoes .vazio { color: var(--suave); }
 #acoes tbody tr:not(.editando):not(.aedicao):not(.adiv):hover td { background: #f8f8f5; }
 #acoes tr.feito td { color: var(--suave); }
@@ -125,34 +124,31 @@ h1 { margin: 0; font-size: 15px; }
 .l3[hidden], #apagina[hidden], #adet-cx[hidden] { display: none; }
 #ponde { flex: 1; min-width: 0; font-size: 12px; color: var(--suave); }
 .na-pagina .l2, .na-pagina #acoes, .na-pagina #nota, .na-pagina #quadro { display: none; }
-#apagina { max-width: 900px; margin: 16px auto 48px; padding: 0 16px; }
-.pg { background: var(--papel); border: 1.5px solid var(--tinta); }
-.pg-cab { display: flex; align-items: flex-start; gap: 12px; padding: 18px 22px 16px; }
-.pg-cab .num { flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; padding: 0 5px; border: 1.5px solid var(--tinta); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+/* Limpa, sem caixa (Eduardo, 11/11): o título no alto, responsável, prazo e status num canto, uma linha preta e o texto direto na tela */
+#apagina { max-width: 980px; margin: 24px auto 56px; padding: 0 24px; }
+.pg-cab { display: flex; align-items: flex-start; gap: 14px; padding-bottom: 16px; border-bottom: 2px solid var(--tinta); }
+.pg-cab .num { flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; margin-top: 1px; padding: 0 5px; border: 1.5px solid var(--tinta); background: var(--papel); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .pg.feito .pg-cab .num { color: var(--verde); border-color: var(--verde); background: var(--verde-f); }
-.pg-cab h2 { flex: 1; min-width: 0; margin: 2px 0 0; font-size: 19px; line-height: 1.3; overflow-wrap: anywhere; }
-.pg-meta { display: flex; flex-wrap: wrap; margin: 0; border-top: 1.5px solid var(--tinta); border-bottom: 1.5px solid var(--tinta); }
-.pg-meta > div { flex: 1 1 170px; padding: 9px 22px 10px; border-right: 1px solid var(--grade); }
-.pg-meta > div:last-child { border-right: 0; }
-.pg-meta dt { font-size: 11.5px; font-weight: 600; color: var(--suave); }
-.pg-meta dd { margin: 2px 0 0; font-size: 13.5px; overflow-wrap: anywhere; }
-.pg-meta small { display: block; margin-top: 1px; color: var(--suave); font-size: 11.5px; }
+.pg-cab h2 { flex: 1; min-width: 0; margin: 0; font-size: 22px; line-height: 1.3; overflow-wrap: anywhere; }
+.pg-lado { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; max-width: 320px; }
+.pg-meta { display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 4px 12px; margin: 2px 0 0; font-size: 12.5px; }
+.pg-meta dt { color: var(--suave); }
+.pg-meta dd { margin: 0; overflow-wrap: anywhere; }
+.pg-meta dd[data-dica] { cursor: help; }
+.pg-meta small { margin-left: 6px; color: var(--suave); font-size: 11.5px; }
 .pg-meta .vencido { color: var(--vermelho); font-weight: 600; }
-.pg-texto { padding: 18px 22px 8px; font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
-.pg-resumo { margin: 0 0 14px; font-size: 14.5px; white-space: pre-line; }
-.pg-corpo h3 { margin: 20px 0 6px; padding-top: 12px; border-top: 1px solid var(--grade); font-size: 13px; }
-.pg-corpo > h3:first-child { margin-top: 4px; }
+.pg-texto { padding-top: 20px; font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }
+.pg-resumo { margin: 0 0 16px; white-space: pre-line; }
+.pg-corpo h3 { margin: 24px 0 6px; font-size: 14px; }
+.pg-corpo > h3:first-child { margin-top: 8px; }
 .pg-corpo p { margin: 0 0 10px; }
 .pg-corpo ul { margin: 0 0 10px; padding-left: 20px; }
-.pg-corpo li { margin-bottom: 4px; }
+.pg-corpo li { margin-bottom: 5px; }
+@media (max-width: 720px) { .pg-cab { flex-wrap: wrap; } .pg-lado { flex-basis: 100%; align-items: flex-start; max-width: none; } }
 .pg-aba { font: inherit; font-weight: 600; color: var(--azul); background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; }
 .pg-aba:hover { text-decoration: underline; }
-.pg-conversa { padding: 14px 22px 18px; border-top: 1.5px solid var(--tinta); }
-.pg-conversa h3 { margin: 0 0 10px; font-size: 13px; }
-#pcampo { display: block; width: 100%; padding: 6px 8px; font: inherit; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; resize: vertical; }
-#paviso { color: var(--vermelho); }
-.pg-rodape { padding: 8px 22px 9px; border-top: 1px solid var(--grade); font-size: 11.5px; color: var(--suave); }
-#pedicao #aform { border-top: 1.5px solid var(--tinta); background: var(--amarelo-f); }
+.pg-rodape { margin-top: 28px; font-size: 11.5px; color: var(--suave); }
+#pedicao #aform { margin-top: 16px; border: 1.5px solid var(--tinta); background: var(--amarelo-f); }
 #aform #adet { min-height: 220px; color: var(--tinta); background: var(--papel); border-color: var(--tinta); font-family: Consolas, monospace; font-size: 12px; }
 /* Seção do desenho que recolhe: o botão fica no canto de cima da caixa que a resume */
 .dobra { cursor: pointer; }
@@ -902,9 +898,9 @@ function acaoLinha(a) {
 }
 const semValor = '<span class="vazio">—</span>';
 const quemFez = (a) => `incluído por ${a.autor} em ${dataHora(a.criado_em)}` + (a.editado_por ? ` · editado por ${a.editado_por} em ${dataHora(a.editado_em)}` : '');
-// A linha traz só o que fazer: um clique nela abre a página do acionável, com a descrição, os detalhes e as respostas.
+// A linha traz só o que fazer: um clique nela abre a página do acionável, com a descrição e os detalhes.
 // Quando há descrição, o texto ganha um sublinhado pontilhado e ela aparece na dica ao passar o mouse, como texto puro
-// (é escrita por quem tem link). O quadrado azul ao lado conta as respostas.
+// (é escrita por quem tem link).
 // O número é o da ordem de entrada e não muda com o filtro; quem incluiu e quem editou ficam na dica do número.
 const colunas = () => (PUB ? 6 : 5);
 function celulaPrazo(a) {
@@ -915,10 +911,8 @@ function celulaPrazo(a) {
 }
 function linhaAcionavel(a) {
   const classes = [aEditar === a.id && 'editando', feito(a) && 'feito', aNova === a.id && 'nova', aExcluir === a.id && 'confirmando'].filter(Boolean).join(' ');
-  const n = respostasDe(a.id).length;
   const oQue = `<td class="at" data-abrir="${a.id}"${a.descricao ? ` data-dica="${esc(a.descricao)}" data-plano data-rodape="Clique para abrir a página deste acionável"` : ''}>`
-    + `<span class="alink${a.descricao ? ' com-desc' : ''}" role="link" tabindex="0">${esc(a.texto)}</span>`
-    + `${n ? `<span class="acont" data-dica="${plural(n, 'resposta ou comentário', 'respostas e comentários')}" data-plano>${n}</span>` : ''}</td>`;
+    + `<span class="alink${a.descricao ? ' com-desc' : ''}" role="link" tabindex="0">${esc(a.texto)}</span></td>`;
   return `<tr${classes ? ` class="${classes}"` : ''}><td class="an" data-dica="${esc(quemFez(a))}" data-plano><span class="num">${ordemA.get(a.id)}</span></td>`
     + oQue
     + `<td class="ar">${a.responsavel ? esc(a.responsavel) : semValor}</td>`
@@ -1108,13 +1102,11 @@ $('#adesc').addEventListener('keydown', (e) => {
 });
 
 // ---------------------------------------------------------------- página do acionável
-// Cada acionável abre numa página própria, em tela cheia, no lugar do desenho: o que fazer, o responsável, o prazo e o status
-// no alto; a descrição e os detalhes por inteiro; as respostas embaixo. O endereço ganha #acionavel=N, que serve de link.
-// "Voltar", Esc ou o voltar do navegador devolvem a pessoa ao ponto de onde ela veio.
+// Cada acionável abre numa página própria, em tela cheia, no lugar do desenho. Limpa, sem caixa: o que fazer no alto, com
+// o responsável, o prazo e o status num canto, uma linha preta e, embaixo, a descrição e os detalhes direto na tela.
+// Não tem respostas nem comentários (Eduardo, 11/11): quem organiza põe a atualização no próprio texto, pelo Editar.
+// O endereço ganha #acionavel=N, que serve de link. "Voltar", Esc ou o voltar do navegador devolvem a pessoa ao ponto de onde ela veio.
 let aPagina = null, aVolta = 0;
-const aRascunhos = {};
-const itemAcionavel = (id) => `acionavel:${id}`;
-function respostasDe(id) { const item = itemAcionavel(id); return comentarios.filter((c) => c.item === item); }
 // a página anda pela mesma lista que a pessoa via: a filtrada, quando o acionável aberto está nela
 const vizinhosA = () => { const l = acionaveis.filter(passaFiltro); return l.some((a) => a.id === aPagina) ? l : acionaveis; };
 
@@ -1146,27 +1138,25 @@ function corpoHtml(s) {
 }
 
 function paginaAcionavelHtml(a) {
-  const conversa = respostasDe(a.id);
   const n = a.prazo ? diasDoPrazo(a.prazo) : 0;
   const falta = !a.prazo || feito(a) ? '' : n < 0 ? `venceu há ${plural(-n, 'dia', 'dias')}` : n === 0 ? 'vence hoje' : n === 1 ? 'vence amanhã' : `vence em ${n} dias`;
   const prazo = a.prazo ? `<span${vencido(a) ? ' class="vencido"' : ''}>${esc(dataBr(a.prazo))}</span>${falta ? `<small>${falta}</small>` : ''}` : semValor;
-  const status = (PUB
+  // quem mudou o status fica na dica, como na lista
+  const quem = a.status_por ? ` data-dica="${esc(`${a.status} por ${a.status_por} em ${dataHora(a.status_em)}`)}" data-plano` : '';
+  const status = PUB
     ? `<select class="ast${feito(a) ? ' feito' : ''}" data-status="${a.id}" aria-label="Status">${STATUS.map((s) => `<option${s === a.status ? ' selected' : ''}>${s}</option>`).join('')}</select>`
-    : esc(a.status)) + (a.status_por ? `<small>${esc(`por ${a.status_por} em ${dataHora(a.status_em)}`)}</small>` : '');
+    : esc(a.status);
   const texto = a.descricao || a.detalhes
     ? `${a.descricao ? `<p class="pg-resumo">${esc(a.descricao)}</p>` : ''}${a.detalhes ? `<div class="pg-corpo">${corpoHtml(a.detalhes)}</div>` : ''}`
     : '<p class="vazio">Este acionável não tem descrição.</p>';
   return `<article class="pg${feito(a) ? ' feito' : ''}">`
     + `<header class="pg-cab"><span class="num">${ordemA.get(a.id)}</span><h2>${esc(a.texto)}</h2>`
-    + `${organizador && aEditar !== a.id ? '<button type="button" id="peditar" class="acao">Editar</button>' : ''}</header>`
+    + `<div class="pg-lado"><dl class="pg-meta"><dt>Responsável</dt><dd>${a.responsavel ? esc(a.responsavel) : semValor}</dd>`
+    + `<dt>Prazo</dt><dd>${prazo}</dd><dt>Status</dt><dd${quem}>${status}</dd></dl>`
+    + `${organizador && aEditar !== a.id ? '<button type="button" id="peditar" class="acao">Editar</button>' : ''}</div></header>`
     + '<div id="pedicao"></div>'
-    + `<dl class="pg-meta"><div><dt>Responsável</dt><dd>${a.responsavel ? esc(a.responsavel) : semValor}</dd></div>`
-    + `<div><dt>Prazo</dt><dd>${prazo}</dd></div><div><dt>Status</dt><dd>${status}</dd></div></dl>`
     + `<div class="pg-texto">${texto}</div>`
-    + `<section class="pg-conversa"><h3>Respostas e comentários${conversa.length ? ` (${conversa.length})` : ''}</h3>${conversa.map(cartao).join('')}`
-    + (PUB ? '<form id="pform"><textarea id="pcampo" rows="3" maxlength="4000" placeholder="Escreva a resposta ou um comentário"></textarea>'
-      + '<div class="lacoes"><span id="paviso"></span><button type="submit" class="acao">Enviar</button></div></form>' : '')
-    + `</section><footer class="pg-rodape">${esc(quemFez(a))}</footer></article>`;
+    + `<footer class="pg-rodape">${esc(quemFez(a))}</footer></article>`;
 }
 
 // Chamada só por mostrarAcionaveis(), com o formulário fora da página: refaz a página aberta, ou a fecha se o acionável saiu
@@ -1181,7 +1171,6 @@ function mostrarPaginaAcionavel() {
     document.body.classList.remove('na-pagina');
     return;
   }
-  const foco = document.activeElement?.id === 'pcampo';
   pg.innerHTML = paginaAcionavelHtml(a);
   pg.hidden = false;
   document.body.classList.add('na-pagina');
@@ -1190,9 +1179,6 @@ function mostrarPaginaAcionavel() {
   $('#ponde').textContent = `Acionável ${i + 1} de ${lista.length}` + (lista.length < acionaveis.length ? ' no filtro' : '');
   $('#pant').disabled = i <= 0;
   $('#pprox').disabled = i >= lista.length - 1;
-  const campo = $('#pcampo');
-  if (campo && aRascunhos[a.id]) campo.value = aRascunhos[a.id];
-  if (campo && foco) campo.focus({ preventScroll: true });
 }
 
 function abrirAcionavel(id, { empilhar = true } = {}) {
@@ -1240,22 +1226,6 @@ $('#pvoltar').addEventListener('click', fecharAcionavel);
 $('#pant').addEventListener('click', () => vizinhoAcionavel(-1));
 $('#pprox').addEventListener('click', () => vizinhoAcionavel(1));
 
-async function comentarAcionavel() {
-  const a = acionaveis.find((x) => x.id === aPagina), t = $('#pcampo')?.value.trim();
-  if (!a || !t) return;
-  const botao = $('#pform [type="submit"]');
-  botao.disabled = true;
-  try {
-    comentarios = await rpc('desenho_comentar', { p_token: token, p_item: itemAcionavel(a.id), p_rotulo: `Acionável: ${a.texto}`.slice(0, 300), p_texto: t });
-    delete aRascunhos[a.id];
-    atualizarConversas();
-    mostrarAcionaveis();
-  } catch {
-    $('#paviso').textContent = 'Não foi salvo. O texto continua aqui; tente de novo.';
-    botao.disabled = false;
-  }
-}
-
 $('#apagina').addEventListener('click', (e) => {
   if (e.target.closest('#aform')) return;
   if (e.target.closest('#peditar')) { abrirFormAcionavel(true, acionaveis.find((a) => a.id === aPagina)); return; }
@@ -1269,11 +1239,6 @@ $('#apagina').addEventListener('click', (e) => {
   scrollTo(0, 0);
 });
 $('#apagina').addEventListener('change', (e) => { if (e.target.matches('select[data-status]')) mudarStatus(e.target); });
-$('#apagina').addEventListener('submit', (e) => { if (e.target.id === 'pform') { e.preventDefault(); comentarAcionavel(); } });
-$('#apagina').addEventListener('input', (e) => { if (e.target.id === 'pcampo' && aPagina != null) aRascunhos[aPagina] = e.target.value; });
-$('#apagina').addEventListener('keydown', (e) => {
-  if (e.target.id === 'pcampo' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); comentarAcionavel(); }
-});
 
 function montar() {
   $('#titulo').textContent = doc.meta?.titulo || NOME;
