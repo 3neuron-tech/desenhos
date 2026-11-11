@@ -859,14 +859,15 @@ async function abrirAcessos() {
 // ---------------------------------------------------------------- acionáveis
 // No topo, valem para o desenho todo: uma linha, um responsável e um prazo. Na página publicada, quem tem link inclui pelo (+);
 // ficam no banco, na ordem em que entraram. No painel local não há banco: a seção só avisa onde eles ficam.
-// A seção dobra pelo título (o navegador lembra), o cabeçalho resume o que está em andamento, vencido e concluído,
+// A seção dobra pelo título, o cabeçalho resume o que está em andamento, vencido e concluído,
 // e os concluídos ficam recolhidos no fim da lista.
+// Ela sempre chega recolhida (Eduardo, 11/11): ao abrir e ao recarregar a página e ao trocar de aba. Só o voltar da página
+// de um acionável a deixa como estava, porque devolve a pessoa à lista de onde ela veio.
 const dataBr = (iso) => String(iso).slice(0, 10).split('-').reverse().join('/');
 const hoje = () => new Date().toLocaleDateString('sv-SE');
 const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
 const DOBRA = '<svg class="seta" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3l3.5 4 3.5-4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
-const DOBRADO = 'desenho-acionaveis-fechados';
-let aFechado = (() => { try { return localStorage.getItem(DOBRADO) === '1'; } catch { return false; } })();
+let aFechado = true;
 let verFeitos = false, aNova = null, ordemA = new Map();
 
 // Refazer a lista tira o foco de quem navega pelo teclado: ele volta para o mesmo controle. Com o mouse, não há o que devolver.
@@ -875,9 +876,11 @@ addEventListener('keydown', () => { porTeclado = true; }, true);
 addEventListener('mousedown', () => { porTeclado = false; }, true);
 const refocar = (seletor) => { if (porTeclado) $(seletor)?.focus({ preventScroll: true }); };
 
-function dobrarAcionaveis(fechar) {
-  aFechado = fechar;
-  try { if (fechar) localStorage.setItem(DOBRADO, '1'); else localStorage.removeItem(DOBRADO); } catch { }
+// Ao trocar de aba a seção recolhe; com o formulário aberto ela fica, para não esconder o que a pessoa está escrevendo
+function recolherAcionaveis() {
+  if (aFechado || !$('#aform').hidden) return;
+  aFechado = true;
+  mostrarAcionaveis();
 }
 
 // Prazo: a data é do dia, sem hora; comparar como texto (aaaa-mm-dd) evita o fuso
@@ -978,7 +981,7 @@ function mostrarAcionaveis() {
 
 $('.acab').addEventListener('click', (e) => {
   if (e.target.closest('#amais') || !acionaveis.length || !$('#aform').hidden) return;
-  dobrarAcionaveis(!aFechado);
+  aFechado = !aFechado;
   mostrarAcionaveis();
 });
 async function mudarStatus(sel) {
@@ -1026,7 +1029,7 @@ $('#alista').addEventListener('keydown', (e) => {
 // O mesmo formulário inclui (pelo +, no alto da seção) e edita (pelo ✎, sob a linha, preenchido com ela). Só "o que fazer" é obrigatório.
 function abrirFormAcionavel(abrir, a = null) {
   aEditar = abrir && a ? a.id : null;
-  if (abrir && aPagina == null) dobrarAcionaveis(false);
+  if (abrir && aPagina == null) aFechado = false;
   $('#aform').reset();
   if (a) {
     $('#atexto').value = a.texto;
@@ -1238,6 +1241,7 @@ $('#apagina').addEventListener('click', (e) => {
   if (!aba) return;
   // o atalho para uma aba do desenho entra no histórico: o voltar do navegador devolve a página do acionável
   sairDoAcionavel();
+  recolherAcionaveis();
   pag = Number(aba.dataset.irAba);
   history.pushState(null, '', `#aba=${pag + 1}`);
   desenhar();
@@ -1282,6 +1286,7 @@ $('#ocultas-menu').addEventListener('click', (e) => {
   pag = Number(b.dataset.aba);
   history.replaceState(null, '', `#aba=${pag + 1}`);
   fecharOcultas();
+  recolherAcionaveis();
   desenhar();
 });
 document.addEventListener('mousedown', (e) => { if (!e.target.closest('#ocultas-cx')) fecharOcultas(); });
@@ -1310,6 +1315,7 @@ $('#abas').addEventListener('click', (e) => {
   if (!a) return;
   pag = Number(a.dataset.aba);
   history.replaceState(null, '', `#aba=${pag + 1}`);
+  recolherAcionaveis();
   desenhar();
 });
 
