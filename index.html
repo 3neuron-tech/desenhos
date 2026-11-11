@@ -139,6 +139,24 @@ h1 { margin: 0; font-size: 15px; }
 @media (max-width: 720px) { .pg-cab { flex-wrap: wrap; } .pg-lado { flex-basis: 100%; align-items: flex-start; max-width: none; } }
 .pg-aba { font: inherit; font-weight: 600; color: var(--azul); background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; }
 .pg-aba:hover { text-decoration: underline; }
+/* Lotes de contas (11/11): uma conta por bloco recolhível; fechado mostra nome, ação, "pergunta" e o resumo; aberto, o resto */
+.pg-conta { border-top: 1px solid var(--grade); }
+.pg-conta:last-of-type { border-bottom: 1px solid var(--grade); }
+.pg-conta > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; padding: 10px 0 10px 18px; position: relative; cursor: pointer; list-style: none; }
+.pg-conta > summary::-webkit-details-marker { display: none; }
+.pg-conta > summary::before { content: '▸'; position: absolute; left: 2px; top: 10px; color: var(--suave); }
+.pg-conta[open] > summary::before { content: '▾'; }
+.pg-conta > summary:hover .pg-conta-nome { text-decoration: underline; }
+.pg-conta-nome { font-family: ui-monospace, Consolas, monospace; font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+.pg-acao, .pg-perg { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 0 5px; border: 1.5px solid var(--tinta); white-space: nowrap; }
+.pg-perg { border-color: var(--amarelo); color: var(--amarelo); }
+.pg-conta > summary small { flex-basis: 100%; color: var(--suave); font-size: 13.5px; }
+.pg-conta-corpo { padding: 0 0 18px 18px; }
+.pg-corpo h4.pg-sub { margin: 16px 0 6px; font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--suave); }
+.pg-conta-corpo > h4.pg-sub:first-child { margin-top: 4px; }
+.pg-campos { margin: 4px 0 8px; padding: 9px 12px; background: rgba(0,0,0,.045); font: 12px/1.55 ui-monospace, Consolas, monospace; white-space: pre; overflow-x: auto; }
+.pg-corpo a { color: var(--azul); font-weight: 600; text-decoration: none; }
+.pg-corpo a:hover { text-decoration: underline; }
 .pg-rodape { margin-top: 28px; font-size: 11.5px; color: var(--suave); }
 #pedicao #aform { margin-top: 16px; border: 1.5px solid var(--tinta); background: var(--amarelo-f); }
 #aform #adet { min-height: 220px; color: var(--tinta); background: var(--papel); border-color: var(--tinta); font-family: Consolas, monospace; font-size: 12px; }
@@ -246,7 +264,7 @@ code { font: 12px Consolas, monospace; }
       <label><span>Responsável <i>(opcional)</i></span><input id="aresp" maxlength="120" list="aquem" autocomplete="off"></label>
       <label><span>Prazo <i>(opcional)</i></span><input id="aprazo" type="date"></label>
       <label class="c-desc"><span>Descrição <i>(opcional)</i></span><textarea id="adesc" maxlength="2000" rows="2" placeholder="O que ajuda a entender este acionável"></textarea></label>
-      <label class="c-desc" id="adet-cx" hidden><span>Detalhes <i>(só na página do acionável; "## " abre uma seção, "- " faz um item de lista)</i></span><textarea id="adet" maxlength="12000" rows="12"></textarea></label>
+      <label class="c-desc" id="adet-cx" hidden><span>Detalhes <i>(só na página do acionável; "## " abre uma seção, "- " faz um item de lista)</i></span><textarea id="adet" maxlength="250000" rows="12"></textarea></label>
       <div class="afim"><span id="aaviso"></span><button type="button" id="acancelar" class="acao">Cancelar</button><button type="submit" class="acao cheia">Incluir</button></div>
       <datalist id="aquem"></datalist>
     </form>
@@ -324,9 +342,11 @@ const dobras = {};
 const dobraAberta = (it) => dobras[`${pag}:${it.id}`] ?? !it.recolhido;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-// Marcação curta nos textos: **negrito**, ~~sai~~, ++entra++, ??decidir??, `código`
-const MARCA = /(\*\*.+?\*\*|~~.+?~~|\+\+.+?\+\+|\?\?.+?\?\?|`.+?`)/;
+// Marcação curta nos textos: **negrito**, ~~sai~~, ++entra++, ??decidir??, `código`, [texto](https://…) (link, só para os HOSTS)
+const MARCA = /(\[[^\]]+\]\(https:\/\/[^)\s]+\)|\*\*.+?\*\*|~~.+?~~|\+\+.+?\+\+|\?\?.+?\?\?|`.+?`)/;
 const html = (s) => String(s ?? '').split(MARCA).map((p) => {
+  const lk = /^\[([^\]]+)\]\((https:\/\/[^)\s]+)\)$/.exec(p);
+  if (lk) { const u = linkSeguro({ url: lk[2] }); return u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(lk[1])} ↗</a>` : esc(lk[1]); }
   if (/^\*\*.+\*\*$/.test(p)) return `<b>${esc(p.slice(2, -2))}</b>`;
   if (/^~~.+~~$/.test(p)) return `<span class="s">${esc(p.slice(2, -2))}</span>`;
   if (/^\+\+.+\+\+$/.test(p)) return `<span class="e">${esc(p.slice(2, -2))}</span>`;
@@ -1066,24 +1086,56 @@ const vizinhosA = () => acionaveis;
 // Detalhes: texto de quem organiza, mostrado com estrutura leve. "## " abre uma seção, "- " faz um item de lista (uma linha
 // recuada continua o item), linha em branco separa parágrafos; dentro da linha vale a marcação curta (**negrito**, `código`).
 // "[[aba:Nome]]" vira um atalho para a aba do desenho com esse nome. Tudo passa pelo esc() antes de virar HTML.
-function corpoHtml(s) {
+// Para os lotes de contas (Eduardo, 11/11): "### nome | ação" abre um bloco recolhível que vai até o próximo "### " ou "## ";
+// a linha "> …" logo abaixo é o resumo que aparece com o bloco fechado; "#### " é um subtítulo dentro do bloco; linhas entre
+// ``` são campos como vieram da leitura (monoespaçado, sem marcação); [texto](https://…) é link, só para os HOSTS permitidos.
+function trechoHtml(linhasTexto) {
   const out = [];
-  let par = [], lista = [];
+  let par = [], lista = [], campos = null;
   const linhas = (t) => t.split('\n').map(html).join('<br>');
   const fechar = () => {
     if (par.length) out.push(`<p>${par.map(html).join('<br>')}</p>`);
     if (lista.length) out.push(`<ul>${lista.map((l) => `<li>${linhas(l)}</li>`).join('')}</ul>`);
     par = []; lista = [];
   };
-  for (const bruta of String(s ?? '').split('\n')) {
+  for (const bruta of linhasTexto) {
     const l = bruta.trimEnd();
-    if (!l.trim()) fechar();
+    if (campos) { if (l.trim() === '```') { out.push(`<pre class="pg-campos">${esc(campos.join('\n'))}</pre>`); campos = null; } else campos.push(l); continue; }
+    if (l.trim() === '```') { fechar(); campos = []; }
+    else if (!l.trim()) fechar();
     else if (l.startsWith('## ')) { fechar(); out.push(`<h3>${html(l.slice(3))}</h3>`); }
+    else if (l.startsWith('#### ')) { fechar(); out.push(`<h4 class="pg-sub">${html(l.slice(5))}</h4>`); }
     else if (l.startsWith('- ')) { if (par.length) fechar(); lista.push(l.slice(2)); }
     else if (lista.length && /^\s{2,}\S/.test(l)) lista[lista.length - 1] += `\n${l.trim()}`;
     else { if (lista.length) fechar(); par.push(l.trim()); }
   }
+  if (campos) out.push(`<pre class="pg-campos">${esc(campos.join('\n'))}</pre>`);
   fechar();
+  return out.join('');
+}
+function corpoHtml(s) {
+  const linhas = String(s ?? '').split('\n'), out = [];
+  let solto = [];
+  for (let i = 0; i < linhas.length;) {
+    if (!linhas[i].startsWith('### ')) { solto.push(linhas[i++]); continue; }
+    out.push(trechoHtml(solto)); solto = [];
+    const [nome, acao] = linhas[i].slice(4).split(' | ');
+    let fim = i + 1, dentroCampos = false;
+    while (fim < linhas.length) {
+      if (linhas[fim].trim() === '```') dentroCampos = !dentroCampos;
+      else if (!dentroCampos && (linhas[fim].startsWith('### ') || linhas[fim].startsWith('## '))) break;
+      fim++;
+    }
+    let corpo = linhas.slice(i + 1, fim);
+    const r = corpo.findIndex((l) => l.trim());
+    const resumo = r >= 0 && corpo[r].startsWith('> ') ? corpo[r].slice(2).trim() : '';
+    if (resumo) corpo = corpo.slice(r + 1);
+    const pergunta = corpo.some((l) => /^- \*\*(Pergunta|A confirmar):\*\*/.test(l));
+    out.push(`<details class="pg-conta"><summary><span class="pg-conta-nome">${html(nome.trim())}</span>${acao ? `<em class="pg-acao">${html(acao.trim())}</em>` : ''}`
+      + `${pergunta ? '<em class="pg-perg">pergunta</em>' : ''}${resumo ? `<small>${html(resumo)}</small>` : ''}</summary><div class="pg-conta-corpo">${trechoHtml(corpo)}</div></details>`);
+    i = fim;
+  }
+  out.push(trechoHtml(solto));
   return out.join('').replace(/\[\[aba:([^\]]+)\]\]/g, (m, nome) => {
     const i = doc.paginas.findIndex((p) => esc(p.nome) === nome);
     return i < 0 ? `aba ${nome}` : `<button type="button" class="pg-aba" data-ir-aba="${i}">aba ${nome}</button>`;
