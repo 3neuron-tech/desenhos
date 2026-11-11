@@ -49,15 +49,7 @@ h1 { margin: 0; font-size: 15px; }
 #adobra:disabled { color: var(--tinta); }
 .ast.feito { background: var(--verde-f); border-color: var(--verde); }
 #amais { min-width: 28px; font-size: 15px; font-weight: 700; line-height: 1.1; padding: 1px 8px; }
-#afiltro { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px 10px; border-top: 1.5px solid var(--tinta); }
-#afiltro[hidden], #acorpo[hidden] { display: none; }
-.chip { display: inline-flex; align-items: baseline; gap: 6px; max-width: 240px; font: inherit; font-size: 12px; color: var(--tinta); background: var(--papel); border: 1px solid #9a9a94; border-radius: 0; padding: 1px 8px; cursor: pointer; }
-.chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chip b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--suave); }
-.chip b.ok { color: var(--verde); }
-.chip:hover { border-color: var(--tinta); }
-.chip[aria-pressed="true"] { background: var(--tinta); border-color: var(--tinta); color: var(--papel); font-weight: 600; }
-.chip[aria-pressed="true"] b { color: var(--papel); }
+#acorpo[hidden] { display: none; }
 #acoes table { width: 100%; border-collapse: collapse; font-size: 12.5px; border-top: 1.5px solid var(--tinta); }
 #acoes th { padding: 4px 10px; text-align: left; font-weight: 600; font-size: 11.5px; color: var(--suave); border-bottom: 1px solid var(--grade); }
 #acoes td { padding: 5px 10px; vertical-align: top; background: var(--papel); border-bottom: 1px solid var(--grade); overflow-wrap: anywhere; }
@@ -258,7 +250,6 @@ code { font: 12px Consolas, monospace; }
       <div class="afim"><span id="aaviso"></span><button type="button" id="acancelar" class="acao">Cancelar</button><button type="submit" class="acao cheia">Incluir</button></div>
       <datalist id="aquem"></datalist>
     </form>
-    <div id="afiltro" role="group" aria-label="Filtrar por responsável" hidden></div>
     <div id="alista"></div>
   </div>
 </section>
@@ -849,14 +840,14 @@ async function abrirAcessos() {
 // No topo, valem para o desenho todo: uma linha, um responsável e um prazo. Na página publicada, quem tem link inclui pelo (+);
 // ficam no banco, na ordem em que entraram. No painel local não há banco: a seção só avisa onde eles ficam.
 // A seção dobra pelo título (o navegador lembra), o cabeçalho resume o que está em andamento, vencido e concluído,
-// os concluídos ficam recolhidos no fim da lista e, com a lista longa, um filtro por responsável aparece em cima.
+// e os concluídos ficam recolhidos no fim da lista.
 const dataBr = (iso) => String(iso).slice(0, 10).split('-').reverse().join('/');
 const hoje = () => new Date().toLocaleDateString('sv-SE');
 const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
 const DOBRA = '<svg class="seta" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3l3.5 4 3.5-4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
 const DOBRADO = 'desenho-acionaveis-fechados';
 let aFechado = (() => { try { return localStorage.getItem(DOBRADO) === '1'; } catch { return false; } })();
-let aQuem = null, verFeitos = false, aNova = null, ordemA = new Map();
+let verFeitos = false, aNova = null, ordemA = new Map();
 
 // Refazer a lista tira o foco de quem navega pelo teclado: ele volta para o mesmo controle. Com o mouse, não há o que devolver.
 let porTeclado = false;
@@ -876,12 +867,6 @@ function diasDoPrazo(prazo) {
   return Math.round((new Date(y, m - 1, d) - new Date(h.getFullYear(), h.getMonth(), h.getDate())) / 864e5);
 }
 
-// Responsável é texto livre: "Fulano e Beltrano" ou "Fulano, Beltrano" contam para os dois no filtro
-const SEM_RESP = '—';
-const chaveDe = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
-const pessoasDe = (a) => String(a.responsavel || '').split(/\s+e\s+|\s*[,;/]\s*/).map((p) => p.trim()).filter(Boolean);
-const chavesDe = (a) => { const p = pessoasDe(a).map(chaveDe); return p.length ? p : [SEM_RESP]; };
-const passaFiltro = (a) => aQuem == null || chavesDe(a).includes(aQuem);
 
 // O ✕ de uma linha pede confirmação ali mesmo (sem janela do navegador); excluído, o item fica no banco com quem excluiu.
 // O ✎ só aparece para link de organizador (o banco também só aceita a edição dele) e abre a linha no formulário de baixo.
@@ -939,31 +924,10 @@ function resumoAcionaveis() {
   return partes.join(' · ');
 }
 
-// Um botão por responsável, com quantos estão em andamento (✓ quando todos foram concluídos); o de quem entrou vem primeiro.
-// Só aparece com a lista longa e mais de um responsável.
-function filtroAcionaveis() {
-  const grupos = new Map();
-  for (const a of acionaveis) {
-    const nomes = pessoasDe(a);
-    for (const nome of nomes.length ? nomes : [null]) {
-      const k = nome ? chaveDe(nome) : SEM_RESP;
-      const g = grupos.get(k) || grupos.set(k, { k, nome: nome || 'Sem responsável', abertos: 0 }).get(k);
-      if (!feito(a)) g.abertos++;
-    }
-  }
-  if (grupos.size < 2 || acionaveis.length < 6 || (aQuem != null && !grupos.has(aQuem))) aQuem = null;
-  if (grupos.size < 2 || acionaveis.length < 6) return '';
-  const meu = chaveDe(eu || '').split(' ')[0];
-  const peso = (g) => (g.k === SEM_RESP ? 2 : g.k.split(' ')[0] === meu ? 0 : 1);
-  const lista = [...grupos.values()].sort((a, b) => peso(a) - peso(b) || b.abertos - a.abertos || a.nome.localeCompare(b.nome, 'pt-BR'));
-  const chip = (k, nome, n, ativo) => `<button type="button" class="chip" data-quem="${esc(k)}" aria-pressed="${ativo}"><span>${esc(nome)}</span>${n ? `<b>${n}</b>` : '<b class="ok">✓</b>'}</button>`;
-  return chip('', 'Todos', acionaveis.filter((a) => !feito(a)).length, aQuem == null) + lista.map((g) => chip(g.k, g.nome, g.abertos, aQuem === g.k)).join('');
-}
-
+// O filtro por responsável (botões "Todos", "Fulano 3"…) saiu em 11/11, a pedido do Eduardo: a lista vem inteira.
 function tabelaAcionaveis() {
-  const visiveis = acionaveis.filter(passaFiltro);
-  if (!visiveis.length) return '';
-  const abertos = visiveis.filter((a) => !feito(a)), feitos = visiveis.filter(feito);
+  if (!acionaveis.length) return '';
+  const abertos = acionaveis.filter((a) => !feito(a)), feitos = acionaveis.filter(feito);
   const divisor = feitos.length ? `<tr class="adiv"><td colspan="${colunas()}"><button type="button" id="afeitos" aria-expanded="${verFeitos}">${DOBRA}Concluídos (${feitos.length})</button></td></tr>` : '';
   return `<table><thead><tr><th class="an"></th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th><th class="as">Status</th>${PUB ? '<th class="ax"></th>' : ''}</tr></thead>`
     + `<tbody>${abertos.map(linhaAcionavel).join('')}${divisor}${verFeitos ? feitos.map(linhaAcionavel).join('') : ''}</tbody></table>`;
@@ -978,9 +942,6 @@ function mostrarAcionaveis() {
   $('#amais').hidden = !PUB || !form.hidden;
   ordemA = new Map(acionaveis.map((a, i) => [a.id, i + 1]));
   $('#aresumo').innerHTML = resumoAcionaveis();
-  const filtro = filtroAcionaveis();
-  $('#afiltro').innerHTML = filtro;
-  $('#afiltro').hidden = !filtro;
   $('#aquem').innerHTML = [...new Set(acionaveis.map((a) => a.responsavel).filter(Boolean))].map((r) => `<option value="${esc(r)}">`).join('');
   $('#alista').innerHTML = tabelaAcionaveis();
   aNova = null;
@@ -1000,14 +961,6 @@ $('.acab').addEventListener('click', (e) => {
   dobrarAcionaveis(!aFechado);
   mostrarAcionaveis();
 });
-$('#afiltro').addEventListener('click', (e) => {
-  const b = e.target.closest('.chip');
-  if (!b) return;
-  aQuem = b.dataset.quem || null;
-  mostrarAcionaveis();
-  refocar('#afiltro .chip[aria-pressed="true"]');
-});
-
 async function mudarStatus(sel) {
   $('#aerro').textContent = '';
   sel.disabled = true;
@@ -1084,7 +1037,7 @@ async function salvarAcionavel() {
     if (detalhes !== undefined && detalhes !== eraDet) acionaveis = await rpc('desenho_acionavel_detalhar', { p_token: token, p_id: aEditar, p_detalhes: detalhes });
     // o que acabou de entrar aparece: sai do filtro se não couber nele, pisca e rola até ficar à vista
     const nova = acionaveis.find((a) => !antes.has(a.id));
-    if (nova) { aNova = nova.id; if (!passaFiltro(nova)) aQuem = null; }
+    if (nova) aNova = nova.id;
     abrirFormAcionavel(false);
     $('#alista tr.nova')?.scrollIntoView({ block: 'nearest' });
   } catch {
@@ -1108,7 +1061,7 @@ $('#adesc').addEventListener('keydown', (e) => {
 // O endereço ganha #acionavel=N, que serve de link. "Voltar", Esc ou o voltar do navegador devolvem a pessoa ao ponto de onde ela veio.
 let aPagina = null, aVolta = 0;
 // a página anda pela mesma lista que a pessoa via: a filtrada, quando o acionável aberto está nela
-const vizinhosA = () => { const l = acionaveis.filter(passaFiltro); return l.some((a) => a.id === aPagina) ? l : acionaveis; };
+const vizinhosA = () => acionaveis;
 
 // Detalhes: texto de quem organiza, mostrado com estrutura leve. "## " abre uma seção, "- " faz um item de lista (uma linha
 // recuada continua o item), linha em branco separa parágrafos; dentro da linha vale a marcação curta (**negrito**, `código`).
@@ -1176,7 +1129,7 @@ function mostrarPaginaAcionavel() {
   document.body.classList.add('na-pagina');
   const lista = vizinhosA(), i = lista.findIndex((x) => x.id === a.id);
   $('#pnav').hidden = false;
-  $('#ponde').textContent = `Acionável ${i + 1} de ${lista.length}` + (lista.length < acionaveis.length ? ' no filtro' : '');
+  $('#ponde').textContent = `Acionável ${i + 1} de ${lista.length}`;
   $('#pant').disabled = i <= 0;
   $('#pprox').disabled = i >= lista.length - 1;
 }
