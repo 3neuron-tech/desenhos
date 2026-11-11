@@ -23,18 +23,39 @@ html, body { margin: 0; background: var(--fundo); color: var(--tinta); font: 13p
 h1 { margin: 0; font-size: 15px; }
 #versao { font: inherit; font-size: 12px; color: var(--suave); background: var(--papel); border: 1px solid var(--grade); border-radius: 0; padding: 1px 4px; }
 .l2 { display: flex; padding: 0 16px; }
-.aba { border: 1.5px solid var(--tinta); border-bottom: 0; margin-right: -1.5px; padding: 4px 16px; background: var(--fundo); cursor: pointer; user-select: none; }
+.aba { font: inherit; color: var(--tinta); border: 1.5px solid var(--tinta); border-bottom: 0; border-radius: 0; margin-right: -1.5px; padding: 4px 16px; background: var(--fundo); cursor: pointer; user-select: none; }
+.aba:hover { background: var(--papel); }
 .aba.ativa { background: var(--tinta); color: var(--papel); font-weight: 600; }
+:focus-visible { outline: 2px solid var(--azul); outline-offset: 1px; }
+.aba:focus-visible { position: relative; z-index: 1; }
 #acoes { margin: 12px 16px 0; max-width: 1100px; background: var(--papel); border: 1.5px solid var(--tinta); }
-.acab { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 10px; }
+.acab { display: flex; align-items: center; gap: 10px; min-height: 34px; padding-right: 10px; }
+.acab.dobra { cursor: pointer; }
 .acab h2 { margin: 0; font-size: 13.5px; }
+#adobra { display: flex; align-items: center; gap: 7px; font: inherit; font-weight: 700; color: var(--tinta); background: none; border: 0; border-radius: 0; padding: 7px 2px 7px 10px; cursor: inherit; }
+.seta { flex: none; width: 10px; height: 10px; transition: transform .12s; }
+[aria-expanded="false"] > .seta { transform: rotate(-90deg); }
+.acab:not(.dobra) .seta { display: none; }
+#aresumo { flex: 1; min-width: 0; font-size: 12px; color: var(--suave); }
+#aresumo .feito { color: var(--verde); }
+#adobra:disabled { color: var(--tinta); }
+.ast.feito { background: var(--verde-f); border-color: var(--verde); }
 #amais { min-width: 28px; font-size: 15px; font-weight: 700; line-height: 1.1; padding: 1px 8px; }
+#afiltro { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px 10px; border-top: 1.5px solid var(--tinta); }
+#afiltro[hidden], #acorpo[hidden] { display: none; }
+.chip { display: inline-flex; align-items: baseline; gap: 6px; max-width: 240px; font: inherit; font-size: 12px; color: var(--tinta); background: var(--papel); border: 1px solid #9a9a94; border-radius: 0; padding: 1px 8px; cursor: pointer; }
+.chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--suave); }
+.chip b.ok { color: var(--verde); }
+.chip:hover { border-color: var(--tinta); }
+.chip[aria-pressed="true"] { background: var(--tinta); border-color: var(--tinta); color: var(--papel); font-weight: 600; }
+.chip[aria-pressed="true"] b { color: var(--papel); }
 #acoes table { width: 100%; border-collapse: collapse; font-size: 12.5px; border-top: 1.5px solid var(--tinta); }
 #acoes th { padding: 4px 10px; text-align: left; font-weight: 600; font-size: 11.5px; color: var(--suave); border-bottom: 1px solid var(--grade); }
-#acoes td { padding: 5px 10px; vertical-align: top; border-bottom: 1px solid var(--grade); overflow-wrap: anywhere; }
+#acoes td { padding: 5px 10px; vertical-align: top; background: var(--papel); border-bottom: 1px solid var(--grade); overflow-wrap: anywhere; }
 #acoes tr:last-child td { border-bottom: 0; }
-#acoes .an { width: 40px; }
-#acoes .num { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 4px; border: 1.5px solid var(--tinta); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#acoes .an { width: 46px; }
+#acoes .num { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 3px; border: 1.5px solid var(--tinta); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 #acoes tbody td { vertical-align: middle; }
 #acoes .ar { width: 200px; }
 #acoes .ap { width: 96px; font-variant-numeric: tabular-nums; }
@@ -43,44 +64,75 @@ h1 { margin: 0; font-size: 15px; }
 #acoes .as.feito, .ast.feito { color: var(--verde); font-weight: 600; }
 .ast { font: inherit; font-size: 12px; color: var(--tinta); background: var(--papel); border: 1px solid var(--grade); border-radius: 0; padding: 1px 2px; cursor: pointer; }
 .ast:hover { border-color: var(--tinta); }
-#acoes .ax { width: 1%; padding-left: 4px; text-align: right; white-space: nowrap; }
-.ax-b { font: inherit; font-size: 13px; line-height: 1; color: var(--suave); background: none; border: 1px solid transparent; border-radius: 0; padding: 2px 6px; cursor: pointer; }
+#acoes .ax { position: relative; width: 1%; padding-left: 4px; text-align: right; white-space: nowrap; }
+.ax-b { display: inline-flex; vertical-align: middle; color: var(--suave); background: none; border: 1px solid transparent; border-radius: 0; padding: 4px 5px; cursor: pointer; }
+.ax-b svg, #lfechar svg { display: block; }
 .ax-b:hover { color: var(--vermelho); border-color: var(--vermelho); }
 .ax-b.lapis:hover { color: var(--tinta); border-color: var(--tinta); }
-#acoes td[data-dica] { cursor: help; }
+.ax-b.some, #acoes tr.confirmando .as > * { visibility: hidden; }
+#acoes .an[data-dica], #acoes .ap[data-dica] { cursor: help; }
+#acoes td[data-desc] { cursor: pointer; }
 .com-desc { text-decoration: underline dotted var(--suave); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+.com-desc[aria-expanded="true"] { font-weight: 600; text-decoration: none; }
+.adesc-t { margin: 5px 0 3px; padding: 1px 0 1px 10px; max-width: 760px; border-left: 2px solid var(--grade); color: #33332f; white-space: pre-line; overflow-wrap: anywhere; cursor: text; }
 #acoes .vazio { color: var(--suave); }
+#acoes tbody tr:not(.editando):not(.aedicao):not(.adiv):hover td { background: #f8f8f5; }
+#acoes tbody tr.aberta td { vertical-align: top; }
+#acoes tr.feito td { color: var(--suave); }
+#acoes tr.feito .num { color: var(--verde); border-color: var(--verde); background: var(--verde-f); }
+#acoes tr.adiv td { padding: 0; background: var(--fundo); }
+#afeitos { display: flex; align-items: center; gap: 7px; width: 100%; font: inherit; font-size: 12px; font-weight: 600; color: var(--suave); text-align: left; background: none; border: 0; border-radius: 0; padding: 5px 10px; cursor: pointer; }
+#afeitos:hover { color: var(--tinta); }
+#acoes tr.nova td { animation: anova 2.5s ease-out; }
+@keyframes anova { from { background: var(--verde-f); } to { background: var(--papel); } }
 #acoes tr.editando td { background: var(--amarelo-f); }
-.aconf { display: inline-flex; gap: 6px; }
+#acoes tr.aedicao > td { padding: 0; }
+.aconf { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: inline-flex; gap: 6px; padding-left: 10px; background: inherit; }
 .acao.perigo { color: var(--vermelho); border-color: var(--vermelho); }
 .acao.perigo:hover { background: var(--vermelho); color: var(--papel); }
-#aerro { margin-left: auto; color: var(--vermelho); font-size: 12px; }
-#aform { display: grid; grid-template-columns: 1fr 200px 140px auto auto; gap: 6px; padding: 8px 10px; border-top: 1.5px solid var(--tinta); }
+#aerro { color: var(--vermelho); font-size: 12px; }
+#aform { display: grid; grid-template-columns: minmax(0, 1fr) 200px 150px; gap: 8px; padding: 10px; border-top: 1.5px solid var(--tinta); }
 #aform[hidden] { display: none; }
+#aform label { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 11.5px; font-weight: 600; color: var(--suave); }
+#aform label i { font-style: normal; font-weight: 400; }
 #aform input, #aform textarea { min-width: 0; padding: 3px 6px; font: inherit; font-size: 12.5px; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; }
-#aform textarea { grid-column: 1 / 4; min-height: 44px; resize: vertical; color: var(--suave); background: var(--fundo); border-color: var(--grade); }
-#aaviso { grid-column: 1 / -1; color: var(--vermelho); font-size: 12px; }
-#aaviso:empty { display: none; }
+#aform input { height: 27px; }
+#aform .c-desc, .afim { grid-column: 1 / -1; }
+#aform textarea { min-height: 44px; resize: vertical; color: var(--suave); background: var(--fundo); border-color: var(--grade); }
+.afim { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+#aaviso { margin-right: auto; color: var(--vermelho); font-size: 12px; }
+.acao.cheia { background: var(--tinta); color: var(--papel); }
+.acao.cheia:hover { background: #3a3a36; }
+.aedicao #aform { border-top: 0; background: var(--amarelo-f); }
 .com-lateral #acoes { margin-right: 416px; }
+@media (max-width: 720px) {
+  #aform { grid-template-columns: 1fr 1fr; }
+  #aform .c-texto { grid-column: 1 / -1; }
+  #acoes .ar { width: 110px; }
+  #acoes .as { width: 112px; }
+}
+@media (prefers-reduced-motion: reduce) { .seta { transition: none; } #acoes tr.nova td { animation: none; } }
 #nota { padding: 10px 16px 0; font-size: 13.5px; max-width: 1400px; }
 #quadro { padding: 10px 16px 24px; overflow-x: auto; }
 #quadro svg { display: block; width: 100%; min-width: 1400px; height: auto; background: var(--papel); border: 1.5px solid var(--tinta); }
 #dica { position: fixed; z-index: 5; display: none; max-width: 380px; padding: 8px 10px; background: var(--papel); border: 1.5px solid var(--tinta); box-shadow: 4px 4px 0 rgba(0, 0, 0, .12); font-size: 12.5px; white-space: pre-line; overflow-wrap: anywhere; pointer-events: none; }
 #dica.viva { pointer-events: auto; width: 380px; max-width: calc(100vw - 16px); max-height: 70vh; overflow-y: auto; white-space: normal; }
+.drodape { margin-top: 6px; padding-top: 5px; border-top: 1px solid var(--grade); color: var(--suave); font-size: 11.5px; }
 .dtexto { white-space: pre-line; overflow-wrap: anywhere; }
 .dconversa { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--grade); }
 .dconversa .coment { margin-bottom: 6px; padding: 6px 8px; }
 .dacoes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: 12px; color: var(--suave); }
 #dform { margin-top: 8px; }
 .dbotoes { display: flex; gap: 6px; }
-#erro { padding: 24px 16px; color: var(--vermelho); }
+#erro { max-width: 520px; margin: 40px auto; padding: 16px 18px; background: var(--papel); border: 1.5px solid var(--tinta); border-top: 4px solid var(--vermelho); font-size: 13.5px; overflow-wrap: anywhere; }
+#espera { padding: 24px 0; color: var(--suave); }
 .item { cursor: default; }
 .item:hover > .base { stroke: var(--azul); stroke-width: 2; }
 .item.ativo > .base { stroke: var(--azul); stroke-width: 3; }
 .acao { font: inherit; font-size: 12px; color: var(--tinta); background: var(--papel); border: 1.5px solid var(--tinta); border-radius: 0; padding: 2px 10px; cursor: pointer; }
 .acao:hover { background: var(--tinta); color: var(--papel); }
 .acao:disabled { opacity: .5; cursor: default; }
-#quem { font-size: 12px; color: var(--suave); }
+#quem { margin-left: auto; font-size: 12px; color: var(--suave); }
 .com-lateral #quadro { margin-right: 400px; }
 .com-lateral #quadro svg { min-width: 1100px; }
 #lateral { position: fixed; inset: 0 0 0 auto; z-index: 4; display: none; flex-direction: column; width: 400px; max-width: 100%; background: var(--papel); border-left: 2px solid var(--tinta); }
@@ -132,26 +184,32 @@ code { font: 12px Consolas, monospace; }
     <button id="acessos" class="acao" title="Quem tem link para este desenho e até quando vale" hidden>Acessos</button>
     <button id="conversas" class="acao" hidden>Conversas</button>
   </div>
-  <div class="l2" id="abas"></div>
+  <div class="l2" id="abas" role="tablist"></div>
 </div>
 <section id="acoes" aria-label="Acionáveis" hidden>
-  <div class="acab"><h2>Acionáveis</h2><span id="aerro"></span><button id="amais" class="acao" title="Incluir um acionável" hidden>+</button></div>
-  <div id="alista"></div>
-  <form id="aform" novalidate hidden>
-    <input id="atexto" maxlength="300" placeholder="O que fazer, em uma linha" required>
-    <input id="aresp" maxlength="120" placeholder="Responsável (opcional)">
-    <input id="aprazo" type="date" title="Prazo (opcional)" aria-label="Prazo (opcional)">
-    <button type="submit" class="acao">Incluir</button>
-    <button type="button" id="acancelar" class="acao">Cancelar</button>
-    <textarea id="adesc" maxlength="2000" rows="2" placeholder="Descrição (opcional): o que ajuda a entender este acionável"></textarea>
-    <span id="aaviso"></span>
-  </form>
+  <div class="acab">
+    <h2><button type="button" id="adobra" aria-expanded="true" aria-controls="acorpo"><svg class="seta" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3l3.5 4 3.5-4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Acionáveis</button></h2>
+    <span id="aresumo"></span><span id="aerro"></span>
+    <button id="amais" class="acao" title="Incluir um acionável" aria-label="Incluir um acionável" hidden>+</button>
+  </div>
+  <div id="acorpo">
+    <form id="aform" novalidate hidden>
+      <label class="c-texto"><span>O que fazer</span><input id="atexto" maxlength="300" placeholder="Em uma linha" required></label>
+      <label><span>Responsável <i>(opcional)</i></span><input id="aresp" maxlength="120" list="aquem" autocomplete="off"></label>
+      <label><span>Prazo <i>(opcional)</i></span><input id="aprazo" type="date"></label>
+      <label class="c-desc"><span>Descrição <i>(opcional)</i></span><textarea id="adesc" maxlength="2000" rows="2" placeholder="O que ajuda a entender este acionável"></textarea></label>
+      <div class="afim"><span id="aaviso"></span><button type="button" id="acancelar" class="acao">Cancelar</button><button type="submit" class="acao cheia">Incluir</button></div>
+      <datalist id="aquem"></datalist>
+    </form>
+    <div id="afiltro" role="group" aria-label="Filtrar por responsável" hidden></div>
+    <div id="alista"></div>
+  </div>
 </section>
 <div id="nota"></div>
-<div id="quadro"></div>
+<div id="quadro"><div id="espera">Abrindo o desenho…</div></div>
 <div id="dica"></div>
 <aside id="lateral" aria-label="Detalhes e comentários">
-  <div class="lcab"><h2 id="ltitulo"></h2><button id="lfechar" class="acao" title="Fechar">✕</button></div>
+  <div class="lcab"><h2 id="ltitulo"></h2><button id="lfechar" class="acao" title="Fechar (Esc)" aria-label="Fechar"><svg width="11" height="17" aria-hidden="true"><use href="#i-x"/></svg></button></div>
   <div id="lcorpo"></div>
   <form id="lform" hidden>
     <textarea id="ltexto" rows="3" maxlength="4000" placeholder="Escreva um comentário ou responda à pergunta"></textarea>
@@ -184,6 +242,8 @@ code { font: 12px Consolas, monospace; }
     <symbol id="i-cofre" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="16.5"/><circle cx="12" cy="11.2" r="4"/><path d="M12 8.6v2.6l1.8 1.2M6 19.5V22M18 19.5V22"/></g></symbol>
     <symbol id="i-servico" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16"/><path d="M7 9.5l3 2.5-3 2.5M12 15h5"/></g></symbol>
     <symbol id="i-caixa" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+    <symbol id="i-lapis" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3.5 20.5l1.2-5L16.2 4l3.8 3.8L8.5 19.3z"/><path d="M13.6 6.6l3.8 3.8"/></g></symbol>
   </defs>
 </svg>
 
@@ -569,7 +629,7 @@ function desenhar() {
   const W = Math.max(p.largura || 0, bb.x + bb.width + 20), H = bb.y + bb.height + 20;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.style.aspectRatio = `${W} / ${H}`;
-  document.querySelectorAll('.aba').forEach((a, i) => a.classList.toggle('ativa', i === pag));
+  document.querySelectorAll('.aba').forEach((a, i) => { a.classList.toggle('ativa', i === pag); a.setAttribute('aria-selected', String(i === pag)); });
   if (aberto) abrirItem(aberto);
 }
 
@@ -692,50 +752,170 @@ async function abrirAcessos() {
 // ---------------------------------------------------------------- acionáveis
 // No topo, valem para o desenho todo: uma linha, um responsável e um prazo. Na página publicada, quem tem link inclui pelo (+);
 // ficam no banco, na ordem em que entraram. No painel local não há banco: a seção só avisa onde eles ficam.
+// A seção dobra pelo título (o navegador lembra), o cabeçalho resume o que está em andamento, vencido e concluído,
+// os concluídos ficam recolhidos no fim da lista e, com a lista longa, um filtro por responsável aparece em cima.
 const dataBr = (iso) => String(iso).slice(0, 10).split('-').reverse().join('/');
 const hoje = () => new Date().toLocaleDateString('sv-SE');
+const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+const DOBRA = '<svg class="seta" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3l3.5 4 3.5-4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+const DOBRADO = 'desenho-acionaveis-fechados';
+let aFechado = (() => { try { return localStorage.getItem(DOBRADO) === '1'; } catch { return false; } })();
+let aQuem = null, verFeitos = false, aNova = null, ordemA = new Map();
+const aAbertas = new Set();
+
+// Refazer a lista tira o foco de quem navega pelo teclado: ele volta para o mesmo controle. Com o mouse, não há o que devolver.
+let porTeclado = false;
+addEventListener('keydown', () => { porTeclado = true; }, true);
+addEventListener('mousedown', () => { porTeclado = false; }, true);
+const refocar = (seletor) => { if (porTeclado) $(seletor)?.focus({ preventScroll: true }); };
+
+function dobrarAcionaveis(fechar) {
+  aFechado = fechar;
+  try { if (fechar) localStorage.setItem(DOBRADO, '1'); else localStorage.removeItem(DOBRADO); } catch { }
+}
+
+// Prazo: a data é do dia, sem hora; comparar como texto (aaaa-mm-dd) evita o fuso
+const vencido = (a) => !!a.prazo && !feito(a) && String(a.prazo).slice(0, 10) < hoje();
+function diasDoPrazo(prazo) {
+  const [y, m, d] = String(prazo).slice(0, 10).split('-').map(Number), h = new Date();
+  return Math.round((new Date(y, m - 1, d) - new Date(h.getFullYear(), h.getMonth(), h.getDate())) / 864e5);
+}
+
+// Responsável é texto livre: "Fulano e Beltrano" ou "Fulano, Beltrano" contam para os dois no filtro
+const SEM_RESP = '—';
+const chaveDe = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const pessoasDe = (a) => String(a.responsavel || '').split(/\s+e\s+|\s*[,;/]\s*/).map((p) => p.trim()).filter(Boolean);
+const chavesDe = (a) => { const p = pessoasDe(a).map(chaveDe); return p.length ? p : [SEM_RESP]; };
+const passaFiltro = (a) => aQuem == null || chavesDe(a).includes(aQuem);
 
 // O ✕ de uma linha pede confirmação ali mesmo (sem janela do navegador); excluído, o item fica no banco com quem excluiu.
 // O ✎ só aparece para link de organizador (o banco também só aceita a edição dele) e abre a linha no formulário de baixo.
 let aExcluir = null, aEditar = null;
+// A confirmação fica por cima da linha, encostada à direita: os botões da linha continuam no lugar, invisíveis, e as colunas não mudam de largura.
+const ICONE = (nome) => `<svg width="13" height="13" aria-hidden="true"><use href="#i-${nome}"/></svg>`;
 function acaoLinha(a) {
   if (!PUB) return '';
-  return aExcluir === a.id
-    ? `<td class="ax"><span class="aconf"><button type="button" class="acao perigo" data-confirmar="${a.id}">Excluir</button><button type="button" class="acao" data-cancelar>Cancelar</button></span></td>`
-    : `<td class="ax">${organizador ? `<button type="button" class="ax-b lapis" data-editar="${a.id}" title="Editar este acionável" aria-label="Editar">✎</button>` : ''}<button type="button" class="ax-b" data-apagar="${a.id}" title="Excluir este acionável" aria-label="Excluir">✕</button></td>`;
+  const confirma = aExcluir === a.id, some = confirma ? ' some' : '', fora = confirma ? ' tabindex="-1"' : '';
+  return `<td class="ax">${organizador ? `<button type="button" class="ax-b lapis${some}" data-editar="${a.id}" title="Editar este acionável" aria-label="Editar"${fora}>${ICONE('lapis')}</button>` : ''}`
+    + `<button type="button" class="ax-b${some}" data-apagar="${a.id}" title="Excluir este acionável" aria-label="Excluir"${fora}>${ICONE('x')}</button>`
+    + (confirma ? `<span class="aconf"><button type="button" class="acao perigo" data-confirmar="${a.id}">Excluir</button><button type="button" class="acao" data-cancelar>Cancelar</button></span>` : '')
+    + '</td>';
 }
 const semValor = '<span class="vazio">—</span>';
 const quemFez = (a) => `incluído por ${a.autor} em ${dataHora(a.criado_em)}` + (a.editado_por ? ` · editado por ${a.editado_por} em ${dataHora(a.editado_em)}` : '');
 // A descrição não ocupa a linha: o texto ganha um sublinhado pontilhado e ela aparece na dica ao passar o mouse,
-// como texto puro (é escrita por quem tem link). O title vazio evita a dica do navegador por cima ("incluído por…" fica no resto da linha).
-function linhaAcionavel(a, i) {
-  const vencido = a.prazo && !feito(a) && String(a.prazo) < hoje();
-  return `<tr${aEditar === a.id ? ' class="editando"' : ''} title="${esc(quemFez(a))}"><td class="an"><span class="num">${i + 1}</span></td>`
-    + (a.descricao
-      ? `<td data-dica="${esc(a.descricao)}" data-plano title=""><span class="com-desc">${esc(a.texto)}</span></td>`
-      : `<td>${esc(a.texto)}</td>`)
+// como texto puro (é escrita por quem tem link). Um clique na célula a deixa aberta sob o texto, e outro a recolhe.
+// O número é o da ordem de entrada e não muda com o filtro; quem incluiu e quem editou ficam na dica do número.
+const colunas = () => (PUB ? 6 : 5);
+function celulaPrazo(a) {
+  if (!a.prazo) return `<td class="ap">${semValor}</td>`;
+  const n = diasDoPrazo(a.prazo);
+  const falta = feito(a) ? '' : n < 0 ? `venceu há ${plural(-n, 'dia', 'dias')}` : n === 0 ? 'vence hoje' : n === 1 ? 'vence amanhã' : `vence em ${n} dias`;
+  return `<td class="ap${vencido(a) ? ' vencido' : ''}"${falta ? ` data-dica="${falta}" data-plano` : ''}>${esc(dataBr(a.prazo))}</td>`;
+}
+function linhaAcionavel(a) {
+  const aberta = !!a.descricao && aAbertas.has(a.id);
+  const classes = [aEditar === a.id && 'editando', feito(a) && 'feito', aberta && 'aberta', aNova === a.id && 'nova', aExcluir === a.id && 'confirmando'].filter(Boolean).join(' ');
+  const oQue = !a.descricao ? `<td class="at">${esc(a.texto)}</td>`
+    : `<td class="at" data-desc="${a.id}"${aberta ? '' : ` data-dica="${esc(a.descricao)}" data-plano data-rodape="Clique para manter aberta"`}>`
+      + `<span class="com-desc" role="button" tabindex="0" aria-expanded="${aberta}">${esc(a.texto)}</span>${aberta ? `<div class="adesc-t">${esc(a.descricao)}</div>` : ''}</td>`;
+  return `<tr${classes ? ` class="${classes}"` : ''}><td class="an" data-dica="${esc(quemFez(a))}" data-plano><span class="num">${ordemA.get(a.id)}</span></td>`
+    + oQue
     + `<td class="ar">${a.responsavel ? esc(a.responsavel) : semValor}</td>`
-    + `<td class="ap${vencido ? ' vencido' : ''}">${a.prazo ? esc(dataBr(a.prazo)) : semValor}</td>`
-    + `${celulaStatus(a)}${acaoLinha(a)}</tr>`;
+    + `${celulaPrazo(a)}${celulaStatus(a)}${acaoLinha(a)}</tr>`
+    // editar abre o formulário logo abaixo da linha, e não no alto da seção
+    + (aEditar === a.id ? `<tr class="aedicao"><td colspan="${colunas()}"></td></tr>` : '');
 }
 
 // Status: em andamento ou concluído. Na página publicada muda na própria linha; concluído fica verde e o prazo deixa de contar
 const STATUS = ['em andamento', 'concluído'];
 const feito = (a) => a.status === 'concluído';
 function celulaStatus(a) {
-  const quem = a.status_por ? ` title="${esc(`${a.status} por ${a.status_por} em ${dataHora(a.status_em)}`)}"` : '';
+  const quem = a.status_por ? ` data-dica="${esc(`${a.status} por ${a.status_por} em ${dataHora(a.status_em)}`)}" data-plano` : '';
   return PUB
     ? `<td class="as"${quem}><select class="ast${feito(a) ? ' feito' : ''}" data-status="${a.id}" aria-label="Status">${STATUS.map((s) => `<option${s === a.status ? ' selected' : ''}>${s}</option>`).join('')}</select></td>`
     : `<td class="as${feito(a) ? ' feito' : ''}"${quem}>${esc(a.status)}</td>`;
 }
 
+function resumoAcionaveis() {
+  const abertos = acionaveis.filter((a) => !feito(a)), vencidos = abertos.filter(vencido).length, feitos = acionaveis.length - abertos.length;
+  const partes = [];
+  if (abertos.length) partes.push(`${abertos.length} em andamento` + (vencidos ? ` <span class="vencido">(${vencidos} com prazo vencido)</span>` : ''));
+  if (feitos) partes.push(`<span class="feito">${plural(feitos, 'concluído', 'concluídos')}</span>`);
+  return partes.join(' · ');
+}
+
+// Um botão por responsável, com quantos estão em andamento (✓ quando todos foram concluídos); o de quem entrou vem primeiro.
+// Só aparece com a lista longa e mais de um responsável.
+function filtroAcionaveis() {
+  const grupos = new Map();
+  for (const a of acionaveis) {
+    const nomes = pessoasDe(a);
+    for (const nome of nomes.length ? nomes : [null]) {
+      const k = nome ? chaveDe(nome) : SEM_RESP;
+      const g = grupos.get(k) || grupos.set(k, { k, nome: nome || 'Sem responsável', abertos: 0 }).get(k);
+      if (!feito(a)) g.abertos++;
+    }
+  }
+  if (grupos.size < 2 || acionaveis.length < 6 || (aQuem != null && !grupos.has(aQuem))) aQuem = null;
+  if (grupos.size < 2 || acionaveis.length < 6) return '';
+  const meu = chaveDe(eu || '').split(' ')[0];
+  const peso = (g) => (g.k === SEM_RESP ? 2 : g.k.split(' ')[0] === meu ? 0 : 1);
+  const lista = [...grupos.values()].sort((a, b) => peso(a) - peso(b) || b.abertos - a.abertos || a.nome.localeCompare(b.nome, 'pt-BR'));
+  const chip = (k, nome, n, ativo) => `<button type="button" class="chip" data-quem="${esc(k)}" aria-pressed="${ativo}"><span>${esc(nome)}</span>${n ? `<b>${n}</b>` : '<b class="ok">✓</b>'}</button>`;
+  return chip('', 'Todos', acionaveis.filter((a) => !feito(a)).length, aQuem == null) + lista.map((g) => chip(g.k, g.nome, g.abertos, aQuem === g.k)).join('');
+}
+
+function tabelaAcionaveis() {
+  const visiveis = acionaveis.filter(passaFiltro);
+  if (!visiveis.length) return '';
+  const abertos = visiveis.filter((a) => !feito(a)), feitos = visiveis.filter(feito);
+  const divisor = feitos.length ? `<tr class="adiv"><td colspan="${colunas()}"><button type="button" id="afeitos" aria-expanded="${verFeitos}">${DOBRA}Concluídos (${feitos.length})</button></td></tr>` : '';
+  return `<table><thead><tr><th class="an"></th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th><th class="as">Status</th>${PUB ? '<th class="ax"></th>' : ''}</tr></thead>`
+    + `<tbody>${abertos.map(linhaAcionavel).join('')}${divisor}${verFeitos ? feitos.map(linhaAcionavel).join('') : ''}</tbody></table>`;
+}
+
 function mostrarAcionaveis() {
+  const form = $('#aform'), corpo = $('#acorpo');
+  // o formulário volta ao alto da seção antes de a lista ser refeita; na edição, desce de novo para baixo da linha
+  corpo.insertBefore(form, corpo.firstChild);
   // No painel local não há banco nem (+): a seção só aparece na página publicada
   $('#acoes').hidden = !PUB && !acionaveis.length;
-  $('#amais').hidden = !PUB || !$('#aform').hidden;
-  $('#alista').innerHTML = acionaveis.length
-    ? `<table><thead><tr><th class="an"></th><th>O que fazer</th><th class="ar">Responsável</th><th class="ap">Prazo</th><th class="as">Status</th>${PUB ? '<th class="ax"></th>' : ''}</tr></thead><tbody>${acionaveis.map(linhaAcionavel).join('')}</tbody></table>`
-    : '';
+  $('#amais').hidden = !PUB || !form.hidden;
+  ordemA = new Map(acionaveis.map((a, i) => [a.id, i + 1]));
+  $('#aresumo').innerHTML = resumoAcionaveis();
+  const filtro = filtroAcionaveis();
+  $('#afiltro').innerHTML = filtro;
+  $('#afiltro').hidden = !filtro;
+  $('#aquem').innerHTML = [...new Set(acionaveis.map((a) => a.responsavel).filter(Boolean))].map((r) => `<option value="${esc(r)}">`).join('');
+  $('#alista').innerHTML = tabelaAcionaveis();
+  aNova = null;
+  if (aEditar != null && !form.hidden) $('#alista .aedicao td')?.appendChild(form);
+  // sem acionável não há o que dobrar; com o formulário aberto a seção fica aberta
+  $('.acab').classList.toggle('dobra', acionaveis.length > 0);
+  $('#adobra').disabled = !acionaveis.length;
+  corpo.hidden = aFechado && acionaveis.length > 0 && form.hidden;
+  $('#adobra').setAttribute('aria-expanded', String(!corpo.hidden));
+}
+
+$('.acab').addEventListener('click', (e) => {
+  if (e.target.closest('#amais') || !acionaveis.length || !$('#aform').hidden) return;
+  dobrarAcionaveis(!aFechado);
+  mostrarAcionaveis();
+});
+$('#afiltro').addEventListener('click', (e) => {
+  const b = e.target.closest('.chip');
+  if (!b) return;
+  aQuem = b.dataset.quem || null;
+  mostrarAcionaveis();
+  refocar('#afiltro .chip[aria-pressed="true"]');
+});
+
+function alternarDescricao(id) {
+  if (aAbertas.has(id)) aAbertas.delete(id); else aAbertas.add(id);
+  esconderDica();
+  mostrarAcionaveis();
+  refocar(`#alista td[data-desc="${id}"] .com-desc`);
 }
 
 async function mudarStatus(sel) {
@@ -762,17 +942,28 @@ async function excluirAcionavel(id) {
 }
 
 $('#alista').addEventListener('click', (e) => {
+  if (e.target.closest('#aform')) return;
   const b = e.target.closest('button');
-  if (!b) return;
-  if (b.dataset.editar) abrirFormAcionavel(true, acionaveis.find((a) => a.id === Number(b.dataset.editar)));
-  else if (b.dataset.apagar) { aExcluir = Number(b.dataset.apagar); mostrarAcionaveis(); }
-  else if (b.dataset.confirmar) { b.disabled = true; excluirAcionavel(Number(b.dataset.confirmar)); }
-  else if ('cancelar' in b.dataset) { aExcluir = null; mostrarAcionaveis(); }
+  if (b) {
+    if (b.dataset.editar) abrirFormAcionavel(true, acionaveis.find((a) => a.id === Number(b.dataset.editar)));
+    else if (b.dataset.apagar) { aExcluir = Number(b.dataset.apagar); mostrarAcionaveis(); }
+    else if (b.dataset.confirmar) { b.disabled = true; excluirAcionavel(Number(b.dataset.confirmar)); }
+    else if ('cancelar' in b.dataset) { aExcluir = null; mostrarAcionaveis(); }
+    else if (b.id === 'afeitos') { verFeitos = !verFeitos; mostrarAcionaveis(); refocar('#afeitos'); }
+    return;
+  }
+  // a célula inteira abre e recolhe a descrição; selecionar texto para copiar não conta como clique
+  const td = e.target.closest('td[data-desc]');
+  if (td && !e.target.closest('.adesc-t') && !String(getSelection()).trim()) alternarDescricao(Number(td.dataset.desc));
+});
+$('#alista').addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.com-desc')) { e.preventDefault(); alternarDescricao(Number(e.target.closest('td').dataset.desc)); }
 });
 
-// O mesmo formulário inclui (pelo +) e edita (pelo ✎, preenchido com a linha). Só "o que fazer" é obrigatório.
+// O mesmo formulário inclui (pelo +, no alto da seção) e edita (pelo ✎, sob a linha, preenchido com ela). Só "o que fazer" é obrigatório.
 function abrirFormAcionavel(abrir, a = null) {
   aEditar = abrir && a ? a.id : null;
+  if (abrir) dobrarAcionaveis(false);
   $('#aform').reset();
   if (a) {
     $('#atexto').value = a.texto;
@@ -794,8 +985,13 @@ async function salvarAcionavel() {
   const botao = $('#aform [type="submit"]');
   botao.disabled = true;
   try {
+    const antes = new Set(acionaveis.map((a) => a.id));
     acionaveis = aEditar ? await rpc('desenho_acionavel_editar', { ...campos, p_id: aEditar }) : await rpc('desenho_acionar', campos);
+    // o que acabou de entrar aparece: sai do filtro se não couber nele, pisca e rola até ficar à vista
+    const nova = acionaveis.find((a) => !antes.has(a.id));
+    if (nova) { aNova = nova.id; if (!passaFiltro(nova)) aQuem = null; }
     abrirFormAcionavel(false);
+    $('#alista tr.nova')?.scrollIntoView({ block: 'nearest' });
   } catch {
     $('#aaviso').textContent = 'Não foi salvo. O texto continua aqui; tente de novo.';
   } finally {
@@ -806,12 +1002,15 @@ async function salvarAcionavel() {
 $('#amais').addEventListener('click', () => abrirFormAcionavel(true));
 $('#acancelar').addEventListener('click', () => abrirFormAcionavel(false));
 $('#aform').addEventListener('submit', (e) => { e.preventDefault(); salvarAcionavel(); });
+$('#adesc').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); salvarAcionavel(); }
+});
 
 function montar() {
   $('#titulo').textContent = doc.meta?.titulo || NOME;
   document.title = doc.meta?.titulo || 'Desenho';
   mostrarAcionaveis();
-  $('#abas').innerHTML = doc.paginas.map((p, i) => `<div class="aba" data-aba="${i}">${esc(p.nome)}</div>`).join('');
+  $('#abas').innerHTML = doc.paginas.map((p, i) => `<button type="button" class="aba" role="tab" data-aba="${i}">${esc(p.nome)}</button>`).join('');
   pag = Math.min(pag, doc.paginas.length - 1);
   desenhar();
 }
@@ -867,10 +1066,10 @@ function esconderDica() {
   $('#dica').classList.remove('viva');
 }
 
-function dicaSimples(texto, e, plano = false) {
+function dicaSimples(texto, e, plano = false, rodape = '') {
   esconderDica();
   const d = $('#dica');
-  d.innerHTML = plano ? esc(texto) : html(texto);
+  d.innerHTML = (plano ? esc(texto) : html(texto)) + (rodape ? `<div class="drodape">${esc(rodape)}</div>` : '');
   d.style.display = 'block';
   const x = Math.min(e.clientX + 16, innerWidth - d.offsetWidth - 8);
   const y = e.clientY + 18 + d.offsetHeight > innerHeight ? e.clientY - d.offsetHeight - 12 : e.clientY + 18;
@@ -946,7 +1145,7 @@ document.addEventListener('mousemove', (e) => {
     if (texto !== dica.texto) { dica.texto = texto; $('#dica .dtexto').innerHTML = html(texto); }
     return;
   }
-  const seguir = g ? () => { cartaoItem(g, texto, ev); dica.ancora = [ev.clientX, ev.clientY]; } : alvo && texto ? () => dicaSimples(texto, ev, alvo.hasAttribute('data-plano')) : esconderDica;
+  const seguir = g ? () => { cartaoItem(g, texto, ev); dica.ancora = [ev.clientX, ev.clientY]; } : alvo && texto ? () => dicaSimples(texto, ev, alvo.hasAttribute('data-plano'), alvo.dataset.rodape) : esconderDica;
   clearTimeout(dica.timer);
   // A caminho do cartão, ele espera; se o mouse parar antes de chegar, segue para onde o mouse está
   if (viva && rumoAoCartao(e.clientX, e.clientY)) dica.timer = setTimeout(seguir, 300);
@@ -992,8 +1191,14 @@ $('#dica').addEventListener('input', (e) => { if (e.target.id === 'dcampo') dica
 $('#dica').addEventListener('keydown', (e) => {
   if (e.target.id === 'dcampo' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); responder(); }
 });
-// Esc ou um clique fora fecham; o que estava escrito fica guardado para quando a pessoa voltar ao item
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') esconderDica(); });
+// Esc ou um clique fora fecham; o que estava escrito fica guardado para quando a pessoa voltar ao item.
+// Sem cartão aberto, o Esc fecha o painel lateral.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const cartao = $('#dica').classList.contains('viva');
+  esconderDica();
+  if (!cartao && $('#lateral').classList.contains('aberto')) fecharLateral();
+});
 document.addEventListener('mousedown', (e) => { if (dica.fixa && !e.target.closest('#dica')) esconderDica(); });
 addEventListener('scroll', (e) => { if (!dica.fixa && !(e.target instanceof Element && e.target.closest('#dica'))) esconderDica(); }, true);
 
@@ -1012,8 +1217,14 @@ async function iniciarPublicado(hash) {
   const doLink = hash.get('acesso');
   token = doLink || lerAcesso();
   history.replaceState(null, '', location.pathname + (hash.get('aba') ? `#aba=${hash.get('aba')}` : ''));
-  const r = token ? await rpc('desenho_abrir', { p_token: token }) : null;
   $('#versao').hidden = true;
+  let r = null;
+  // sem resposta do banco, nada é esquecido: o link guardado continua valendo e um link novo volta para o endereço, para o recarregar funcionar
+  try { if (token) r = await rpc('desenho_abrir', { p_token: token }); } catch {
+    if (doLink) history.replaceState(null, '', `${location.pathname}#acesso=${doLink}`);
+    falhar('Não foi possível abrir o desenho agora. Recarregue a página em alguns instantes.');
+    return;
+  }
   if (!r) {
     // um link guardado que não abre mais é esquecido; um link novo que não abre não apaga o que estava guardado
     if (token && !doLink) esquecerAcesso();
