@@ -28,6 +28,14 @@ h1 { margin: 0; font-size: 15px; }
 .aba.ativa { background: var(--tinta); color: var(--papel); font-weight: 600; }
 :focus-visible { outline: 2px solid var(--azul); outline-offset: 1px; }
 .aba:focus-visible { position: relative; z-index: 1; }
+/* Abas ocultas: um botão no canto direito do topo, com um menu das páginas que só o organizador vê */
+#ocultas-cx { position: relative; }
+#ocultas-cx[hidden] { display: none; }
+#quem[hidden] ~ #ocultas-cx { margin-left: auto; }
+#ocultas-menu { position: absolute; right: 0; top: calc(100% + 5px); z-index: 3; min-width: 220px; background: var(--papel); border: 1.5px solid var(--tinta); }
+#ocultas-menu[hidden] { display: none; }
+#ocultas-menu button { display: block; width: 100%; font: inherit; text-align: left; white-space: nowrap; color: var(--tinta); background: none; border: 0; border-radius: 0; padding: 6px 12px; cursor: pointer; }
+#ocultas-menu button:hover, #ocultas-menu button[aria-current="true"] { background: var(--tinta); color: var(--papel); }
 #acoes { margin: 12px 16px 0; max-width: 1100px; background: var(--papel); border: 1.5px solid var(--tinta); }
 .acab { display: flex; align-items: center; gap: 10px; min-height: 34px; padding-right: 10px; }
 .acab.dobra { cursor: pointer; }
@@ -183,6 +191,10 @@ code { font: 12px Consolas, monospace; }
     <span id="quem" hidden></span>
     <button id="acessos" class="acao" title="Quem tem link para este desenho e até quando vale" hidden>Acessos</button>
     <button id="conversas" class="acao" hidden>Conversas</button>
+    <span id="ocultas-cx" hidden>
+      <button type="button" id="ocultas" class="acao" aria-haspopup="true" aria-expanded="false" aria-controls="ocultas-menu" title="Abas que só quem organiza o desenho vê">Abas ocultas</button>
+      <div id="ocultas-menu" hidden></div>
+    </span>
   </div>
   <div class="l2" id="abas" role="tablist"></div>
 </div>
@@ -269,7 +281,7 @@ const CONVERSAS = false;
 // Nos detalhes, o trecho que começa assim vai para o fim, sob o título "De onde vem": a consulta, o campo e o valor de cada constatação.
 const FONTE = '**De onde vem**';
 
-let doc = null, pag = 0, caixas = {}, registro = {}, comentarios = [], acionaveis = [], token = null, aberto = null, eu = null, organizador = false;
+let doc = null, pag = 0, abaPedida = false, caixas = {}, registro = {}, comentarios = [], acionaveis = [], token = null, aberto = null, eu = null, organizador = false;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // Marcação curta nos textos: **negrito**, ~~sai~~, ++entra++, ??decidir??, `código`
@@ -629,7 +641,11 @@ function desenhar() {
   const W = Math.max(p.largura || 0, bb.x + bb.width + 20), H = bb.y + bb.height + 20;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.style.aspectRatio = `${W} / ${H}`;
-  document.querySelectorAll('.aba').forEach((a, i) => { a.classList.toggle('ativa', i === pag); a.setAttribute('aria-selected', String(i === pag)); });
+  // cada botão guarda o número da página dele: com abas ocultas, a posição na fileira deixa de ser o número
+  document.querySelectorAll('.aba').forEach((a) => { const sim = Number(a.dataset.aba) === pag; a.classList.toggle('ativa', sim); a.setAttribute('aria-selected', String(sim)); });
+  $('#ocultas').classList.toggle('cheia', !!p.oculta);
+  $('#ocultas').textContent = p.oculta ? `Abas ocultas: ${p.nome}` : 'Abas ocultas';
+  document.querySelectorAll('#ocultas-menu button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.aba) === pag)));
   if (aberto) abrirItem(aberto);
 }
 
@@ -1010,10 +1026,47 @@ function montar() {
   $('#titulo').textContent = doc.meta?.titulo || NOME;
   document.title = doc.meta?.titulo || 'Desenho';
   mostrarAcionaveis();
-  $('#abas').innerHTML = doc.paginas.map((p, i) => `<button type="button" class="aba" role="tab" data-aba="${i}">${esc(p.nome)}</button>`).join('');
+  // Abas ocultas: uma página com "oculta": true fica fora da fileira de abas e abre pelo menu do canto direito.
+  // No painel local quem abre é sempre quem organiza. Na página publicada o banco só entrega essas páginas ao link
+  // de organizador; se uma chegar a outro link, sai aqui antes de qualquer coisa ser desenhada.
+  if (PUB && !organizador) doc.paginas = doc.paginas.filter((p) => !p.oculta);
+  if (!doc.paginas.length) throw new Error('Este desenho ainda não tem aba para mostrar.');
+  $('#abas').innerHTML = doc.paginas.map((p, i) => (p.oculta ? '' : `<button type="button" class="aba" role="tab" data-aba="${i}">${esc(p.nome)}</button>`)).join('');
+  const ocultas = doc.paginas.map((p, i) => [p, i]).filter(([p]) => p.oculta);
+  $('#ocultas-cx').hidden = !ocultas.length;
+  $('#ocultas-menu').innerHTML = ocultas.map(([p, i]) => `<button type="button" data-aba="${i}">${esc(p.nome)}</button>`).join('');
+  fecharOcultas();
   pag = Math.min(pag, doc.paginas.length - 1);
+  // sem pedido no endereço (#aba=N), o desenho abre na primeira aba que todos veem
+  if (doc.paginas[pag].oculta && !abaPedida) pag = Math.max(0, doc.paginas.findIndex((p) => !p.oculta));
   desenhar();
 }
+
+function fecharOcultas() {
+  $('#ocultas-menu').hidden = true;
+  $('#ocultas').setAttribute('aria-expanded', 'false');
+}
+$('#ocultas').addEventListener('click', () => {
+  const m = $('#ocultas-menu');
+  m.hidden = !m.hidden;
+  $('#ocultas').setAttribute('aria-expanded', String(!m.hidden));
+});
+$('#ocultas-menu').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-aba]');
+  if (!b) return;
+  pag = Number(b.dataset.aba);
+  history.replaceState(null, '', `#aba=${pag + 1}`);
+  fecharOcultas();
+  desenhar();
+});
+document.addEventListener('mousedown', (e) => { if (!e.target.closest('#ocultas-cx')) fecharOcultas(); });
+// Esc com o menu aberto fecha só o menu: o Esc geral (cartão, painel lateral) não chega a rodar
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || $('#ocultas-menu').hidden) return;
+  e.stopImmediatePropagation();
+  fecharOcultas();
+  $('#ocultas').focus();
+}, true);
 
 async function pedir(url) {
   const r = await fetch(url, { cache: 'no-store' });
@@ -1249,6 +1302,7 @@ async function iniciarPublicado(hash) {
   try {
     const hash = new URLSearchParams(location.hash.slice(1));
     pag = Math.max(0, (Number(hash.get('aba')) || 1) - 1);
+    abaPedida = hash.has('aba');
     if (PUB) { await iniciarPublicado(hash); return; }
     const { versoes } = await pedir(`/api/desenho/${encodeURIComponent(NOME)}`);
     if (!versoes.length) throw new Error('Este desenho ainda não tem versão.');
