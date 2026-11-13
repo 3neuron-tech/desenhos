@@ -116,47 +116,127 @@ h1 { margin: 0; font-size: 15px; }
 .l3[hidden], #apagina[hidden], #adet-cx[hidden] { display: none; }
 #ponde { flex: 1; min-width: 0; font-size: 12px; color: var(--suave); }
 .na-pagina .l2, .na-pagina #acoes, .na-pagina #nota, .na-pagina #quadro { display: none; }
-/* Limpa, sem caixa (Eduardo, 11/11): o título no alto, responsável, prazo e status num canto, uma linha preta e o texto direto na tela */
-#apagina { max-width: 980px; margin: 24px auto 56px; padding: 0 24px; }
-.pg-cab { display: flex; align-items: flex-start; gap: 14px; padding-bottom: 16px; border-bottom: 2px solid var(--tinta); }
+/* Página do acionável. Layout de 13/11/2026, aprovado pelo Eduardo na bancada interno/claude-outputs/layout-acionavel-20261113:
+   fundo branco; o título no alto, com responsável, prazo e status num canto e uma linha preta embaixo (11/11); cada seção com o
+   título numa coluna à esquerda; "rótulo: texto" em duas colunas; os blocos de uma seção numa tabela que abre no lugar.
+   Sem caixa em volta e sem respostas ou comentários (11/11). */
+html:has(body.na-pagina), body.na-pagina { background: var(--papel); }
+#apagina { max-width: 1060px; margin: 28px auto 64px; padding: 0 28px; }
+.pg-cab { display: flex; align-items: flex-start; gap: 14px; padding-bottom: 18px; border-bottom: 2px solid var(--tinta); }
 .pg-cab .num { flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; margin-top: 1px; padding: 0 5px; border: 1.5px solid var(--tinta); background: var(--papel); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .pg.feito .pg-cab .num { color: var(--verde); border-color: var(--verde); background: var(--verde-f); }
-.pg-cab h2 { flex: 1; min-width: 0; margin: 0; font-size: 22px; line-height: 1.3; overflow-wrap: anywhere; }
+.pg-cab h2 { flex: 1; min-width: 0; margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -.01em; overflow-wrap: anywhere; }
 .pg-lado { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; max-width: 320px; }
-.pg-meta { display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 4px 12px; margin: 2px 0 0; font-size: 12.5px; }
+.pg-meta { display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 4px 12px; margin: 2px 0 0; font-size: 13px; }
 .pg-meta dt { color: var(--suave); }
 .pg-meta dd { margin: 0; overflow-wrap: anywhere; }
 .pg-meta dd[data-dica] { cursor: help; }
 .pg-meta small { margin-left: 6px; color: var(--suave); font-size: 11.5px; }
 .pg-meta .vencido { color: var(--vermelho); font-weight: 600; }
-.pg-texto { padding-top: 20px; font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }
-.pg-resumo { margin: 0 0 16px; white-space: pre-line; }
-.pg-corpo h3 { margin: 24px 0 6px; font-size: 14px; }
-.pg-corpo > h3:first-child { margin-top: 8px; }
-.pg-corpo p { margin: 0 0 10px; }
-.pg-corpo ul { margin: 0 0 10px; padding-left: 20px; }
-.pg-corpo li { margin-bottom: 5px; }
-@media (max-width: 720px) { .pg-cab { flex-wrap: wrap; } .pg-lado { flex-basis: 100%; align-items: flex-start; max-width: none; } }
-.pg-aba { font: inherit; font-weight: 600; color: var(--azul); background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; }
-.pg-aba:hover { text-decoration: underline; }
-/* Lotes de contas (11/11): uma conta por bloco recolhível; fechado mostra nome, ação, "pergunta" e o resumo; aberto, o resto */
-.pg-conta { border-top: 1px solid var(--grade); }
-.pg-conta:last-of-type { border-bottom: 1px solid var(--grade); }
-.pg-conta > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; padding: 10px 0 10px 18px; position: relative; cursor: pointer; list-style: none; }
-.pg-conta > summary::-webkit-details-marker { display: none; }
-.pg-conta > summary::before { content: '▸'; position: absolute; left: 2px; top: 10px; color: var(--suave); }
-.pg-conta[open] > summary::before { content: '▾'; }
-.pg-conta > summary:hover .pg-conta-nome { text-decoration: underline; }
-.pg-conta-nome { font-family: ui-monospace, Consolas, monospace; font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
-.pg-acao, .pg-perg { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 0 5px; border: 1.5px solid var(--tinta); white-space: nowrap; }
-.pg-perg { border-color: var(--amarelo); color: var(--amarelo); }
-.pg-conta > summary small { flex-basis: 100%; color: var(--suave); font-size: 13.5px; }
-.pg-conta-corpo { padding: 0 0 18px 18px; }
-.pg-corpo h4.pg-sub { margin: 16px 0 6px; font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--suave); }
-.pg-conta-corpo > h4.pg-sub:first-child { margin-top: 4px; }
-.pg-campos { margin: 4px 0 8px; padding: 9px 12px; background: rgba(0,0,0,.045); font: 12px/1.55 ui-monospace, Consolas, monospace; white-space: pre; overflow-x: auto; }
+.pg-texto { padding-top: 22px; font-size: 14.5px; line-height: 1.6; overflow-wrap: anywhere; }
+.pg-resumo { max-width: 74ch; margin: 0 0 10px; font-size: 16px; line-height: 1.6; color: #2b2b28; white-space: pre-line; }
+.pg-corpo p { max-width: 78ch; margin: 0 0 12px; }
+.pg-corpo p.pg-nota { font-size: 13px; line-height: 1.55; color: var(--suave); }
+.pg-corpo b { font-weight: 600; }
+.pg-corpo code { padding: 0 4px; border-radius: 3px; background: #f0f0ec; font: 12.5px/1.4 Consolas, ui-monospace, monospace; }
 .pg-corpo a { color: var(--azul); font-weight: 600; text-decoration: none; }
 .pg-corpo a:hover { text-decoration: underline; }
+.pg-aba { font: inherit; font-weight: 600; color: var(--azul); background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; }
+.pg-aba:hover { text-decoration: underline; }
+.pg-fraco { color: var(--suave); }
+/* seções: o título numa coluna à esquerda (acompanha a rolagem), o conteúdo à direita */
+.pg-sec { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 0 36px; padding: 28px 0; border-top: 1px solid #e7e7e2; }
+.pg-sec.primeira { border-top: 0; }
+.pg-sec > h3 { position: sticky; top: calc(var(--topo-h, 0px) + 18px); align-self: start; margin: 0; font-size: 13.5px; font-weight: 700; line-height: 1.4; }
+.pg-sec > h3 small { margin-left: 6px; font-size: 12px; font-weight: 400; color: var(--suave); }
+.pg-sec-corpo { min-width: 0; }
+.pg-sec-corpo > :last-child { margin-bottom: 0; }
+.pg-sec.larga { grid-template-columns: minmax(0, 1fr); }
+.pg-sec.larga > h3 { position: static; margin-bottom: 10px; }
+.pg-sec.quieta { font-size: 13px; color: #3f3f3b; }
+/* "rótulo: texto" em duas colunas; ". Rótulo: texto" no meio do valor vira sublinha */
+.pg-kv { margin: 0 0 12px; }
+.pg-kv-l { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 0 18px; padding: 9px 0; border-top: 1px solid #efefea; }
+.pg-kv-l:first-child { padding-top: 2px; border-top: 0; }
+.pg-kv-l > dt { font-size: 12.5px; font-weight: 600; line-height: 1.75; color: var(--suave); }
+.pg-kv-l > dd { min-width: 0; margin: 0; }
+.pg-kv.nomes .pg-kv-l > dt { font-size: 13.5px; line-height: 1.6; color: var(--tinta); }
+.pg-subl { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 0 12px; margin-top: 4px; font-size: 13.5px; }
+.pg-subl > span:first-child { font-size: 12.5px; line-height: 1.7; color: var(--suave); }
+.pg-nl { display: inline-block; margin-right: 6px; padding: 0 7px; border: 1px dashed #b9b9b2; border-radius: 999px; font-size: 11.5px; font-weight: 600; line-height: 1.6; color: var(--suave); }
+/* perguntas, uma por linha; passos numerados; lista simples; o que se pede; de onde vem */
+.pg-pergs { margin: 0; padding: 0; list-style: none; }
+.pg-pergs li { position: relative; margin: 0 0 6px; padding-left: 26px; }
+.pg-pergs li:last-child { margin-bottom: 0; }
+.pg-pergs li::before { content: '?'; position: absolute; left: 0; top: 3px; display: flex; align-items: center; justify-content: center; width: 17px; height: 17px; border: 1.5px solid #c9a24a; border-radius: 50%; color: var(--amarelo); font-size: 10.5px; font-weight: 700; line-height: 1; }
+.pg-pergs li.pg-nq::before { content: none; }
+.pg-passos { margin: 2px 0 0; padding: 0; list-style: none; counter-reset: pgp; }
+.pg-passos li { position: relative; padding: 0 0 9px 32px; counter-increment: pgp; }
+.pg-passos li::before { content: counter(pgp); position: absolute; left: 0; top: 1px; display: flex; align-items: center; justify-content: center; width: 21px; height: 21px; border-radius: 50%; background: #ececE7; font-size: 11.5px; font-weight: 700; }
+.pg-passos li:not(:last-child)::after { content: ''; position: absolute; left: 10px; top: 25px; bottom: 1px; width: 1px; background: #deded8; }
+.pg-lista { margin: 0 0 12px; padding: 0; list-style: none; }
+.pg-lista li { position: relative; margin-bottom: 7px; padding-left: 18px; }
+.pg-lista li::before { content: ''; position: absolute; left: 3px; top: .7em; width: 5px; height: 5px; border-radius: 50%; background: #a3a39d; }
+.pg-pedido { margin: 0 0 12px; padding: 14px 18px; list-style: none; background: #f7f7f4; border-left: 3px solid var(--tinta); }
+.pg-pedido li { position: relative; margin: 3px 0; padding-left: 28px; font-size: 15px; }
+.pg-pedido li::before { content: ''; position: absolute; left: 0; top: .28em; width: 15px; height: 15px; border: 1.5px solid var(--tinta); border-radius: 3px; background: var(--papel); }
+.pg-fonte { padding: 8px 0; border-top: 1px solid #efefea; }
+.pg-fonte:first-child { padding-top: 0; border-top: 0; }
+.pg-fonte .m, .pg-fonte .s2 { color: var(--suave); }
+.pg-fonte .s2 { margin-top: 2px; }
+/* blocos (### nome | selo): uma linha por bloco, que abre no lugar; o selo vira uma pílula */
+.pg-b-cab, .pg-bloco > summary { display: grid; grid-template-columns: var(--pg-cols); gap: 0 14px; align-items: center; }
+.pg-b-cab { margin-top: 16px; padding: 0 10px 7px; border-bottom: 1.5px solid var(--tinta); font-size: 11.5px; font-weight: 600; color: var(--suave); }
+.pg-blocos { margin: 0 0 12px; }
+.pg-blocos.sem-cab { margin-top: 12px; border-top: 1px solid #e7e7e2; }
+.pg-bloco { border-bottom: 1px solid #e7e7e2; }
+.pg-bloco > summary { padding: 10px; cursor: pointer; list-style: none; }
+.pg-bloco > summary::-webkit-details-marker, .pg-lido > summary::-webkit-details-marker { display: none; }
+.pg-bloco > summary:hover { background: #fafaf8; }
+.pg-bloco[open] > summary { background: #f7f7f4; }
+.pg-chev { width: 10px; height: 10px; color: var(--suave); transition: transform .12s; }
+.pg-bloco[open] > summary .pg-chev, .pg-lido[open] > summary .pg-chev { transform: rotate(90deg); }
+.pg-b-nome { min-width: 0; }
+.pg-b-nome b { font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.pg-b-nome b.mono { font: 600 13.5px/1.35 ui-monospace, Consolas, monospace; }
+.pg-b-nome small { display: block; margin-top: 1px; font-size: 13px; line-height: 1.45; color: var(--suave); }
+.pg-b-selo { display: flex; flex-wrap: wrap; gap: 4px; }
+.pg-pill { display: inline-block; padding: 0 8px; border: 1px solid #d3d3cc; border-radius: 999px; font-size: 11.5px; font-style: normal; font-weight: 600; line-height: 1.7; color: #55554f; white-space: nowrap; }
+.pg-pill.azul { border-color: #bcd0ef; background: var(--azul-f); color: var(--azul); }
+.pg-pill.perg { border-color: #dcc78f; color: var(--amarelo); }
+.pg-gente { display: flex; flex-wrap: wrap; gap: 3px 5px; min-width: 0; }
+.pg-gente span { padding: 0 7px; border-radius: 4px; background: #f0f0ec; font-size: 12.5px; line-height: 1.75; white-space: nowrap; }
+.pg-gente .pg-fraco { padding: 0; background: none; }
+.pg-cofre { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--suave); }
+.pg-cofre i { width: 9px; height: 9px; border: 1.5px solid #b3b3ac; border-radius: 50%; }
+.pg-cofre.sim { color: var(--verde); font-weight: 600; }
+.pg-cofre.sim i { border-color: var(--verde); background: var(--verde); }
+.pg-b-corpo { padding: 14px 10px 22px 40px; background: #f7f7f4; }
+.pg-b-corpo > p:first-child { max-width: 80ch; margin-bottom: 4px; font-size: 15px; }
+.pg-b-corpo .pg-kv-l { border-top-color: #e9e9e3; }
+.pg-corpo h4 { margin: 20px 0 6px; font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--suave); }
+.pg-b-corpo > h4:first-child { margin-top: 4px; }
+/* como foi lido: recolhido dentro do bloco, com os campos como vieram */
+.pg-lido { margin-top: 18px; border-top: 1px solid #e3e3dd; }
+.pg-lido > summary { display: flex; align-items: center; gap: 8px; padding: 10px 0 2px; font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--suave); cursor: pointer; list-style: none; }
+.pg-lido > summary span { font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; }
+.pg-leitura { margin-top: 14px; }
+.pg-leitura-t { font-size: 13.5px; font-weight: 600; }
+.pg-leitura-f, .pg-leitura p { margin: 0; font-size: 12.5px; color: var(--suave); }
+.pg-campos { margin: 6px 0 4px; padding: 10px 12px; overflow-x: auto; background: var(--papel); border: 1px solid #e3e3dd; border-radius: 4px; font: 12px/1.55 Consolas, ui-monospace, monospace; white-space: pre; }
+@media (max-width: 820px) {
+  #apagina { padding: 0 16px; }
+  .pg-cab { flex-wrap: wrap; } .pg-lado { flex-basis: 100%; align-items: flex-start; max-width: none; }
+  .pg-sec { grid-template-columns: minmax(0, 1fr); padding: 22px 0; }
+  .pg-sec > h3 { position: static; margin-bottom: 10px; }
+  .pg-kv-l { grid-template-columns: minmax(0, 1fr); }
+  .pg-b-cab { display: none; }
+  .pg-bloco > summary { grid-template-columns: 16px minmax(0, 1fr) auto; row-gap: 6px; }
+  .pg-bloco > summary > :nth-child(n+4) { grid-column: 2 / -1; }
+  .pg-cofre[data-rot]::before { content: attr(data-rot); color: var(--suave); }
+  .pg-b-corpo { padding-left: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .pg-chev { transition: none; } }
 .pg-rodape { margin-top: 28px; font-size: 11.5px; color: var(--suave); }
 #pedicao #aform { margin-top: 16px; border: 1.5px solid var(--tinta); background: var(--amarelo-f); }
 #aform #adet { min-height: 220px; color: var(--tinta); background: var(--papel); border-color: var(--tinta); font-family: Consolas, monospace; font-size: 12px; }
@@ -1086,60 +1166,196 @@ let aPagina = null, aVolta = 0;
 // a página anda pela mesma lista que a pessoa via: a filtrada, quando o acionável aberto está nela
 const vizinhosA = () => acionaveis;
 
-// Detalhes: texto de quem organiza, mostrado com estrutura leve. "## " abre uma seção, "- " faz um item de lista (uma linha
-// recuada continua o item), linha em branco separa parágrafos; dentro da linha vale a marcação curta (**negrito**, `código`).
-// "[[aba:Nome]]" vira um atalho para a aba do desenho com esse nome. Tudo passa pelo esc() antes de virar HTML.
-// Para os lotes de contas (Eduardo, 11/11): "### nome | ação" abre um bloco recolhível que vai até o próximo "### " ou "## ";
-// a linha "> …" logo abaixo é o resumo que aparece com o bloco fechado; "#### " é um subtítulo dentro do bloco; linhas entre
-// ``` são campos como vieram da leitura (monoespaçado, sem marcação); [texto](https://…) é link, só para os HOSTS permitidos.
-function trechoHtml(linhasTexto) {
-  const out = [];
-  let par = [], lista = [], campos = null;
-  const linhas = (t) => t.split('\n').map(html).join('<br>');
+// Detalhes: texto de quem organiza. A marcação é a de 11/11; a apresentação, a de 13/11/2026 (Eduardo aprovou na bancada
+// interno/claude-outputs/layout-acionavel-20261113 e pediu o mesmo visual para todos, "sem precisar encaixar cada acionável").
+// Marcação: "## " abre uma seção; "- " é um item (uma linha recuada continua o item); linha em branco separa parágrafos;
+// dentro da linha, **negrito**, `código`, [texto](https://…) (só os HOSTS) e [[aba:Nome]] (atalho para a aba); "### nome | selo"
+// abre um bloco recolhível que vai até o próximo "### " ou "## ", e a linha "> " logo abaixo é o resumo do bloco fechado;
+// "#### " é um subtítulo; linhas entre ``` são campos como vieram da leitura. Tudo passa pelo esc() antes de virar HTML.
+// Apresentação, sem mudar palavra: o título de cada seção numa coluna à esquerda; itens "- **Rótulo:** texto" (ou "- Nome:
+// texto", quando há pelo menos 3) em duas colunas; ". Rótulo: texto" no meio de um valor vira sublinha; várias perguntas num
+// valor, uma por linha; "  1. …", passos numerados; "- **Fonte** (onde, quando)", linha de fonte; "O que se pede" em destaque;
+// os blocos de uma seção, uma tabela em que cada linha abre no lugar, com "#### Como foi lido" recolhido dentro.
+const RE_KV = /^\*\*([^*]+?):\*\*\s*([\s\S]*)$/;
+const RE_FONTE = /^\*\*([^*]+?)\*\*\s*(\(.*\))?\s*$/;
+const RE_NOME = /^([^`*:]{2,70}):\s+(.+)$/;
+const RE_SUBL = /(?<=\.)\s+(?=\p{Lu}[^.:`;()]{1,28}:\s)/u;
+const RE_ROT = /^(\p{Lu}[^.:`;()]{1,28}):\s([\s\S]*)$/u;
+const maiuscula = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const SETA_PG = '<svg class="pg-chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1.5 6.8 5 3 8.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+
+// Lê a marcação em seções; cada seção tem parágrafos, listas, campos, subtítulos e blocos (com os mesmos itens dentro)
+function lerDetalhes(texto) {
+  const raiz = { titulo: null, itens: [] }, secoes = [raiz];
+  let alvo = raiz.itens, bloco = null, par = [], lista = null, campos = null;
   const fechar = () => {
-    if (par.length) out.push(`<p>${par.map(html).join('<br>')}</p>`);
-    if (lista.length) out.push(`<ul>${lista.map((l) => `<li>${linhas(l)}</li>`).join('')}</ul>`);
-    par = []; lista = [];
+    if (par.length) { alvo.push({ t: 'p', linhas: par }); par = []; }
+    if (lista) { alvo.push({ t: 'ul', itens: lista }); lista = null; }
   };
-  for (const bruta of linhasTexto) {
-    const l = bruta.trimEnd();
-    if (campos) { if (l.trim() === '```') { out.push(`<pre class="pg-campos">${esc(campos.join('\n'))}</pre>`); campos = null; } else campos.push(l); continue; }
-    if (l.trim() === '```') { fechar(); campos = []; }
-    else if (!l.trim()) fechar();
-    else if (l.startsWith('## ')) { fechar(); out.push(`<h3>${html(l.slice(3))}</h3>`); }
-    else if (l.startsWith('#### ')) { fechar(); out.push(`<h4 class="pg-sub">${html(l.slice(5))}</h4>`); }
-    else if (l.startsWith('- ')) { if (par.length) fechar(); lista.push(l.slice(2)); }
-    else if (lista.length && /^\s{2,}\S/.test(l)) lista[lista.length - 1] += `\n${l.trim()}`;
-    else { if (lista.length) fechar(); par.push(l.trim()); }
-  }
-  if (campos) out.push(`<pre class="pg-campos">${esc(campos.join('\n'))}</pre>`);
-  fechar();
-  return out.join('');
-}
-function corpoHtml(s) {
-  const linhas = String(s ?? '').split('\n'), out = [];
-  let solto = [];
-  for (let i = 0; i < linhas.length;) {
-    if (!linhas[i].startsWith('### ')) { solto.push(linhas[i++]); continue; }
-    out.push(trechoHtml(solto)); solto = [];
-    const [nome, acao] = linhas[i].slice(4).split(' | ');
-    let fim = i + 1, dentroCampos = false;
-    while (fim < linhas.length) {
-      if (linhas[fim].trim() === '```') dentroCampos = !dentroCampos;
-      else if (!dentroCampos && (linhas[fim].startsWith('### ') || linhas[fim].startsWith('## '))) break;
-      fim++;
+  for (const bruta of String(texto ?? '').split('\n')) {
+    const l = bruta.replace(/\s+$/, '');
+    if (campos) { if (l.trim() === '```') { alvo.push({ t: 'pre', texto: campos.join('\n') }); campos = null; } else campos.push(l); continue; }
+    if (l.trim() === '```') { fechar(); campos = []; continue; }
+    if (!l.trim()) { fechar(); continue; }
+    if (l.startsWith('## ')) { fechar(); bloco = null; const s = { titulo: l.slice(3).trim(), itens: [] }; secoes.push(s); alvo = s.itens; continue; }
+    if (l.startsWith('### ')) {
+      fechar();
+      const [nome, ...selo] = l.slice(4).split(' | ');
+      bloco = { t: 'bloco', nome: nome.trim(), selo: selo.join(' | ').trim(), resumo: '', itens: [] };
+      secoes.at(-1).itens.push(bloco); alvo = bloco.itens; continue;
     }
-    let corpo = linhas.slice(i + 1, fim);
-    const r = corpo.findIndex((l) => l.trim());
-    const resumo = r >= 0 && corpo[r].startsWith('> ') ? corpo[r].slice(2).trim() : '';
-    if (resumo) corpo = corpo.slice(r + 1);
-    const pergunta = corpo.some((l) => /^- \*\*(Pergunta|A confirmar):\*\*/.test(l));
-    out.push(`<details class="pg-conta"><summary><span class="pg-conta-nome">${html(nome.trim())}</span>${acao ? `<em class="pg-acao">${html(acao.trim())}</em>` : ''}`
-      + `${pergunta ? '<em class="pg-perg">pergunta</em>' : ''}${resumo ? `<small>${html(resumo)}</small>` : ''}</summary><div class="pg-conta-corpo">${trechoHtml(corpo)}</div></details>`);
-    i = fim;
+    if (bloco && !bloco.itens.length && !par.length && !lista && !bloco.resumo && l.startsWith('> ')) { bloco.resumo = l.slice(2).trim(); continue; }
+    if (l.startsWith('#### ')) { fechar(); alvo.push({ t: 'h4', texto: l.slice(5).trim() }); continue; }
+    if (l.startsWith('- ')) { if (par.length) fechar(); (lista ??= []).push({ txt: l.slice(2), cont: [] }); continue; }
+    if (lista && /^\s{2,}\S/.test(l)) { lista.at(-1).cont.push(l.trim()); continue; }
+    if (lista) fechar();
+    par.push(l.trim());
   }
-  out.push(trechoHtml(solto));
-  return out.join('').replace(/\[\[aba:([^\]]+)\]\]/g, (m, nome) => {
+  if (campos) alvo.push({ t: 'pre', texto: campos.join('\n') });
+  fechar();
+  return secoes;
+}
+
+// O valor de um item "rótulo: texto"
+function valorHtml(valor, cont) {
+  const passos = cont.filter((c) => /^\d+\.\s/.test(c)), resto = cont.filter((c) => !/^\d+\.\s/.test(c));
+  const v = valor.trim();
+  let h = '';
+  if (/^não lido\b/i.test(v)) {
+    h = `<span class="pg-nl">não lido</span><span class="pg-fraco">${html(v.replace(/^não lido\.?\s*/i, ''))}</span>`;
+  } else if ((v.match(/\?/g) ?? []).length >= 2 && !/`[^`]*\?[^`]*`|\]\([^)\s]*\?/.test(v)) { // "?" dentro de código ou de link não conta
+    const partes = v.match(/[^?]*\?|[^?]+$/g).map((x) => x.trim()).filter(Boolean);
+    h = `<ul class="pg-pergs">${partes.map((x) => `<li${x.endsWith('?') ? '' : ' class="pg-nq"'}>${html(maiuscula(x))}</li>`).join('')}</ul>`;
+  } else if (v) {
+    const partes = v.split(RE_SUBL), rot0 = partes.length > 1 ? RE_ROT.exec(partes[0]) : null;
+    if (!rot0) h = `<div>${html(maiuscula(partes[0]))}</div>`;
+    for (const m of [rot0, ...partes.slice(1).map((x) => RE_ROT.exec(x))]) if (m) h += `<div class="pg-subl"><span>${html(m[1])}</span><span>${html(m[2])}</span></div>`;
+  }
+  if (passos.length) h += `<ol class="pg-passos">${passos.map((p) => `<li>${html(p.replace(/^\d+\.\s/, '').replace(/[;.]$/, ''))}</li>`).join('')}</ol>`;
+  for (const e of resto) h += `<div class="pg-subl"><span></span><span>${html(e)}</span></div>`;
+  return h;
+}
+
+function listaHtml(itens, secao) {
+  const linhasDe = (i) => [i.txt, ...i.cont].map(html).join('<br>');
+  if (/^O que se pede/i.test(secao)) return `<ul class="pg-pedido">${itens.map((i) => `<li>${linhasDe(i)}</li>`).join('')}</ul>`;
+  const kv = itens.map((i) => RE_KV.exec(i.txt)), fonte = itens.map((i) => RE_FONTE.exec(i.txt)), nomes = itens.map((i) => RE_NOME.exec(i.txt));
+  const n = (a) => a.filter(Boolean).length;
+  if (n(fonte) && n(fonte) >= n(kv)) {
+    return `<div class="pg-fontes">${itens.map((i, k) => {
+      if (fonte[k]) return `<div class="pg-fonte"><b>${html(fonte[k][1])}</b>${fonte[k][2] ? ` <span class="m">${html(fonte[k][2])}</span>` : ''}${i.cont.map((c) => `<div class="s2">${html(c)}</div>`).join('')}</div>`;
+      if (kv[k]) return `<div class="pg-fonte"><b>${html(kv[k][1])}</b> ${valorHtml(kv[k][2], i.cont)}</div>`;
+      return `<div class="pg-fonte">${linhasDe(i)}</div>`;
+    }).join('')}</div>`;
+  }
+  const usar = n(kv) >= Math.ceil(itens.length / 2) ? kv : n(nomes) >= 3 ? nomes : null;
+  if (!usar) return `<ul class="pg-lista">${itens.map((i) => `<li>${linhasDe(i)}</li>`).join('')}</ul>`;
+  // o que não segue o padrão fica como parágrafo, antes ou depois da grade
+  let h = '', grade = [];
+  const soltar = () => { if (grade.length) { h += `<dl class="pg-kv${usar === nomes ? ' nomes' : ''}">${grade.join('')}</dl>`; grade = []; } };
+  itens.forEach((i, k) => {
+    const m = usar[k];
+    if (m) grade.push(`<div class="pg-kv-l"><dt>${html(m[1])}</dt><dd>${valorHtml(m[2], i.cont)}</dd></div>`);
+    else { soltar(); h += `<p>${linhasDe(i)}</p>`; }
+  });
+  soltar();
+  return h;
+}
+
+// Colunas a mais na tabela de blocos, quando todos os blocos do grupo trazem um dos itens e algum traz o exigido (hoje, só os
+// sistemas do acionável dos responsáveis; os lotes de contas não usam "Pista"): "Pista" mostra as contas de pessoa
+// (nome@domínio) e os nomes próprios desses itens; "No cofre", sim ou não.
+const COLUNAS_BLOCO = [
+  { titulo: 'Pista (quem criou ou publicou)', itens: ['Pista', 'Responsável provável', 'Responsável', 'Responsáveis'], exige: 'Pista', largura: 'minmax(0, 1.5fr)', tipo: 'gente' },
+  { titulo: 'No cofre', itens: ['Cópia no cofre'], exige: 'Cópia no cofre', largura: '64px', tipo: 'cofre' },
+];
+const chavePessoa = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[._]/g, ' ').trim();
+const NAO_PESSOA = /^(Secret Manager|Cloud \p{L}+|Firebase \p{L}+|Artifact Registry|Portal \p{L}+|Torre \p{L}+)$/u;
+function pessoasDe(t, fora) {
+  const vistos = new Map();
+  for (const m of t.matchAll(/`([\w.-]+)@([\w-]+(?:\.[\w-]+)*\.[a-z]{2,})`/gi)) {
+    if (/gserviceaccount\.com$/i.test(m[2]) || fora.has(m[1].toLowerCase())) continue;
+    if (!vistos.has(chavePessoa(m[1]))) vistos.set(chavePessoa(m[1]), `${m[1].toLowerCase()}@`);
+  }
+  // nomes próprios só fora de `código` (lá ficam repositórios e serviços)
+  for (const m of t.replace(/`[^`]*`/g, ' ').matchAll(/(?<!\p{L})(\p{Lu}\p{Ll}+ \p{Lu}\p{Ll}+)(?!\p{L})/gu)) {
+    if (!NAO_PESSOA.test(m[1]) && !vistos.has(chavePessoa(m[1]))) vistos.set(chavePessoa(m[1]), m[1]);
+  }
+  return [...vistos.values()];
+}
+const kvDoBloco = (b) => Object.fromEntries(b.itens.filter((x) => x.t === 'ul').flatMap((x) => x.itens).map((i) => RE_KV.exec(i.txt)).filter(Boolean).map((m) => [m[1], m[2]]));
+
+function lidoHtml(titulo, itens) {
+  const antes = [], leituras = [];
+  for (const b of itens) {
+    if (b.t === 'p' && /^\*\*\d+\.\s/.test(b.linhas[0])) { const [tit, ...resto] = b.linhas.join(' ').split(' · '); leituras.push({ tit, fonte: resto.join(' · '), corpo: [] }); }
+    else (leituras.length ? leituras.at(-1).corpo : antes).push(b);
+  }
+  const n = leituras.length;
+  return `<details class="pg-lido"><summary>${SETA_PG}${html(titulo)}${n ? ` <span>${n} ${n > 1 ? 'leituras' : 'leitura'}, com os campos como vieram</span>` : ''}</summary>`
+    + itensHtml(antes, '', false)
+    + leituras.map((l) => `<div class="pg-leitura"><div class="pg-leitura-t">${html(l.tit)}</div>${l.fonte ? `<div class="pg-leitura-f">${html(l.fonte)}</div>` : ''}${itensHtml(l.corpo, '', false)}</div>`).join('')
+    + '</details>';
+}
+
+function grupoBlocosHtml(bs, fora) {
+  const kvs = bs.map(kvDoBloco);
+  const cols = COLUNAS_BLOCO.filter((c) => kvs.every((kv) => c.itens.some((i) => i in kv)) && kvs.some((kv) => c.exige in kv));
+  // quando todos os selos começam pela mesma palavra ("responsável a confirmar", "responsável provável"), ela vira o título da coluna
+  const pal = bs.length > 1 && bs.every((b) => b.selo) ? bs[0].selo.split(' ')[0] : '';
+  const prefixo = pal && bs.every((b) => b.selo.startsWith(`${pal} `)) ? pal : '';
+  const tabela = !!(prefixo || cols.length);
+  // largura fixa no selo: cada linha é uma grade própria, e assim as pílulas ficam alinhadas de uma linha para outra
+  const grade = ['16px', 'minmax(0, 1.25fr)', tabela ? '110px' : '230px', ...cols.map((c) => c.largura)].join(' ');
+  const celula = (c, kv) => {
+    const txt = c.itens.map((k) => kv[k] ?? '').filter((v) => v && !/^não lido/i.test(v)).join(' ');
+    if (c.tipo === 'cofre') { const sim = txt && !/^não/i.test(txt); return `<span class="pg-cofre${sim ? ' sim' : ''}" data-rot="${esc(c.titulo)}"><i></i>${sim ? 'sim' : txt ? 'não' : '—'}</span>`; }
+    const gente = pessoasDe(txt, fora);
+    return `<span class="pg-gente">${gente.length ? gente.map((g) => `<span>${esc(g)}</span>`).join('') : '<span class="pg-fraco">sem pista</span>'}</span>`;
+  };
+  const linha = (b, kv) => {
+    const selo = prefixo ? b.selo.slice(prefixo.length).trim() : b.selo;
+    const pergunta = 'Pergunta' in kv || 'A confirmar' in kv;
+    const i = b.itens.findIndex((x) => x.t === 'h4' && /^Como foi lido/i.test(x.texto));
+    const corpo = itensHtml(i < 0 ? b.itens : b.itens.slice(0, i), '', false) + (i < 0 ? '' : lidoHtml(b.itens[i].texto, b.itens.slice(i + 1)));
+    return `<details class="pg-bloco"><summary>${SETA_PG}<span class="pg-b-nome"><b${b.nome.includes('@') ? ' class="mono"' : ''}>${html(b.nome)}</b>${b.resumo ? `<small>${html(b.resumo)}</small>` : ''}</span>`
+      + `<span class="pg-b-selo">${selo ? `<em class="pg-pill${/provável/i.test(selo) ? ' azul' : ''}">${html(selo)}</em>` : ''}${pergunta ? '<em class="pg-pill perg">pergunta</em>' : ''}</span>`
+      + `${cols.map((c) => celula(c, kv)).join('')}</summary><div class="pg-b-corpo">${corpo}</div></details>`;
+  };
+  return `<div class="pg-blocos${tabela ? '' : ' sem-cab'}" style="--pg-cols: ${grade}">`
+    + (tabela ? `<div class="pg-b-cab"><span></span><span></span><span>${esc(maiuscula(prefixo))}</span>${cols.map((c) => `<span>${esc(c.titulo)}</span>`).join('')}</div>` : '')
+    + bs.map((b, k) => linha(b, kvs[k])).join('') + '</div>';
+}
+
+// Os itens de uma seção, na ordem; blocos seguidos formam um grupo. Numa seção com blocos, os parágrafos são a introdução
+// (texto menor), e as contas citadas nela são as da leitura: não entram como pista.
+function itensHtml(itens, secao, comBlocos) {
+  const fora = new Set();
+  if (comBlocos) for (const b of itens) if (b.t === 'p') for (const m of b.linhas.join(' ').matchAll(/`([\w.-]+)@[^`]+`/g)) fora.add(m[1].toLowerCase());
+  let h = '', grupo = [];
+  const soltar = () => { if (grupo.length) { h += grupoBlocosHtml(grupo, fora); grupo = []; } };
+  for (const b of itens) {
+    if (b.t === 'bloco') { grupo.push(b); continue; }
+    soltar();
+    if (b.t === 'p') h += `<p${comBlocos ? ' class="pg-nota"' : ''}>${b.linhas.map(html).join('<br>')}</p>`;
+    else if (b.t === 'ul') h += listaHtml(b.itens, secao);
+    else if (b.t === 'pre') h += `<pre class="pg-campos">${esc(b.texto)}</pre>`;
+    else if (b.t === 'h4') h += `<h4>${html(b.texto)}</h4>`;
+  }
+  soltar();
+  return h;
+}
+
+function corpoHtml(s) {
+  let h = '', primeira = true;
+  for (const sec of lerDetalhes(s)) {
+    const n = sec.itens.filter((b) => b.t === 'bloco').length;
+    if (!sec.titulo) { h += itensHtml(sec.itens, '', n > 0); continue; }
+    h += `<section class="pg-sec${primeira ? ' primeira' : ''}${n ? ' larga' : ''}${/^De onde vem/i.test(sec.titulo) ? ' quieta' : ''}">`
+      + `<h3>${html(sec.titulo)}${n ? `<small>${n}</small>` : ''}</h3><div class="pg-sec-corpo">${itensHtml(sec.itens, sec.titulo, n > 0)}</div></section>`;
+    primeira = false;
+  }
+  return h.replace(/\[\[aba:([^\]]+)\]\]/g, (m, nome) => {
     const i = doc.paginas.findIndex((p) => esc(p.nome) === nome);
     return i < 0 ? `aba ${nome}` : `<button type="button" class="pg-aba" data-ir-aba="${i}">aba ${nome}</button>`;
   });
@@ -1182,6 +1398,8 @@ function mostrarPaginaAcionavel() {
   pg.innerHTML = paginaAcionavelHtml(a);
   pg.hidden = false;
   document.body.classList.add('na-pagina');
+  // o título de cada seção acompanha a rolagem logo abaixo do topo, que tem outra altura na página do acionável
+  document.documentElement.style.setProperty('--topo-h', `${$('#topo').offsetHeight}px`);
   const lista = vizinhosA(), i = lista.findIndex((x) => x.id === a.id);
   $('#pnav').hidden = false;
   $('#ponde').textContent = `Acionável ${i + 1} de ${lista.length}`;
