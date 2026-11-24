@@ -22,6 +22,13 @@ html, body { margin: 0; background: var(--fundo); color: var(--tinta); font: 13p
 .l1 { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding: 8px 16px 6px; }
 h1 { margin: 0; font-size: 15px; }
 #versao { font: inherit; font-size: 12px; color: var(--suave); background: var(--papel); border: 1px solid var(--grade); border-radius: 0; padding: 1px 4px; }
+/* Seções: cada uma tem o seu conjunto de abas, como páginas separadas; a faixa só aparece com mais de uma seção */
+#secoes { display: flex; flex-wrap: wrap; gap: 4px 24px; padding: 0 16px 8px; }
+#secoes[hidden] { display: none; }
+body.so-detalhe #abas, body.so-detalhe #secoes, body.so-detalhe #ocultas-cx, body.so-detalhe #acoes, body.so-detalhe #dresponder { display: none; }
+.secao { font: inherit; font-size: 13.5px; font-weight: 600; color: var(--suave); background: none; border: 0; border-bottom: 3px solid transparent; border-radius: 0; padding: 2px 0 3px; cursor: pointer; }
+.secao:hover { color: var(--tinta); }
+.secao.ativa { color: var(--tinta); border-bottom-color: var(--tinta); }
 .l2 { display: flex; padding: 0 16px; }
 .aba { font: inherit; color: var(--tinta); border: 1.5px solid var(--tinta); border-bottom: 0; border-radius: 0; margin-right: -1.5px; padding: 4px 16px; background: var(--fundo); cursor: pointer; user-select: none; }
 .aba:hover { background: var(--papel); }
@@ -115,7 +122,7 @@ h1 { margin: 0; font-size: 15px; }
 .l3 { display: flex; align-items: center; gap: 8px; padding: 2px 16px 8px; }
 .l3[hidden], #apagina[hidden], #adet-cx[hidden] { display: none; }
 #ponde { flex: 1; min-width: 0; font-size: 12px; color: var(--suave); }
-.na-pagina .l2, .na-pagina #acoes, .na-pagina #nota, .na-pagina #quadro { display: none; }
+.na-pagina .l2, .na-pagina #secoes, .na-pagina #acoes, .na-pagina #nota, .na-pagina #quadro { display: none; }
 /* Página do acionável. Layout de 13/11/2026, aprovado pelo Eduardo na bancada interno/claude-outputs/layout-acionavel-20261113:
    fundo branco; o título no alto, com responsável, prazo e status num canto e uma linha preta embaixo (11/11); cada seção com o
    título numa coluna à esquerda; "rótulo: texto" em duas colunas; os blocos de uma seção numa tabela que abre no lugar.
@@ -250,6 +257,38 @@ html:has(body.na-pagina), body.na-pagina { background: var(--papel); }
 #nota { padding: 10px 16px 0; font-size: 13.5px; max-width: 1400px; }
 #quadro { padding: 10px 16px 24px; overflow-x: auto; }
 #quadro svg { display: block; width: 100%; min-width: 1400px; height: auto; background: var(--papel); border: 1.5px solid var(--tinta); }
+/* Aba de mensagens (página com "tipo": "mensagens"): o texto e as imagens de cada mensagem, na ordem do envio, com um
+   botão de copiar em cada parte. É aba oculta: só quem organiza o desenho a recebe. */
+.msgs { max-width: 920px; margin: 0 auto; background: var(--papel); border: 1.5px solid var(--tinta); padding: 20px 28px 28px; }
+.msgs h2 { font-size: 18px; margin: 34px 0 2px; }
+.msgs h2:first-child { margin-top: 0; }
+.msgs .msg-sub { font-size: 12.5px; color: var(--suave); margin: 0 0 6px; }
+.msgs details.msg-lista { font-size: 13px; margin: 4px 0; }
+.msgs details.msg-lista > summary { cursor: pointer; color: var(--suave); }
+.msgs details.msg-lista ul { margin: 6px 0 8px; padding-left: 20px; }
+.msgs details.msg-lista li { margin: 3px 0; max-width: 78ch; }
+.msg { border-top: 2px solid var(--tinta); margin-top: 16px; padding-top: 10px; }
+.msg h3 { font-size: 14px; margin: 0 0 8px; }
+.msg h3 b { display: inline-block; min-width: 30px; }
+.msg-parte { display: grid; grid-template-columns: minmax(0, 1fr) 116px; gap: 12px; align-items: start; margin: 8px 0; }
+.msg-parte .acao { justify-self: end; white-space: nowrap; }
+.msg-t { margin: 0; white-space: pre-wrap; font: 14px/1.5 "Segoe UI", system-ui, sans-serif; background: var(--fundo); padding: 10px 14px; }
+.msg-moldura { max-height: 300px; overflow: hidden; border: 1px solid var(--grade); cursor: zoom-in; }
+/* a imagem ampliada: por cima da página, com o fundo escurecido, para ler o que está nela */
+#msg-modal { position: fixed; inset: 0; z-index: 60; overflow: auto; background: rgba(0, 0, 0, .86); padding: 0 2vw 5vh; text-align: center; }
+#msg-modal[hidden] { display: none; }
+#msg-modal .mm-barra { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; padding: 10px 0; color: #fff; font-size: 13px; background: rgba(0, 0, 0, .86); }
+#msg-modal .mm-barra span { margin-right: auto; text-align: left; }
+#msg-modal img { max-width: 100%; height: auto; background: var(--papel); }
+.msg-moldura img { display: block; width: 100%; height: auto; }
+.msg-leg { font-size: 12px; color: var(--suave); margin-top: 3px; }
+.msg-det { font-size: 12px; margin-top: 5px; }
+.msg-det code { font-size: 11.5px; }
+.msg-contas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; margin: 8px 0; }
+.msg-contas > div { display: flex; align-items: center; gap: 8px; justify-content: space-between; border-bottom: 1px solid var(--grade); padding: 3px 0; }
+.msg-contas code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg-contas span { display: flex; gap: 6px; flex: none; }
+.msgs a.acao { text-decoration: none; }
 #dica { position: fixed; z-index: 5; display: none; max-width: 380px; padding: 8px 10px; background: var(--papel); border: 1.5px solid var(--tinta); box-shadow: 4px 4px 0 rgba(0, 0, 0, .12); font-size: 12.5px; white-space: pre-line; overflow-wrap: anywhere; pointer-events: none; }
 #dica.viva { pointer-events: auto; width: 380px; max-width: calc(100vw - 16px); max-height: 70vh; overflow-y: auto; white-space: normal; }
 .drodape { margin-top: 6px; padding-top: 5px; border-top: 1px solid var(--grade); color: var(--suave); font-size: 11.5px; }
@@ -283,6 +322,16 @@ html:has(body.na-pagina), body.na-pagina { background: var(--papel); }
 #lcorpo .links { margin: 0 0 12px; }
 .ldet.fonte { font-size: 12px; color: var(--suave); margin-bottom: 6px; }
 .ldet.fonte code { color: var(--tinta); }
+/* Tabelas nos detalhes (16/11/2026): linhas que começam com "|" viram tabela; com uma tabela, o painel fica mais largo */
+.ltab { overflow-x: auto; margin: 4px 0 2px; white-space: normal; }
+.ltab table { border-collapse: collapse; font-size: 11.5px; }
+.ltab th, .ltab td { padding: 3px 12px 3px 0; text-align: left; vertical-align: top; white-space: nowrap; overflow-wrap: normal; border-bottom: 1px solid var(--grade); }
+.ltab th { font-weight: 600; border-bottom: 1.5px solid var(--tinta); }
+/* tabela com texto comprido (uma comparação, não uma lista de valores): as células quebram a linha */
+.ltab table.quebra td { white-space: normal; min-width: 90px; }
+.lateral-larga #lateral { width: 640px; }
+.com-lateral.lateral-larga #quadro { margin-right: 640px; }
+.com-lateral.lateral-larga #acoes { margin-right: 656px; }
 .coment { margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--grade); }
 .coment.nosso { background: var(--amarelo-f); border-color: var(--amarelo); }
 .cq { display: flex; justify-content: space-between; gap: 10px; font-size: 11.5px; color: var(--suave); }
@@ -323,6 +372,7 @@ code { font: 12px Consolas, monospace; }
       <div id="ocultas-menu" hidden></div>
     </span>
   </div>
+  <div id="secoes" role="tablist" aria-label="Seções do desenho" hidden></div>
   <div class="l2" id="abas" role="tablist"></div>
   <div class="l3" id="pnav" hidden>
     <button type="button" id="pvoltar" class="acao" title="Voltar para onde você estava (Esc)">← Voltar</button>
@@ -332,6 +382,10 @@ code { font: 12px Consolas, monospace; }
   </div>
 </div>
 <main id="apagina" aria-label="Acionável" hidden></main>
+<div id="msg-modal" role="dialog" aria-modal="true" aria-label="Imagem ampliada" hidden>
+  <div class="mm-barra"><span id="mm-leg"></span><button type="button" class="acao" id="mm-copiar">Copiar imagem</button><button type="button" class="acao" id="mm-fechar">Fechar (Esc)</button></div>
+  <img id="mm-img" alt="">
+</div>
 <section id="acoes" aria-label="Acionáveis" hidden>
   <div class="acab">
     <h2><button type="button" id="adobra" aria-expanded="true" aria-controls="acorpo"><svg class="seta" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3l3.5 4 3.5-4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Acionáveis</button></h2>
@@ -772,13 +826,83 @@ function contadores(pontas) {
   }
 }
 
+// Aba de mensagens: cada grupo traz as mensagens na ordem do envio; cada mensagem, as partes (texto ou imagem) na ordem
+// em que entram no chat. O texto copiado é o texto puro; a imagem vai para a área de transferência como PNG.
+let msgTextos = [];
+function mensagensHtml(p) {
+  msgTextos = [];
+  const lista = (titulo, itens) => (itens?.length ? `<details class="msg-lista"><summary>${esc(titulo)} (${itens.length})</summary><ul>${itens.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></details>` : '');
+  // as imagens são arquivos locais, servidos pelo painel; a página publicada só mostra o nome delas
+  const src = (arq) => `/arquivo/${arq.split('/').map(encodeURIComponent).join('/')}`;
+  // "Ver o detalhe": cada imagem leva, na mensagem, um link para o desenho de detalhe da aba de onde ela saiu. Aqui ficam
+  // a prévia local desse desenho e o comando que põe o link publicado na área de transferência, sem mostrá-lo.
+  const verDetalhe = (d) => {
+    if (!d) return '';
+    msgTextos.push(`node interno/painel/publicar-desenho.mjs copiar ${d}`);
+    return `<div class="msg-det"><b>Ver o detalhe</b> · <a href="/desenho/${esc(d)}" target="_blank" rel="noopener">abrir a prévia local</a> · para o Ctrl+K, o link sai deste comando: <code>${esc(msgTextos[msgTextos.length - 1])}</code> `
+      + `<button type="button" class="acao" data-copiar-texto="${msgTextos.length - 1}">Copiar comando</button></div>`;
+  };
+  const imagem = (arq, legenda, detalhe) => (PUB
+    ? `<div class="msg-parte"><div class="msg-leg">Imagem só na versão local: <code>${esc(arq)}</code></div><span></span></div>`
+    : `<div class="msg-parte"><div><div class="msg-moldura" title="Clique para ampliar"><img loading="lazy" src="${esc(src(arq))}" alt="${esc(legenda)}"></div>`
+      + `<div class="msg-leg">${esc(legenda)} · <code>${esc(arq.split('/').pop())}</code></div>${verDetalhe(detalhe)}</div>`
+      + `<button type="button" class="acao" data-copiar-img="${esc(src(arq))}">Copiar imagem</button></div>`);
+  const parte = (x) => {
+    if (x.img) return imagem(x.img, x.legenda || '', x.detalhe);
+    msgTextos.push(x.t);
+    return `<div class="msg-parte"><pre class="msg-t">${esc(x.t)}</pre><button type="button" class="acao" data-copiar-texto="${msgTextos.length - 1}">Copiar texto</button></div>`;
+  };
+  const contas = (d) => (d ? `<details class="msg-lista"><summary>${esc(d.titulo)} (${d.itens.length} imagens)</summary><div class="msg-contas">${d.itens.map((c) => `<div><code>${esc(c.nome)}</code><span>`
+    + (PUB ? '' : `<button type="button" class="acao" data-ver-img="${esc(src(c.img))}" data-leg="${esc(c.nome)}">Ver</button><button type="button" class="acao" data-copiar-img="${esc(src(c.img))}">Copiar imagem</button>`)
+    + '</span></div>').join('')}</div></details>` : '');
+  return `<div class="msgs">${(p.grupos || []).map((g) => `<h2>${esc(g.titulo)}</h2>`
+    + (g.nome ? `<p class="msg-sub">Nome do grupo: <code>${esc(g.nome)}</code></p>` : '')
+    + lista('Antes de enviar', g.antes)
+    + g.mensagens.map((m) => `<section class="msg"><h3><b>${esc(m.n)}</b> ${esc(m.titulo)}</h3>${m.partes.map(parte).join('')}${contas(m.detalhes)}</section>`).join('')
+    + lista('Na fila deste grupo', g.fila)).join('')}</div>`;
+}
+async function copiarDaMensagem(b) {
+  const rotulo = b.textContent;
+  try {
+    if (b.dataset.copiarTexto != null) await navigator.clipboard.writeText(msgTextos[Number(b.dataset.copiarTexto)]);
+    else {
+      const blob = await (await fetch(b.dataset.copiarImg)).blob();
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    }
+    b.textContent = 'Copiado';
+  } catch (erro) {
+    b.textContent = 'Não copiou';
+    b.title = String(erro.message || erro);
+  }
+  setTimeout(() => { b.textContent = rotulo; }, 1600);
+}
+
 function desenhar() {
   const p = doc.paginas[pag];
   caixas = {};
   registro = {};
-  $('#nota').innerHTML = p.nota ? html(p.nota) : '';
+  // num desenho de detalhe, quem chega pelo link de uma mensagem não conhece a página: uma linha diz como ver o detalhe
+  $('#nota').innerHTML = p.nota ? html(p.nota) : doc.meta?.detalhe ? 'Passe o mouse sobre uma caixa ou uma linha para ver a descrição. O botão "Ver detalhes" abre o que foi lido sobre o item.' : '';
   const quadro = $('#quadro');
   quadro.innerHTML = '';
+  if (p.tipo === 'mensagens') {
+    if (aberto) fecharLateral();
+    quadro.innerHTML = mensagensHtml(p);
+  } else desenharItens(p, quadro);
+  // cada botão guarda o número da página dele: com abas ocultas, a posição na fileira deixa de ser o número
+  document.querySelectorAll('.aba').forEach((a) => { const sim = Number(a.dataset.aba) === pag; a.classList.toggle('ativa', sim); a.setAttribute('aria-selected', String(sim)); });
+  // a fileira mostra só as abas da seção da página aberta; uma aba oculta conta como da primeira seção
+  const sec = secaoDe(p);
+  document.querySelectorAll('#abas .aba').forEach((a) => { a.hidden = a.dataset.secao !== sec; });
+  document.querySelectorAll('#secoes .secao').forEach((b) => { const sim = b.dataset.secao === sec; b.classList.toggle('ativa', sim); b.setAttribute('aria-selected', String(sim)); });
+  $('#ocultas').classList.toggle('cheia', !!p.oculta);
+  $('#ocultas').textContent = p.oculta ? `Abas ocultas: ${p.nome}` : 'Abas ocultas';
+  document.querySelectorAll('#ocultas-menu button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.aba) === pag)));
+  if (aberto) abrirItem(aberto);
+}
+
+// As caixas, as áreas e as ligações de uma página comum, num SVG
+function desenharItens(p, quadro) {
   const svg = el('svg', { 'font-family': '"Segoe UI", system-ui, sans-serif' }, quadro);
   const fundo = el('g', {}, svg), fios = el('g', {}, svg), itens = el('g', {}, svg), pontas = el('g', {}, svg);
   const areas = [];
@@ -797,12 +921,6 @@ function desenhar() {
   const W = Math.max(p.largura || 0, bb.x + bb.width + 20), H = bb.y + bb.height + 20;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.style.aspectRatio = `${W} / ${H}`;
-  // cada botão guarda o número da página dele: com abas ocultas, a posição na fileira deixa de ser o número
-  document.querySelectorAll('.aba').forEach((a) => { const sim = Number(a.dataset.aba) === pag; a.classList.toggle('ativa', sim); a.setAttribute('aria-selected', String(sim)); });
-  $('#ocultas').classList.toggle('cheia', !!p.oculta);
-  $('#ocultas').textContent = p.oculta ? `Abas ocultas: ${p.nome}` : 'Abas ocultas';
-  document.querySelectorAll('#ocultas-menu button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.aba) === pag)));
-  if (aberto) abrirItem(aberto);
 }
 
 // O botão de uma seção que recolhe: um clique (ou Enter) mostra ou esconde os itens dela e redesenha a aba
@@ -815,6 +933,39 @@ function alternarDobra(id) {
   if (porTeclado) document.querySelector(`#quadro [data-dobra="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
 }
 $('#quadro').addEventListener('click', (e) => { const d = e.target.closest?.('[data-dobra]'); if (d) alternarDobra(d.dataset.dobra); });
+// na aba de mensagens: copiar o texto ou a imagem de uma parte, e ampliar a imagem com um clique nela
+$('#quadro').addEventListener('click', (e) => {
+  const b = e.target.closest?.('[data-copiar-texto], [data-copiar-img]');
+  if (b) { copiarDaMensagem(b); return; }
+  const ver = e.target.closest?.('[data-ver-img]');
+  if (ver) { abrirImagem(ver.dataset.verImg, ver.dataset.leg); return; }
+  const img = e.target.closest?.('.msg-moldura')?.querySelector('img');
+  if (img) abrirImagem(img.getAttribute('src'), img.alt);
+});
+// A imagem ampliada cobre a página, com o fundo escurecido, na largura da janela; rola na vertical quando é comprida.
+// Fecha com Esc, com o botão ou com um clique fora da imagem.
+function abrirImagem(src, legenda) {
+  $('#mm-img').src = src;
+  $('#mm-leg').textContent = legenda || '';
+  $('#mm-copiar').dataset.copiarImg = src;
+  $('#msg-modal').hidden = false;
+  $('#msg-modal').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  $('#mm-fechar').focus();
+}
+function fecharImagem() {
+  if ($('#msg-modal').hidden) return false;
+  $('#msg-modal').hidden = true;
+  $('#mm-img').removeAttribute('src');
+  document.body.style.overflow = '';
+  return true;
+}
+$('#msg-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'mm-copiar') copiarDaMensagem(e.target);
+  else if (e.target.id !== 'mm-img') fecharImagem();
+});
+// na fase de captura, para o Esc fechar só a imagem e não chegar aos outros fechamentos da página
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && fecharImagem()) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 $('#quadro').addEventListener('keydown', (e) => {
   const d = (e.key === 'Enter' || e.key === ' ') && e.target.closest?.('[data-dobra]');
   if (d) { e.preventDefault(); alternarDobra(d.dataset.dobra); }
@@ -834,6 +985,31 @@ function realcar() {
   document.querySelectorAll('#quadro .item').forEach((g) => g.classList.toggle('ativo', g.dataset.item === aberto));
 }
 
+// Um trecho dos detalhes: as linhas seguidas que começam com "|" formam uma tabela (a primeira é o cabeçalho; a de
+// traços, |---|, é ignorada); o resto segue como texto.
+function detalheHtml(d) {
+  let out = '';
+  let texto = [];
+  let tab = [];
+  const fechaTexto = () => { if (texto.length) out += html(texto.join('\n')); texto = []; };
+  const fechaTab = () => {
+    if (!tab.length) return;
+    const celulas = (l) => l.replace(/^\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim());
+    const [cab, ...corpo] = tab.filter((l) => !/^\|[\s:|-]+$/.test(l)).map(celulas);
+    // célula com mais de 40 caracteres: é texto, não valor; a tabela quebra a linha em vez de rolar
+    const quebra = corpo.some((r) => r.some((c) => c.length > 40));
+    out += `<div class="ltab"><table${quebra ? ' class="quebra"' : ''}><thead><tr>${cab.map((c) => `<th>${html(c)}</th>`).join('')}</tr></thead>`
+      + `<tbody>${corpo.map((r) => `<tr>${r.map((c) => `<td>${html(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    tab = [];
+  };
+  for (const l of String(d ?? '').split('\n')) {
+    if (l.startsWith('|')) { fechaTexto(); tab.push(l); } else { fechaTab(); texto.push(l); }
+  }
+  fechaTexto();
+  fechaTab();
+  return out;
+}
+
 function abrirItem(id) {
   aberto = id;
   const r = registro[id];
@@ -842,9 +1018,10 @@ function abrirItem(id) {
   const todos = r?.detalhes.length ? r.detalhes : r?.dica ? [r.dica] : [];
   const detalhes = todos.filter((d) => !d.startsWith(FONTE));
   const fontes = todos.filter((d) => d.startsWith(FONTE)).map((d) => d.slice(FONTE.length).replace(/^\n/, ''));
+  document.body.classList.toggle('lateral-larga', todos.some((d) => /^\|/m.test(d)));
   // Detalhes, depois de onde vem cada constatação e, no fim, os comentários do item, quando houver
-  $('#lcorpo').innerHTML = linksHtml(r?.links) + detalhes.map((d) => `<div class="ldet">${html(d)}</div>`).join('<br>')
-    + (fontes.length ? `<h3>De onde vem</h3>${fontes.map((d) => `<div class="ldet fonte">${html(d)}</div>`).join('')}` : '')
+  $('#lcorpo').innerHTML = linksHtml(r?.links) + detalhes.map((d) => `<div class="ldet">${detalheHtml(d)}</div>`).join('<br>')
+    + (fontes.length ? `<h3>De onde vem</h3>${fontes.map((d) => `<div class="ldet fonte">${detalheHtml(d)}</div>`).join('')}` : '')
     + (conversa.length ? `<h3>Comentários (${conversa.length})</h3>${conversa.map(cartao).join('')}`
       : PUB && CONVERSAS ? '<h3>Comentários</h3><p class="vazio">Nenhum comentário ainda.</p>' : '');
   $('#lform').hidden = !(PUB && CONVERSAS);
@@ -859,6 +1036,7 @@ function abrirConversas() {
   const grupos = new Map();
   for (const c of [...comentarios].reverse()) (grupos.get(c.item) || grupos.set(c.item, []).get(c.item)).push(c);
   $('#ltitulo').textContent = 'Conversas';
+  document.body.classList.remove('lateral-larga');
   $('#lcorpo').innerHTML = [...grupos.entries()].map(([item, lista]) => `<button class="conversa" data-abre="${esc(item)}"><b>${esc(lista[0].rotulo || item)}</b> (${lista.length})<small>${esc(lista[0].autor)}: ${esc(lista[0].texto.slice(0, 90))}</small></button>`).join('')
     || '<p class="vazio">Nenhum comentário ainda.</p>';
   $('#lform').hidden = true;
@@ -869,7 +1047,7 @@ function fecharLateral() {
   aberto = null;
   realcar();
   $('#lateral').classList.remove('aberto');
-  document.body.classList.remove('com-lateral');
+  document.body.classList.remove('com-lateral', 'lateral-larga');
 }
 
 async function rpc(funcao, corpo) {
@@ -1470,13 +1648,20 @@ $('#apagina').addEventListener('change', (e) => { if (e.target.matches('select[d
 function montar() {
   $('#titulo').textContent = doc.meta?.titulo || NOME;
   document.title = doc.meta?.titulo || 'Desenho';
+  // Desenho de detalhe (meta.detalhe): uma aba só, aberta por um link enviado junto de uma imagem. Sem fileira de abas,
+  // sem acionáveis e sem comentário: a página mostra só o desenho, com o cartão de cada peça e o "Ver detalhes".
+  document.body.classList.toggle('so-detalhe', !!doc.meta?.detalhe);
   mostrarAcionaveis();
   // Abas ocultas: uma página com "oculta": true fica fora da fileira de abas e abre pelo menu do canto direito.
   // No painel local quem abre é sempre quem organiza. Na página publicada o banco só entrega essas páginas ao link
   // de organizador; se uma chegar a outro link, sai aqui antes de qualquer coisa ser desenhada.
   if (PUB && !organizador) doc.paginas = doc.paginas.filter((p) => !p.oculta);
   if (!doc.paginas.length) throw new Error('Este desenho ainda não tem aba para mostrar.');
-  $('#abas').innerHTML = doc.paginas.map((p, i) => (p.oculta ? '' : `<button type="button" class="aba" role="tab" data-aba="${i}">${esc(p.nome)}</button>`)).join('');
+  $('#abas').innerHTML = doc.paginas.map((p, i) => (p.oculta ? '' : `<button type="button" class="aba" role="tab" data-aba="${i}" data-secao="${esc(secaoDe(p))}">${esc(p.nome)}</button>`)).join('');
+  // Seções: uma página com "secao" abre um conjunto de abas próprio; sem "secao", a página fica na primeira seção
+  const secoes = [...new Set(doc.paginas.filter((p) => !p.oculta).map(secaoDe))];
+  $('#secoes').hidden = secoes.length < 2;
+  $('#secoes').innerHTML = secoes.length < 2 ? '' : secoes.map((s) => `<button type="button" class="secao" role="tab" data-secao="${esc(s)}">${esc(s)}</button>`).join('');
   const ocultas = doc.paginas.map((p, i) => [p, i]).filter(([p]) => p.oculta);
   $('#ocultas-cx').hidden = !ocultas.length;
   $('#ocultas-menu').innerHTML = ocultas.map(([p, i]) => `<button type="button" data-aba="${i}">${esc(p.nome)}</button>`).join('');
@@ -1527,6 +1712,20 @@ async function abrir(arquivo) {
   if (doc.formato !== 2) throw new Error('Esta versão é de um formato antigo, que a página não mostra mais.');
   montar();
 }
+
+function secaoDe(p) { return p.secao || doc.meta?.secaoInicial || 'Desenho'; }
+// trocar de seção abre a primeira aba dela; a seção já aberta fica como está
+$('#secoes').addEventListener('click', (e) => {
+  const b = e.target.closest('.secao');
+  if (!b || (!doc.paginas[pag].oculta && secaoDe(doc.paginas[pag]) === b.dataset.secao)) return;
+  const i = doc.paginas.findIndex((p) => !p.oculta && secaoDe(p) === b.dataset.secao);
+  if (i < 0) return;
+  pag = i;
+  history.replaceState(null, '', `#aba=${pag + 1}`);
+  recolherAcionaveis();
+  desenhar();
+  scrollTo(0, 0);
+});
 
 $('#abas').addEventListener('click', (e) => {
   const a = e.target.closest('.aba');
@@ -1719,10 +1918,17 @@ const GUARDA = 'desenho-acesso';
 const lerAcesso = () => { try { return localStorage.getItem(GUARDA) || sessionStorage.getItem(GUARDA); } catch { return null; } };
 const gravarAcesso = (t) => { try { localStorage.setItem(GUARDA, t); sessionStorage.removeItem(GUARDA); } catch { } };
 const esquecerAcesso = () => { try { localStorage.removeItem(GUARDA); sessionStorage.removeItem(GUARDA); } catch { } };
+// O link de um desenho de detalhe é de um grupo, não de uma pessoa. Ele fica guardado só enquanto a aba do navegador está
+// aberta (para o recarregar funcionar) e nunca ocupa o lugar do link pessoal guardado.
+const GUARDA_DETALHE = 'desenho-detalhe';
+const lerDetalhe = () => { try { return sessionStorage.getItem(GUARDA_DETALHE); } catch { return null; } };
+const gravarDetalhe = (t) => { try { sessionStorage.setItem(GUARDA_DETALHE, t); } catch { } };
+const esquecerDetalhe = () => { try { sessionStorage.removeItem(GUARDA_DETALHE); } catch { } };
 
 async function iniciarPublicado(hash) {
   const doLink = hash.get('acesso');
-  token = doLink || lerAcesso();
+  const doDetalhe = doLink ? null : lerDetalhe();
+  token = doLink || doDetalhe || lerAcesso();
   // o link pessoal sai da barra; o que fica é a aba ou o acionável pedido, que servem de endereço para mandar a alguém
   const pedido = Number(hash.get('acionavel')) || null;
   history.replaceState(null, '', location.pathname + (pedido ? `#acionavel=${pedido}` : hash.get('aba') ? `#aba=${hash.get('aba')}` : ''));
@@ -1736,17 +1942,18 @@ async function iniciarPublicado(hash) {
   }
   if (!r) {
     // um link guardado que não abre mais é esquecido; um link novo que não abre não apaga o que estava guardado
-    if (token && !doLink) esquecerAcesso();
+    if (doDetalhe) esquecerDetalhe(); else if (token && !doLink) esquecerAcesso();
     falhar(token ? 'Este link venceu ou foi revogado. Peça um novo à 3Neuron.' : 'Esta página abre pelo seu link pessoal. Abra o link que a 3Neuron mandou para você.');
     return;
   }
-  gravarAcesso(token);
+  const detalhe = !!r.conteudo?.meta?.detalhe;
+  if (detalhe) gravarDetalhe(token); else { gravarAcesso(token); esquecerDetalhe(); }
   doc = r.conteudo;
   comentarios = r.comentarios;
-  acionaveis = r.acionaveis ?? [];
+  acionaveis = detalhe ? [] : r.acionaveis ?? [];
   eu = r.pessoa;
   $('#quem').hidden = false;
-  $('#quem').textContent = `Você entrou como ${r.pessoa}` + (r.expira_em ? ` · seu link vale até ${diaBr(r.expira_em)}` : '');
+  $('#quem').textContent = detalhe ? (r.expira_em ? `Este link vale até ${diaBr(r.expira_em)}` : '') : `Você entrou como ${r.pessoa}` + (r.expira_em ? ` · seu link vale até ${diaBr(r.expira_em)}` : '');
   organizador = !!r.organizador;
   $('#acessos').hidden = !organizador;
   $('#conversas').hidden = !CONVERSAS;
