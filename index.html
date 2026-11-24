@@ -260,8 +260,13 @@ html:has(body.na-pagina), body.na-pagina { background: var(--papel); }
 /* Aba de mensagens (página com "tipo": "mensagens"): o texto e as imagens de cada mensagem, na ordem do envio, com um
    botão de copiar em cada parte. É aba oculta: só quem organiza o desenho a recebe. */
 .msgs { max-width: 920px; margin: 0 auto; background: var(--papel); border: 1.5px solid var(--tinta); padding: 20px 28px 28px; }
-.msgs h2 { font-size: 18px; margin: 34px 0 2px; }
-.msgs h2:first-child { margin-top: 0; }
+.msgs h2 { font-size: 18px; margin: 0 0 2px; }
+/* uma aba por grupo: a página mostra um grupo de cada vez, em vez de todos numa rolagem só */
+.msg-abas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1.5px solid var(--tinta); }
+.msg-aba { font: inherit; font-size: 13.5px; color: var(--tinta); background: var(--fundo); border: 1.5px solid var(--tinta); border-radius: 0; padding: 4px 14px; cursor: pointer; }
+.msg-aba:hover { background: var(--papel); }
+.msg-aba.ativa { background: var(--tinta); color: var(--papel); font-weight: 600; }
+.msg-aba small { font-size: 11.5px; font-weight: 400; opacity: .75; margin-left: 6px; }
 .msgs .msg-sub { font-size: 12.5px; color: var(--suave); margin: 0 0 6px; }
 .msgs details.msg-lista { font-size: 13px; margin: 4px 0; }
 .msgs details.msg-lista > summary { cursor: pointer; color: var(--suave); }
@@ -284,6 +289,8 @@ html:has(body.na-pagina), body.na-pagina { background: var(--papel); }
 .msg-leg { font-size: 12px; color: var(--suave); margin-top: 3px; }
 .msg-det { font-size: 12px; margin-top: 5px; }
 .msg-det code { font-size: 11.5px; }
+.msg-det .acao { font-size: 11.5px; padding: 1px 8px; }
+.msg-falta { color: var(--vermelho, #b3261e); font-weight: 600; }
 .msg-contas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; margin: 8px 0; }
 .msg-contas > div { display: flex; align-items: center; gap: 8px; justify-content: space-between; border-bottom: 1px solid var(--grade); padding: 3px 0; }
 .msg-contas code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -552,21 +559,42 @@ function marcar(g, id, rotulo, dica, detalhes, lado, links) {
 const icone = (pai, nome, x, y, tam, cor) => el('use', { href: `#i-${nome}`, x, y, width: tam, height: tam, style: `color:${cor}` }, pai);
 
 // Selos: etiquetas pequenas, em linha, que quebram quando não cabem. Devolve a base da última linha.
-function selos(g, lista, x0, y0, xmax) {
-  let x = x0, y = y0;
+// "cheio" pinta o selo com a cor dele e põe o ícone e o texto em branco; "centrar" põe cada linha no meio do espaço.
+function selos(g, lista, x0, y0, xmax, centrar) {
+  let x = x0, y = y0, linha = [];
+  const fechaLinha = () => {
+    if (centrar && linha.length) { const dx = (xmax - (x - 6)) / 2; for (const sg of linha) sg.setAttribute('transform', `translate(${dx} 0)`); }
+    linha = [];
+  };
   for (const s of lista) {
     const sg = el('g', { 'data-dica': s.dica }, g);
-    const c = colorido(s.cor) ? tinta(s.cor) : TEXTO;
-    const t = texto(sg, 0, 0, s.t, { tam: 11.5, cor: c, peso: 600 });
-    const w = t.getComputedTextLength() + 14 + (s.icone ? 17 : 0);
-    if (x + w > xmax && x > x0) { x = x0; y += 25; }
+    const c = colorido(s.cor) ? tinta(s.cor) : TEXTO, frente = s.cheio ? '#fff' : c;
+    const t = texto(sg, 0, 0, s.t, { tam: 11.5, cor: frente, peso: 600 });
+    // um selo só de ícone (sem texto) é um quadradinho, com o ícone no meio
+    const w = s.icone && !s.t ? 26 : t.getComputedTextLength() + 14 + (s.icone ? 17 : 0);
+    if (x + w > xmax && x > x0) { fechaLinha(); x = x0; y += 25; }
     t.setAttribute('x', x + 7 + (s.icone ? 17 : 0));
     t.setAttribute('y', y + 14.5);
-    sg.insertBefore(el('rect', { x, y, width: w, height: 21, fill: tinte(s.cor), stroke: colorido(s.cor) ? c : '#8a8a84', 'stroke-width': 1 }), t);
-    if (s.icone) icone(sg, s.icone, x + 6, y + 3.5, 14, c);
+    sg.insertBefore(el('rect', { x, y, width: w, height: 21, fill: s.cheio ? c : tinte(s.cor), stroke: s.cheio || colorido(s.cor) ? c : '#8a8a84', 'stroke-width': 1 }), t);
+    if (s.icone) icone(sg, s.icone, x + 6, y + 3.5, 14, frente);
     x += w + 6;
+    linha.push(sg);
   }
+  fechaLinha();
   return y + 21;
+}
+
+// Título centrado em até duas linhas: as palavras que não cabem na primeira vão para a segunda. Devolve quantas linhas usou.
+function tituloEmDuas(pai, cx, y, s, max, cor) {
+  const t = texto(pai, cx, y, s, { tam: 13, peso: 700, ancora: 'middle', cor });
+  if (t.getComputedTextLength() <= max) return 1;
+  const palavras = String(s).split(' ');
+  let i = palavras.length - 1;
+  for (; i > 1; i--) { t.textContent = palavras.slice(0, i).join(' '); if (t.getComputedTextLength() <= max) break; }
+  t.textContent = palavras.slice(0, i).join(' ');
+  caber(t, max);
+  texto(pai, cx, y + 16, palavras.slice(i).join(' '), { tam: 13, peso: 700, ancora: 'middle', cor, max });
+  return 2;
 }
 
 function posicao(it) {
@@ -582,7 +610,14 @@ function no(g, it) {
   const ng = el('g', { 'data-dica': it.dica }, g);
   const ti = it.grande ? 40 : it.centro ? 30 : 26;
   let y;
-  if (it.centro) {
+  if (it.cartao) {
+    // Cartão quadrado: o ícone em cima, o nome no meio (em até duas linhas) e os selos centrados, encostados embaixo
+    const cx = x + it.w / 2, hc = it.h || it.w;
+    icone(ng, it.icone || 'caixa', cx - 15, y0 + 16, 30, colorido(it.cor) ? c : TEXTO);
+    tituloEmDuas(ng, cx, y0 + 66, it.titulo, it.w - 16, TEXTO);
+    if (it.selos?.length) selos(ng, it.selos, x + 8, y0 + hc - 33, x + it.w - 8, true);
+    y = y0 + hc;
+  } else if (it.centro) {
     const cx = x + it.w / 2;
     icone(ng, it.icone || 'caixa', cx - ti / 2, y0 + 14, ti, colorido(it.cor) ? c : TEXTO);
     y = y0 + 14 + ti + 18;
@@ -624,7 +659,7 @@ function no(g, it) {
   if (colorido(it.cor) && !it.vazado) ng.insertBefore(el('rect', { x, y: y0, width: it.w, height: 4, fill: c }), r.nextSibling);
   caixas[it.id] = { x, y: y0, w: it.w, h };
   if (it.id && linksDe(it.links).length) SETA(ng, x + it.w - 7, y0 + 19);
-  marcar(ng, it.id, it.titulo, it.dica, [...(it.detalhes || []), ...(it.selos || []).filter((s) => s.dica).map((s) => `**${s.t}:** ${s.dica}`)], undefined, it.links);
+  marcar(ng, it.id, it.titulo, it.dica, [...(it.detalhes || []), ...(it.selos || []).filter((s) => s.dica && s.t).map((s) => `**${s.t}:** ${s.dica}`)], undefined, it.links);
 }
 
 // Chave exportada: o número de chaves, em vermelho quando alguma está parada; "5→2" quando a correção apaga as paradas.
@@ -828,44 +863,87 @@ function contadores(pontas) {
 
 // Aba de mensagens: cada grupo traz as mensagens na ordem do envio; cada mensagem, as partes (texto ou imagem) na ordem
 // em que entram no chat. O texto copiado é o texto puro; a imagem vai para a área de transferência como PNG.
-let msgTextos = [];
+// A página mostra um grupo de cada vez: uma fileira de abas no topo, uma por grupo (msgGrupo é o grupo aberto; no
+// endereço, "&grupo=N" depois de "#aba=N").
+let msgTextos = [], msgGrupo = 0;
+// Os links "Ver o detalhe" publicados, por nome do desenho de detalhe: undefined antes do pedido, null enquanto ele não
+// volta, false se o painel não os entrega, e depois { nome: { link, vence, vencido } }. Só no painel local.
+let msgLinks;
+async function buscarLinks() {
+  msgLinks = null;
+  try {
+    const r = await fetch('/api/desenho-links', { headers: { 'X-Painel': '1' } });
+    msgLinks = r.ok ? await r.json() : false;
+  } catch { msgLinks = false; }
+  if (doc?.paginas[pag]?.tipo === 'mensagens') desenhar();
+}
 function mensagensHtml(p) {
+  if (!PUB && msgLinks === undefined) buscarLinks();
   msgTextos = [];
-  const lista = (titulo, itens) => (itens?.length ? `<details class="msg-lista"><summary>${esc(titulo)} (${itens.length})</summary><ul>${itens.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></details>` : '');
+  const lista = (titulo, itens, aberta) => (itens?.length ? `<details class="msg-lista"${aberta ? ' open' : ''}><summary>${esc(titulo)} (${itens.length})</summary><ul>${itens.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></details>` : '');
   // as imagens são arquivos locais, servidos pelo painel; a página publicada só mostra o nome delas
   const src = (arq) => `/arquivo/${arq.split('/').map(encodeURIComponent).join('/')}`;
   // "Ver o detalhe": cada imagem leva, na mensagem, um link para o desenho de detalhe da aba de onde ela saiu. Aqui ficam
   // a prévia local desse desenho e o comando que põe o link publicado na área de transferência, sem mostrá-lo.
-  const verDetalhe = (d) => {
+  // O link publicado vem do painel local (msgLinks), que o lê do arquivo de links: fica pronto para copiar, com a validade.
+  // Sem a resposta do painel (versão antiga dele, no ar), sobra o comando que põe o link na área de transferência.
+  const verDetalhe = (d, comando) => {
     if (!d) return '';
-    msgTextos.push(`node interno/painel/publicar-desenho.mjs copiar ${d}`);
-    return `<div class="msg-det"><b>Ver o detalhe</b> · <a href="/desenho/${esc(d)}" target="_blank" rel="noopener">abrir a prévia local</a> · para o Ctrl+K, o link sai deste comando: <code>${esc(msgTextos[msgTextos.length - 1])}</code> `
+    const previa = `<a href="/desenho/${esc(d)}" target="_blank" rel="noopener">prévia local</a>`;
+    if (msgLinks === null) return `<div class="msg-det"><b>Ver o detalhe</b> · buscando o link… · ${previa}</div>`;
+    const l = msgLinks ? msgLinks[d] : null;
+    const dia = (iso) => String(iso).split('-').reverse().join('/');
+    if (l && !l.vencido) {
+      return `<div class="msg-det"><b>Ver o detalhe</b> · link do grupo, válido até ${esc(dia(l.vence))} `
+        + `<button type="button" class="acao" data-copiar-link="${esc(d)}">Copiar link</button> `
+        + `<button type="button" class="acao" data-copiar-link="${esc(d)}" data-rico title="Copia o texto &quot;Ver o detalhe&quot; já com o link, para colar direto na mensagem">Copiar “Ver o detalhe” com o link</button>`
+        + ` · <a href="${esc(l.link)}" target="_blank" rel="noopener noreferrer">abrir a página publicada</a> · ${previa}</div>`;
+    }
+    if (msgLinks) return `<div class="msg-det"><b>Ver o detalhe</b> · <span class="msg-falta">${l ? `o link venceu em ${esc(dia(l.vence))}` : 'sem link publicado'}</span> · ${previa}</div>`;
+    msgTextos.push(comando || `node interno/painel/publicar-desenho.mjs copiar ${d}`);
+    return `<div class="msg-det"><b>Ver o detalhe</b> · ${previa} · para o Ctrl+K, o link sai deste comando: <code>${esc(msgTextos[msgTextos.length - 1])}</code> `
       + `<button type="button" class="acao" data-copiar-texto="${msgTextos.length - 1}">Copiar comando</button></div>`;
   };
-  const imagem = (arq, legenda, detalhe) => (PUB
+  const imagem = (arq, legenda, detalhe, comando) => (PUB
     ? `<div class="msg-parte"><div class="msg-leg">Imagem só na versão local: <code>${esc(arq)}</code></div><span></span></div>`
     : `<div class="msg-parte"><div><div class="msg-moldura" title="Clique para ampliar"><img loading="lazy" src="${esc(src(arq))}" alt="${esc(legenda)}"></div>`
-      + `<div class="msg-leg">${esc(legenda)} · <code>${esc(arq.split('/').pop())}</code></div>${verDetalhe(detalhe)}</div>`
+      + `<div class="msg-leg">${esc(legenda)} · <code>${esc(arq.split('/').pop())}</code></div>${verDetalhe(detalhe, comando)}</div>`
       + `<button type="button" class="acao" data-copiar-img="${esc(src(arq))}">Copiar imagem</button></div>`);
   const parte = (x) => {
-    if (x.img) return imagem(x.img, x.legenda || '', x.detalhe);
+    if (x.img) return imagem(x.img, x.legenda || '', x.detalhe, x.comando);
     msgTextos.push(x.t);
     return `<div class="msg-parte"><pre class="msg-t">${esc(x.t)}</pre><button type="button" class="acao" data-copiar-texto="${msgTextos.length - 1}">Copiar texto</button></div>`;
   };
   const contas = (d) => (d ? `<details class="msg-lista"><summary>${esc(d.titulo)} (${d.itens.length} imagens)</summary><div class="msg-contas">${d.itens.map((c) => `<div><code>${esc(c.nome)}</code><span>`
     + (PUB ? '' : `<button type="button" class="acao" data-ver-img="${esc(src(c.img))}" data-leg="${esc(c.nome)}">Ver</button><button type="button" class="acao" data-copiar-img="${esc(src(c.img))}">Copiar imagem</button>`)
     + '</span></div>').join('')}</div></details>` : '');
-  return `<div class="msgs">${(p.grupos || []).map((g) => `<h2>${esc(g.titulo)}</h2>`
+  const grupos = p.grupos || [];
+  msgGrupo = Math.min(Math.max(0, msgGrupo), Math.max(0, grupos.length - 1));
+  const abas = grupos.length > 1 ? `<div class="msg-abas" role="tablist" aria-label="Grupos">${grupos.map((g, i) => `<button type="button" class="msg-aba${i === msgGrupo ? ' ativa' : ''}" role="tab" aria-selected="${i === msgGrupo}" data-grupo="${i}" title="${esc(g.titulo)}">`
+    + `${esc(g.aba || `Grupo ${i + 1}`)}<small>${g.mensagens.length} ${g.mensagens.length === 1 ? 'mensagem' : 'mensagens'}</small></button>`).join('')}</div>` : '';
+  const grupo = (g) => `<h2>${esc(g.titulo)}</h2>`
     + (g.nome ? `<p class="msg-sub">Nome do grupo: <code>${esc(g.nome)}</code></p>` : '')
     + lista('Antes de enviar', g.antes)
     + g.mensagens.map((m) => `<section class="msg"><h3><b>${esc(m.n)}</b> ${esc(m.titulo)}</h3>${m.partes.map(parte).join('')}${contas(m.detalhes)}</section>`).join('')
-    + lista('Na fila deste grupo', g.fila)).join('')}</div>`;
+    // a fila fecha o grupo e já vem aberta: é o que ainda não entrou em nenhuma mensagem
+    + (g.fila?.length ? `<section class="msg">${lista('Na fila deste grupo', g.fila, true)}</section>` : '');
+  return `<div class="msgs">${abas}${grupos[msgGrupo] ? grupo(grupos[msgGrupo]) : ''}</div>`;
 }
 async function copiarDaMensagem(b) {
   const rotulo = b.textContent;
   try {
     if (b.dataset.copiarTexto != null) await navigator.clipboard.writeText(msgTextos[Number(b.dataset.copiarTexto)]);
-    else {
+    else if (b.dataset.copiarLink != null) {
+      const link = msgLinks?.[b.dataset.copiarLink]?.link;
+      if (!link) throw new Error('sem link guardado para este detalhe');
+      // com "data-rico", vai o texto "Ver o detalhe" já ligado ao endereço; onde o destino só aceita texto puro, cola o endereço
+      if (b.dataset.rico != null) {
+        await navigator.clipboard.write([new ClipboardItem({
+          'text/html': new Blob([`<a href="${esc(link)}">Ver o detalhe</a>`], { type: 'text/html' }),
+          'text/plain': new Blob([link], { type: 'text/plain' }),
+        })]);
+      } else await navigator.clipboard.writeText(link);
+    } else {
       const blob = await (await fetch(b.dataset.copiarImg)).blob();
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
     }
@@ -935,7 +1013,16 @@ function alternarDobra(id) {
 $('#quadro').addEventListener('click', (e) => { const d = e.target.closest?.('[data-dobra]'); if (d) alternarDobra(d.dataset.dobra); });
 // na aba de mensagens: copiar o texto ou a imagem de uma parte, e ampliar a imagem com um clique nela
 $('#quadro').addEventListener('click', (e) => {
-  const b = e.target.closest?.('[data-copiar-texto], [data-copiar-img]');
+  const g = e.target.closest?.('.msg-aba');
+  if (g) {
+    msgGrupo = Number(g.dataset.grupo);
+    history.replaceState(null, '', `#aba=${pag + 1}&grupo=${msgGrupo + 1}`);
+    desenhar();
+    window.scrollTo(0, 0);
+    document.querySelector('.msg-aba.ativa')?.focus({ preventScroll: true });
+    return;
+  }
+  const b = e.target.closest?.('[data-copiar-texto], [data-copiar-img], [data-copiar-link]');
   if (b) { copiarDaMensagem(b); return; }
   const ver = e.target.closest?.('[data-ver-img]');
   if (ver) { abrirImagem(ver.dataset.verImg, ver.dataset.leg); return; }
@@ -1931,8 +2018,14 @@ async function iniciarPublicado(hash) {
   token = doLink || doDetalhe || lerAcesso();
   // o link pessoal sai da barra; o que fica é a aba ou o acionável pedido, que servem de endereço para mandar a alguém
   const pedido = Number(hash.get('acionavel')) || null;
-  history.replaceState(null, '', location.pathname + (pedido ? `#acionavel=${pedido}` : hash.get('aba') ? `#aba=${hash.get('aba')}` : ''));
   $('#versao').hidden = true;
+  // "#detalhe=nome" sem link nesta aba do navegador (o endereço copiado da barra para outra pessoa, por exemplo): o nome só
+  // diz o que estava aberto. Não abre o link pessoal guardado no lugar do detalhe.
+  if (hash.get('detalhe') && !doLink && !doDetalhe) {
+    falhar('Este detalhe abre pelo link "Ver o detalhe" da mensagem em que ele foi enviado.');
+    return;
+  }
+  history.replaceState(null, '', location.pathname + (pedido ? `#acionavel=${pedido}` : hash.get('aba') ? `#aba=${hash.get('aba')}` : ''));
   let r = null;
   // sem resposta do banco, nada é esquecido: o link guardado continua valendo e um link novo volta para o endereço, para o recarregar funcionar
   try { if (token) r = await rpc('desenho_abrir', { p_token: token }); } catch {
@@ -1947,7 +2040,13 @@ async function iniciarPublicado(hash) {
     return;
   }
   const detalhe = !!r.conteudo?.meta?.detalhe;
-  if (detalhe) gravarDetalhe(token); else { gravarAcesso(token); esquecerDetalhe(); }
+  if (detalhe) {
+    gravarDetalhe(token);
+    // o link sai da barra, e no lugar fica o nome do detalhe: o endereço diz o que está aberto, e quem abre vários links
+    // distingue uma aba do navegador da outra. O nome não abre nada sozinho; quem abre é o link, guardado nesta aba.
+    const nome = String(r.conteudo.meta.origem?.aba || r.conteudo.meta.titulo || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    history.replaceState(null, '', `${location.pathname}${nome ? `#detalhe=${nome}` : ''}`);
+  } else { gravarAcesso(token); esquecerDetalhe(); }
   doc = r.conteudo;
   comentarios = r.comentarios;
   acionaveis = detalhe ? [] : r.acionaveis ?? [];
@@ -1969,6 +2068,7 @@ async function iniciarPublicado(hash) {
     const hash = new URLSearchParams(location.hash.slice(1));
     pag = Math.max(0, (Number(hash.get('aba')) || 1) - 1);
     abaPedida = hash.has('aba');
+    msgGrupo = Math.max(0, (Number(hash.get('grupo')) || 1) - 1);
     if (PUB) { await iniciarPublicado(hash); return; }
     const { versoes } = await pedir(`/api/desenho/${encodeURIComponent(NOME)}`);
     if (!versoes.length) throw new Error('Este desenho ainda não tem versão.');
