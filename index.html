@@ -611,11 +611,13 @@ function no(g, it) {
   const ti = it.grande ? 40 : it.centro ? 30 : 26;
   let y;
   if (it.cartao) {
-    // Cartão quadrado: o ícone em cima, o nome no meio (em até duas linhas) e os selos centrados, encostados embaixo
-    const cx = x + it.w / 2, hc = it.h || it.w;
-    icone(ng, it.icone || 'caixa', cx - 15, y0 + 16, 30, colorido(it.cor) ? c : TEXTO);
-    tituloEmDuas(ng, cx, y0 + 66, it.titulo, it.w - 16, TEXTO);
-    if (it.selos?.length) selos(ng, it.selos, x + 8, y0 + hc - 33, x + it.w - 8, true);
+    // Cartão: os selos centrados, encostados embaixo; o ícone e o nome (em até duas linhas) no meio do espaço acima deles
+    const cx = x + it.w / 2, hc = it.h || it.w, topoSelos = it.selos?.length ? hc - 31 : hc;
+    const bloco = el('g', {}, ng);
+    icone(bloco, it.icone || 'caixa', cx - 13, 0, 26, colorido(it.cor) ? c : TEXTO);
+    const linhas = tituloEmDuas(bloco, cx, 44, it.titulo, it.w - 16, TEXTO);
+    bloco.setAttribute('transform', `translate(0 ${y0 + Math.max(8, (topoSelos - (48 + 16 * (linhas - 1))) / 2)})`);
+    if (it.selos?.length) selos(ng, it.selos, x + 8, y0 + hc - 29, x + it.w - 8, true);
     y = y0 + hc;
   } else if (it.centro) {
     const cx = x + it.w / 2;
